@@ -14,7 +14,8 @@ satisfies a requirement. ``all``/``any`` combine leaves.
 
 Per rule: ``met_if`` true -> met. Otherwise ``unmet_if`` (when given) true ->
 not_met and anything else -> not_assessed; without ``unmet_if`` the result is
-``fail_result`` (default not_met).
+``fail_result`` (default not_met). ``met_result: not_assessed`` marks a rule
+whose compliant value is only supporting evidence (reported as not_assessed).
 """
 
 from __future__ import annotations
@@ -41,6 +42,7 @@ DEFAULT_ODP: dict[str, int] = {
     "session_lock_minutes": 15,
     "password_history": 24,
     "audit_retention_days": 90,
+    "max_patch_age_days": 35,
 }
 
 ODP_DESCRIPTIONS = {
@@ -49,6 +51,7 @@ ODP_DESCRIPTIONS = {
     "session_lock_minutes": "Session lock after this many minutes of inactivity, or fewer",
     "password_history": "Passwords remembered before reuse, or more",
     "audit_retention_days": "Audit log retention (days), or more",
+    "max_patch_age_days": "Newest installed hotfix may be at most this many days old",
 }
 
 
@@ -73,6 +76,7 @@ class Rule:
     met_if: dict | None = None
     unmet_if: dict | None = None
     fail_result: str = "not_met"
+    met_result: str = "met"  # "not_assessed": a compliant value is only supporting evidence
     info: dict | None = None  # information-only rule: {"observe": [paths], "text": str}
 
 
@@ -144,8 +148,11 @@ def _build_rules(raw: dict) -> dict[str, list[Rule]]:
             fail = item.get("fail_result", "not_met")
             if fail not in ("not_met", "not_assessed"):
                 raise ValueError(f"{where}: bad fail_result {fail!r}")
+            met_result = item.get("met_result", "met")
+            if met_result not in ("met", "not_assessed"):
+                raise ValueError(f"{where}: bad met_result {met_result!r}")
             out.append(Rule(item["id"], check_id, tuple(objectives), rationale,
-                            item.get("met_if"), item.get("unmet_if"), fail, info))
+                            item.get("met_if"), item.get("unmet_if"), fail, met_result, info))
         rules[check_id] = out
     return rules
 
@@ -319,6 +326,9 @@ def _eval_rule(rule: Rule, raw_check: dict | None, value: dict | None, odp: dict
     if met is None:
         return emit("not_assessed", f"observed {_show(observed)} cannot be interpreted; expected {expected}",
                     observed, expected)
+    if met and rule.met_result == "not_assessed":
+        return emit("not_assessed", f"Supporting evidence: observed {_show(observed)}; expected {expected}. "
+                    "One host setting does not show the organization-level objective is met.", observed, expected)
     if met:
         return emit("met", f"observed {_show(observed)}; expected {expected}", observed, expected)
     if rule.unmet_if is not None:
@@ -342,8 +352,8 @@ def evaluate(collector_json: dict, odp: dict | None = None) -> list[EvidenceFind
     windows.validate(collector_json)
     merged = {**DEFAULT_ODP, **(odp or {})}
     for name, val in merged.items():
-        if name in DEFAULT_ODP and not _is_num(val):
-            raise ValueError(f"ODP {name} must be a number")
+        if name in DEFAULT_ODP and (not _is_num(val) or val <= 0):
+            raise ValueError(f"ODP {name} must be a positive number")
     values = windows.normalize(collector_json)
     checks = collector_json["checks"]
     findings: list[EvidenceFinding] = []

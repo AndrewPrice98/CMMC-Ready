@@ -35,6 +35,9 @@ def _collect_parse(args: argparse.Namespace) -> int:
         with open(args.file, encoding="utf-8-sig") as handle:
             data = json.load(handle)
         windows.validate(data)
+        ok_count = sum(1 for c in data["checks"].values() if c["status"] == "ok")
+        if ok_count < args.min_ok:
+            raise ValueError(f"only {ok_count} checks were readable; at least {args.min_ok} required")
         findings = combine(evaluate(data, DEFAULT_ODP))
     except (OSError, ValueError) as exc:  # json.JSONDecodeError is a ValueError
         print(f"collect-parse error: {exc}", file=sys.stderr)
@@ -64,6 +67,8 @@ def build_parser() -> argparse.ArgumentParser:
     parse = sub.add_parser("collect-parse", help="validate collector output and summarise the findings")
     parse.add_argument("collector", choices=["windows"])
     parse.add_argument("file")
+    parse.add_argument("--min-ok", type=int, default=0, metavar="N",
+                       help="fail unless at least N checks have status ok")
     parse.set_defaults(func=_collect_parse)
     return parser
 

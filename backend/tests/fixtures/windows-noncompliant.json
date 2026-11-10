@@ -140,7 +140,7 @@
     "screen_lock": {
       "status": "ok",
       "value": {
-        "inactivity_timeout_secs": null,
+        "inactivity_timeout_secs": 3600,
         "screensaver_active": null,
         "screensaver_timeout_secs": null,
         "screensaver_secure": null

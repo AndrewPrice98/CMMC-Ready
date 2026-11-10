@@ -8,7 +8,8 @@
 
   The script only reads. It never changes a setting, writes to the registry,
   or applies a policy. The one file it creates is the temporary export from
-  'secedit /export' in $env:TEMP, which it deletes straight afterwards.
+  'secedit /export' in $env:TEMP, which it deletes straight afterwards. (Windows itself appends a line to
+  %windir%\security\logs\scesrv.log when secedit runs; that is an OS side effect.)
   No credentials are used or stored. Each check records the exact command it
   ran; a check that cannot be read (for example without administrator rights)
   is recorded as "unavailable" with the reason, and the script carries on.
@@ -243,13 +244,21 @@ Invoke-Check 'firewall_profiles' 'Get-NetFirewallProfile -PolicyStore ActiveStor
     [ordered]@{ profiles = $profiles }
 }
 
-Invoke-Check 'screen_lock' 'registry: HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System InactivityTimeoutSecs; HKCU\Software\Policies\Microsoft\Windows\Control Panel\Desktop ScreenSaveActive, ScreenSaveTimeOut, ScreenSaverIsSecure' {
-    $desktop = 'Software\Policies\Microsoft\Windows\Control Panel\Desktop'
+Invoke-Check 'screen_lock' 'registry: HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System InactivityTimeoutSecs; screen saver ScreenSaveActive, ScreenSaveTimeOut, ScreenSaverIsSecure from HKCU\Software\Policies\Microsoft\Windows\Control Panel\Desktop, else HKCU\Control Panel\Desktop (the account running the collector)' {
+    $policy = 'Software\Policies\Microsoft\Windows\Control Panel\Desktop'
+    $user = 'Control Panel\Desktop'
+    # The policy value wins; otherwise the user's own setting is used. null = not configured.
+    $saver = {
+        param($Name)
+        $v = ConvertTo-Int (Get-RegValue 'HKCU' $policy $Name)
+        if ($null -eq $v) { $v = ConvertTo-Int (Get-RegValue 'HKCU' $user $Name) }
+        $v
+    }
     [ordered]@{
         inactivity_timeout_secs  = ConvertTo-Int (Get-RegValue 'HKLM' 'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System' 'InactivityTimeoutSecs')
-        screensaver_active       = ConvertTo-Int (Get-RegValue 'HKCU' $desktop 'ScreenSaveActive')
-        screensaver_timeout_secs = ConvertTo-Int (Get-RegValue 'HKCU' $desktop 'ScreenSaveTimeOut')
-        screensaver_secure       = ConvertTo-Int (Get-RegValue 'HKCU' $desktop 'ScreenSaverIsSecure')
+        screensaver_active       = & $saver 'ScreenSaveActive'
+        screensaver_timeout_secs = & $saver 'ScreenSaveTimeOut'
+        screensaver_secure       = & $saver 'ScreenSaverIsSecure'
     }
 }
 

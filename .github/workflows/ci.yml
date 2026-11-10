@@ -48,11 +48,13 @@ jobs:
       - name: Collect with Windows PowerShell 5.1
         shell: powershell
         run: powershell -File collectors/collect-windows.ps1 -OutFile out-ps51.json
-      - name: Parse collector output
+      # One native call per step so a failing exit code cannot be masked.
+      - name: Parse PowerShell 7 output
         working-directory: backend
-        run: |
-          python -m cmmcready collect-parse windows ../out-pwsh.json
-          python -m cmmcready collect-parse windows ../out-ps51.json
+        run: python -m cmmcready collect-parse windows ../out-pwsh.json --min-ok 8
+      - name: Parse Windows PowerShell 5.1 output
+        working-directory: backend
+        run: python -m cmmcready collect-parse windows ../out-ps51.json --min-ok 8
 
   frontend:
     runs-on: ubuntu-latest

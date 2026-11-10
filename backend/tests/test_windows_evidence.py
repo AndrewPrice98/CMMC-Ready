@@ -43,19 +43,23 @@ def decisive(findings):
     return [f for f in findings if f.result != "not_assessed" or f.observed is None]
 
 
+SUPPORTING = {"3.13.1[f]", "3.13.15[a]", "3.4.7[l]", "3.1.1[d]", "3.14.1[f]", "3.13.11[a]", "3.1.5[a]"}
+
+
 def test_compliant_fixture_all_met():
     findings = evaluate(load("windows-compliant.json"), DEFAULT_ODP)
     assert findings
     combined = combine(findings)
-    # Information-only rules (for example local administrators) never reach "met".
-    informational = {f.objective_id for f in findings if f.check_id == "local_admins"}
     for oid, finding in combined.items():
-        if oid in informational and len(by_objective(findings)[oid]) == 1:
-            assert finding.result == "not_assessed"
+        if oid in SUPPORTING:
+            # One host setting is only supporting evidence for these.
+            assert finding.result == "not_assessed", oid
         else:
             assert finding.result == "met", f"{oid}: {finding.detail}"
-    for oid in ("3.5.7[a]", "3.1.8[b]", "3.1.10[c]", "3.13.16[a]", "3.13.11[a]"):
+    for oid in ("3.5.7[a]", "3.1.8[b]", "3.1.10[c]", "3.13.16[a]"):
         assert combined[oid].result == "met"
+    for oid in SUPPORTING - {"3.1.5[a]"}:
+        assert combined[oid].detail.startswith("Supporting evidence: observed"), oid
 
 
 def test_noncompliant_fixture():
@@ -65,7 +69,7 @@ def test_noncompliant_fixture():
         "3.5.7[a]", "3.5.7[c]", "3.5.8[a]", "3.5.8[b]",
         "3.1.8[a]", "3.1.8[b]",
         "3.3.1[c]", "3.3.1[f]",
-        "3.13.16[a]", "3.13.1[f]", "3.13.6[a]", "3.13.15[a]", "3.13.11[a]",
+        "3.13.16[a]", "3.13.1[f]", "3.13.6[a]", "3.13.15[a]",
         "3.1.10[a]", "3.1.10[b]", "3.1.10[c]",
         "3.4.7[l]", "3.1.12[c]", "3.1.13[b]",
         "3.14.2[b]", "3.14.4[a]", "3.14.5[c]", "3.14.1[f]",
@@ -73,6 +77,8 @@ def test_noncompliant_fixture():
     ]
     for oid in expected_not_met:
         assert got[oid] == "not_met", oid
+    # FIPS mode off does not prove non-validated cryptography.
+    assert got["3.13.11[a]"] == "not_assessed"
     # Weak evidence stays inconclusive rather than failing the objective.
     assert got["3.8.7[a]"] == "not_assessed"
     # Each failing finding names what was seen and what was required.
@@ -97,6 +103,12 @@ def test_odp_changes_outcome():
     assert results(evaluate(data, {"session_lock_minutes": 10}))["3.1.10[b]"] == "not_met"
     assert results(evaluate(data, {"password_history": 30}))["3.5.8[b]"] == "not_met"
     assert results(evaluate(data, {"audit_retention_days": 180}))["3.3.1[f]"] != "met"
+    # Patch age: 12 days old is supporting at 35 days and not met at 5.
+    assert results(evaluate(data, {"max_patch_age_days": 35}))["3.14.1[f]"] == "not_assessed"
+    assert results(evaluate(data, {"max_patch_age_days": 5}))["3.14.1[f]"] == "not_met"
+    for bad in (0, -1, "12"):
+        with pytest.raises(ValueError):
+            evaluate(data, {"min_password_length": bad})
 
 
 def test_unavailable_checks_do_not_decide():
@@ -206,6 +218,7 @@ def test_default_odp_values():
         "session_lock_minutes": 15,
         "password_history": 24,
         "audit_retention_days": 90,
+        "max_patch_age_days": 35,
     }
 
 
@@ -256,3 +269,41 @@ def test_collector_script_is_read_only():
     assert len(re.findall(r"Remove-Item", code)) == 1
     assert "/configure" not in code.lower()
     assert not re.search(r"\breg(\.exe)?\s+(add|delete|import)\b", code, re.I)
+
+
+def test_user_level_screensaver_only_is_met():
+    got = results(evaluate(load("windows-user-screensaver.json"), DEFAULT_ODP))
+    assert got["3.1.10[a]"] == got["3.1.10[b]"] == got["3.1.10[c]"] == "met"
+    # A longer limit than the target is not met.
+    assert results(evaluate(load("windows-user-screensaver.json"), {"session_lock_minutes": 5}))["3.1.10[b]"] == "not_met"
+
+
+def test_screen_lock_unreadable_or_unset_is_not_assessed():
+    data = load("windows-compliant.json")
+    data["checks"]["screen_lock"]["value"] = {"inactivity_timeout_secs": None, "screensaver_active": None,
+                                              "screensaver_timeout_secs": None, "screensaver_secure": None}
+    assert results(evaluate(data, DEFAULT_ODP))["3.1.10[b]"] == "not_assessed"
+    data["checks"]["screen_lock"]["value"]["screensaver_active"] = 0
+    assert results(evaluate(data, DEFAULT_ODP))["3.1.10[b]"] == "not_met"
+
+
+def test_met_result_not_assessed_is_declarative():
+    from cmmcready.evidence.engine import load_rules
+
+    rules = {r.id: r for rs in load_rules().values() for r in rs}
+    assert rules["recent"].met_result == "not_assessed"
+    assert rules["enabled"].met_result == "not_assessed"
+    data = load("windows-compliant.json")
+    data["checks"]["fips_mode"]["value"]["enabled"] = False
+    assert results(evaluate(data, DEFAULT_ODP))["3.13.11[a]"] == "not_assessed"
+    data["checks"]["guest_account"]["value"]["enabled"] = True
+    assert results(evaluate(data, DEFAULT_ODP))["3.1.1[d]"] == "not_met"
+
+
+def test_collect_parse_min_ok(capsys):
+    from cmmcready.__main__ import main
+
+    path = str(FIXTURES / "windows-unavailable.json")  # 11 ok checks
+    assert main(["collect-parse", "windows", path, "--min-ok", "8"]) == 0
+    assert main(["collect-parse", "windows", path, "--min-ok", "13"]) == 1
+    assert "at least 13" in capsys.readouterr().err

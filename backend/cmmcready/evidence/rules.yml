@@ -82,6 +82,7 @@ windows:
           objectives: ["3.13.1[f]"]
           rationale: An enabled host firewall controls communications at the endpoint, a key internal boundary.
           met_if: {path: "profiles[].enabled", eq: true}
+          met_result: not_assessed
         - id: default_deny
           objectives: ["3.13.6[a]"]
           rationale: A default inbound action of Block denies network traffic unless a rule allows it.
@@ -92,7 +93,7 @@ windows:
       rules:
         - id: inactivity_lock
           objectives: ["3.1.10[a-c]"]
-          rationale: An inactivity limit (or a password-protected screen saver) within the target defines the period and locks and conceals the session.
+          rationale: An inactivity limit or password-protected screen saver within the target locks the session; the user-level screen saver (HKCU) reflects only the account that ran the collector.
           met_if:
             any:
               - all:
@@ -103,6 +104,14 @@ windows:
                   - {path: screensaver_secure, eq: 1}
                   - {path: screensaver_timeout_secs, ge: 1}
                   - {path: screensaver_timeout_secs, le: {odp: session_lock_minutes, mul: 60}}
+          # Not met only when a value was read and is out of range or disabled;
+          # nothing configured or readable stays not assessed.
+          unmet_if:
+            any:
+              - {path: inactivity_timeout_secs, gt: {odp: session_lock_minutes, mul: 60}}
+              - {path: screensaver_active, eq: 0}
+              - {path: screensaver_secure, eq: 0}
+              - {path: screensaver_timeout_secs, gt: {odp: session_lock_minutes, mul: 60}}
 
     smb_signing:
       rules:
@@ -110,6 +119,7 @@ windows:
           objectives: ["3.13.15[a]"]
           rationale: Required SMB signing protects the authenticity of file-sharing sessions.
           met_if: {path: require_security_signature, eq: true}
+          met_result: not_assessed
 
     smb1:
       rules:
@@ -117,6 +127,7 @@ windows:
           objectives: ["3.4.7[l]"]
           rationale: SMB1 is an obsolete protocol that is not essential on a current system; disabled means it is restricted.
           met_if: {path: server_enabled, eq: false}
+          met_result: not_assessed
 
     local_admins:
       rules:
@@ -205,9 +216,9 @@ windows:
       rules:
         - id: recent
           objectives: ["3.14.1[f]"]
-          rationale: A recent hotfix suggests flaws are corrected on time; over 90 days without one suggests they are not.
-          met_if: {path: days_since_latest, le: 35}
-          unmet_if: {path: days_since_latest, gt: 90}
+          rationale: A hotfix newer than the patch-age target is supporting evidence; an older newest hotfix suggests flaws are not corrected on time.
+          met_if: {path: days_since_latest, le: {odp: max_patch_age_days}}
+          met_result: not_assessed
 
     fips_mode:
       rules:
@@ -215,6 +226,8 @@ windows:
           objectives: ["3.13.11[a]"]
           rationale: FIPS mode makes Windows use FIPS-approved algorithms; confirm module validation separately.
           met_if: {path: enabled, eq: true}
+          met_result: not_assessed
+          fail_result: not_assessed
 
     logon_banner:
       rules:
@@ -232,3 +245,4 @@ windows:
           objectives: ["3.1.1[d]"]
           rationale: A disabled Guest account closes an unauthenticated route onto the system.
           met_if: {path: enabled, eq: false}
+          met_result: not_assessed
