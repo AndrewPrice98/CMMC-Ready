@@ -336,3 +336,63 @@ def objective_view(conn: sqlite3.Connection, assessment_id: int, objective_id: s
     )
     return {"answer": answer, "note": note, "justification": justification,
             "findings": findings, "conflict": conflict}
+
+
+# -- POA&M items ----------------------------------------------------------------------------
+
+POAM_STATUSES = ("open", "in_progress", "closed")
+
+
+def _poam_dict(row: sqlite3.Row) -> dict:
+    item = dict(row)
+    try:
+        item["milestones"] = json.loads(item.pop("milestone_json") or "[]")
+    except ValueError:
+        item["milestones"] = []
+    return item
+
+
+def list_poam_items(conn: sqlite3.Connection, assessment_id: int) -> list[dict]:
+    rows = conn.execute("SELECT * FROM poam_items WHERE assessment_id = ? ORDER BY id",
+                        (assessment_id,)).fetchall()
+    items = [_poam_dict(r) for r in rows]
+    return sorted(items, key=lambda i: (tuple(int(p) for p in i["req_id"].split(".")), i["id"]))
+
+
+def get_poam_item(conn: sqlite3.Connection, assessment_id: int, item_id: int) -> dict | None:
+    row = conn.execute("SELECT * FROM poam_items WHERE assessment_id = ? AND id = ?",
+                       (assessment_id, item_id)).fetchone()
+    return _poam_dict(row) if row else None
+
+
+def add_poam_item(conn: sqlite3.Connection, assessment_id: int, req_id: str, weakness: str,
+                  remediation: str = "", owner: str = "", milestones: list | None = None,
+                  due_date: str | None = None, status: str = "open") -> int:
+    if status not in POAM_STATUSES:
+        raise ValueError(f"status must be one of {', '.join(POAM_STATUSES)}")
+    with conn:
+        cur = conn.execute(
+            "INSERT INTO poam_items (assessment_id, req_id, weakness, remediation, owner, "
+            "milestone_json, due_date, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            (assessment_id, req_id, weakness, remediation, owner,
+             json.dumps(milestones or []), due_date, status))
+    return int(cur.lastrowid)
+
+
+def update_poam_item(conn: sqlite3.Connection, assessment_id: int, item_id: int,
+                     changes: dict) -> None:
+    columns = {"weakness": "weakness", "remediation": "remediation", "owner": "owner",
+               "due_date": "due_date", "status": "status", "milestones": "milestone_json"}
+    sets, params = [], []
+    for key, value in changes.items():
+        if key not in columns:
+            raise ValueError(f"cannot change {key!r}")
+        if key == "status" and value not in POAM_STATUSES:
+            raise ValueError(f"status must be one of {', '.join(POAM_STATUSES)}")
+        sets.append(f"{columns[key]} = ?")  # column names come from the allow-list above
+        params.append(json.dumps(value) if key == "milestones" else value)
+    if not sets:
+        return
+    with conn:
+        conn.execute(f"UPDATE poam_items SET {', '.join(sets)} WHERE assessment_id = ? AND id = ?",
+                     [*params, assessment_id, item_id])

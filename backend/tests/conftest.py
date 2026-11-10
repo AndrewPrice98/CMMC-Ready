@@ -37,3 +37,29 @@ def conn(db_file):
     c = db.connect(db_file)
     yield c
     c.close()
+
+
+@pytest.fixture
+def seeded_db(db_file):
+    """A database holding the fictional demo organization (assessment 1 = initial, 2 = annual)."""
+    from cmmcready import db, demo
+
+    c = db.connect(db_file)
+    try:
+        assert demo.seed(c)
+    finally:
+        c.close()
+    return db_file
+
+
+@pytest.fixture
+def client(seeded_db):
+    """A logged-in admin client over the seeded database."""
+    from fastapi.testclient import TestClient
+
+    from cmmcready.api import app
+
+    c = TestClient(app)
+    r = c.post("/api/auth/login", json={"username": TEST_USER, "password": TEST_PASSWORD})
+    assert r.status_code == 200, r.text
+    return c
