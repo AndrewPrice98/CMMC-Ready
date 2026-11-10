@@ -261,9 +261,10 @@ def current_score(conn: sqlite3.Connection, assessment_id: int) -> ScoreResult:
 # -- evidence and findings ------------------------------------------------------------------
 
 def _host_label(data: dict) -> str:
-    if data.get("collector") == "windows":
-        return str(data.get("host", {}).get("name") or "unknown host")
-    return str(data.get("tenant", {}).get("id") or "unknown tenant")
+    key, id_key, fallback = (("host", "name", "unknown host") if data.get("collector") == "windows"
+                             else ("tenant", "id", "unknown tenant"))
+    section = data.get(key)
+    return str((section.get(id_key) if isinstance(section, dict) else None) or fallback)
 
 
 def _replace_findings(conn: sqlite3.Connection, evidence_id: int,

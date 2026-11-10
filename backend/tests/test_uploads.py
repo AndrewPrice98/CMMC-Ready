@@ -129,3 +129,30 @@ def test_chunked_body_under_cap_still_works(client):
     r = client.post("/api/assessments/2/organization", content=chunks(),
                     headers={"Content-Type": "application/json"})
     assert r.status_code != 413
+
+
+@pytest.mark.parametrize("mutate", [
+    lambda d: d.update(host="ENG-WS-01"),
+    lambda d: d.update(host=["x"]),
+    lambda d: d.update(host={"name": 7}),
+    lambda d: d.update(checks=[]),
+    lambda d: d.update(collected_at=12345),
+])
+def test_malformed_windows_envelope_is_400_not_500(client, mutate):
+    data = json.loads(WINDOWS)
+    mutate(data)
+    r = post(client, json.dumps(data).encode())
+    assert r.status_code == 400, r.text
+
+
+@pytest.mark.parametrize("mutate", [
+    lambda d: d.update(tenant="contoso"),
+    lambda d: d.update(tenant={"id": ["x"]}),
+    lambda d: d.update(checks="none"),
+    lambda d: d.update(collected_at={"when": 1}),
+])
+def test_malformed_m365_envelope_is_400_not_500(client, mutate):
+    data = json.loads((FIXTURES / "m365-admin-mfa-only.json").read_bytes())
+    mutate(data)
+    r = post(client, json.dumps(data).encode())
+    assert r.status_code == 400, r.text

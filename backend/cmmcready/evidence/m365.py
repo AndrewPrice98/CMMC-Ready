@@ -43,6 +43,18 @@ _DERIVED = {
 }
 
 
+def _check_envelope(data: dict, key: str, id_key: str) -> None:
+    """Envelope fields that later code reads must have the right JSON types."""
+    section = data.get(key)
+    if section is not None:
+        if not isinstance(section, dict):
+            raise ValueError(f"collector output field {key!r} must be an object")
+        if section.get(id_key) is not None and not isinstance(section[id_key], str):
+            raise ValueError(f"collector output field '{key}.{id_key}' must be a string")
+    if data.get("collected_at") is not None and not isinstance(data["collected_at"], str):
+        raise ValueError("collector output field 'collected_at' must be a string")
+
+
 def validate(data: Any) -> dict:
     """Check the collector envelope. Raises ``ValueError`` when it is unusable."""
     if not isinstance(data, dict):
@@ -51,6 +63,7 @@ def validate(data: Any) -> dict:
         raise ValueError(f"not a Microsoft 365 collector file (collector={data.get('collector')!r})")
     if data.get("version") != SUPPORTED_VERSION:
         raise ValueError(f"unsupported Microsoft 365 collector version {data.get('version')!r}")
+    _check_envelope(data, "tenant", "id")
     checks = data.get("checks")
     if not isinstance(checks, dict):
         raise ValueError("collector output has no 'checks' object")
