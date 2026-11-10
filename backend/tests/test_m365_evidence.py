@@ -475,3 +475,100 @@ def test_collector_script_conventions():
     for check_id in m365.RAW_CHECK_IDS:
         assert f"Invoke-Check '{check_id}'" in code, check_id
     assert "status = 'unavailable'" in code
+
+
+# --- fix round 1: privileged coverage, unknown conditions, guest exclusions -----------------
+
+GA = m365.GLOBAL_ADMIN_TEMPLATE_ID
+HELPDESK = "729827e3-9c14-49f7-bb1b-9608f156bbb8"
+USER_ADMIN = "fe930be7-5e62-47db-91af-98c3a49a38b1"
+
+
+def role_policy(data: dict, roles: list[str]) -> dict:
+    p = mfa_policy(data)
+    p["conditions"]["users"].update(includeUsers=["None"], includeRoles=roles)
+    return p
+
+
+def test_helpdesk_only_policy_does_not_cover_privileged_accounts():
+    data = load("m365-compliant.json")
+    role_policy(data, [HELPDESK])
+    got = results(data)
+    assert got["3.5.3[c]"] == "not_met" and got["3.5.3[d]"] == "not_met"
+
+
+def test_role_policy_needs_global_admin_and_every_assigned_role():
+    data = load("m365-compliant.json")  # GA, User Admin and Helpdesk all have assignments
+    role_policy(data, [GA])
+    assert results(data)["3.5.3[c]"] == "not_met"  # User Admin and Helpdesk uncovered
+    role_policy(data, [GA, USER_ADMIN])
+    assert results(data)["3.5.3[c]"] == "not_met"
+    role_policy(data, [GA, USER_ADMIN, HELPDESK])
+    findings = combine(evaluate(data, DEFAULT_ODP))
+    assert findings["3.5.3[c]"].result == "met"
+    assert findings["3.5.3[d]"].result == "not_met"
+    assert findings["3.5.3[d]"].partial_hint == "mfa_remote_privileged_only"
+    # Roles with no assignment in the tenant need not be listed (admin-only fixture: only GA assigned).
+    assert results(load("m365-admin-mfa-only.json"))["3.5.3[c]"] == "met"
+
+
+def test_role_policy_exclusions():
+    data = load("m365-admin-mfa-only.json")
+    policy = next(p for p in ca_policies(data) if p["displayName"].startswith("CA002"))
+    policy["conditions"]["users"]["excludeGroups"] = ["00000000-0000-0000-0000-0000000a0a01"]
+    assert results(data)["3.5.3[c]"] == "not_assessed"
+    policy["conditions"]["users"]["excludeGroups"] = []
+    policy["conditions"]["users"]["excludeUsers"] = [f"00000000-0000-0000-0000-0000000b000{i}" for i in range(1, 4)]
+    assert results(data)["3.5.3[c]"] == "not_met"
+    policy["conditions"]["users"]["excludeUsers"] = policy["conditions"]["users"]["excludeUsers"][:2]
+    assert results(data)["3.5.3[c]"] == "met"
+    policy["conditions"]["users"]["excludeRoles"] = [GA]
+    assert results(data)["3.5.3[c]"] == "not_met"
+
+
+def test_role_policy_without_role_export_is_unverifiable():
+    data = load("m365-admin-mfa-only.json")
+    data["checks"]["role_assignments"] = copy.deepcopy(load("m365-unavailable.json")["checks"]["role_assignments"])
+    got = results(data)
+    assert got["3.5.3[c]"] == "not_assessed"  # Global Admin alone is not enough without the export
+    assert got["3.5.3[d]"] == "not_assessed"  # nothing conclusive about general users either
+
+
+@pytest.mark.parametrize("condition", [
+    {"authenticationFlows": {"transferMethods": "deviceCodeFlow"}},
+    {"clientApplications": {"includeServicePrincipals": ["ServicePrincipalsInMyTenant"], "excludeServicePrincipals": []}},
+    {"insiderRiskLevels": "elevated"},
+    {"times": {"includedRanges": ["08:00-17:00"]}},
+    {"someFutureCondition": {"mode": "x"}},
+])
+def test_unknown_condition_keys_narrow_the_policy(condition):
+    data = load("m365-compliant.json")
+    mfa_policy(data)["conditions"].update(condition)
+    got = results(data)
+    assert got["3.5.3[d]"] == "not_assessed" and got["3.5.3[c]"] == "not_assessed"
+    # Empty values for the same keys are not narrowing.
+    data = load("m365-compliant.json")
+    mfa_policy(data)["conditions"].update({k: ([] if isinstance(v, list) else None) for k, v in condition.items()})
+    assert results(data)["3.5.3[d]"] == "met"
+
+
+def test_user_actions_narrow_the_policy():
+    data = load("m365-compliant.json")
+    mfa_policy(data)["conditions"]["applications"]["includeUserActions"] = ["urn:user:registersecurityinfo"]
+    assert results(data)["3.5.3[d]"] == "not_assessed"
+
+
+def test_all_users_policy_excluding_guests_still_covers_privileged():
+    data = load("m365-compliant.json")
+    mfa_policy(data)["conditions"]["users"]["excludeGuestsOrExternalUsers"] = {
+        "guestOrExternalUserTypes": "b2bCollaborationGuest", "externalTenants": {"membershipKind": "all"}}
+    findings = combine(evaluate(data, DEFAULT_ODP))
+    assert findings["3.5.3[d]"].result == "not_met"
+    assert findings["3.5.3[d]"].partial_hint == "mfa_remote_privileged_only"
+    assert findings["3.5.3[c]"].result == "met"
+
+
+def test_collector_records_service_error_body():
+    code = _code(_script())
+    assert "ErrorDetails.Message" in code
+    assert "Get-ErrorText $_" in code

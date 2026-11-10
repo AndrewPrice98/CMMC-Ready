@@ -56,6 +56,16 @@ $script:CaError = $null
 
 # --- helpers ---------------------------------------------------------------
 
+# Exception message plus the service's own error body (ErrorDetails) when the SDK supplies one.
+function Get-ErrorText {
+    param($ErrorRecord)
+    $text = [string]$ErrorRecord.Exception.Message
+    if ($null -ne $ErrorRecord.ErrorDetails -and $ErrorRecord.ErrorDetails.Message) {
+        $text += ' ' + [string]$ErrorRecord.ErrorDetails.Message
+    }
+    (($text -replace '\s+', ' ')).Trim()
+}
+
 function Invoke-Check {
     param([string]$Id, [string]$Command, [scriptblock]$Script)
     $script:CheckCommand = $Command
@@ -66,7 +76,7 @@ function Invoke-Check {
         $entry.status = 'ok'
         $entry.value = $value
     } catch {
-        $entry.reason = (($_.Exception.Message -replace '\s+', ' ')).Trim()
+        $entry.reason = Get-ErrorText $_
     }
     $entry.command = $script:CheckCommand
     $script:Checks[$Id] = $entry
@@ -98,7 +108,7 @@ function Get-CaPolicies {
         try {
             $script:CaPolicies = Get-GraphList 'https://graph.microsoft.com/v1.0/identity/conditionalAccess/policies'
         } catch {
-            $script:CaError = (($_.Exception.Message -replace '\s+', ' ')).Trim()
+            $script:CaError = Get-ErrorText $_
             throw $script:CaError
         }
     }

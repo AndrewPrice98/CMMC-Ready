@@ -93,29 +93,65 @@ def _security_defaults_on(checks: dict) -> bool | None:
     return value["isEnabled"]
 
 
-def _targets(policy: dict) -> dict[str, bool]:
-    """Who a policy applies to: all users, privileged roles, external users, or unverifiable."""
+def _empty(value: Any) -> bool:
+    if value is None or value == "" or value == [] or value == {}:
+        return True
+    if isinstance(value, dict):
+        return all(_empty(v) for v in value.values())
+    if isinstance(value, list):
+        return all(_empty(v) for v in value)
+    return False
+
+
+def _assigned_templates(checks: dict) -> set[str] | None:
+    """Template IDs of roles that have at least one assignment, or None when the export is unreadable."""
+    value = _value(checks, "role_assignments")
+    if value is None or not isinstance(value.get("role_definitions"), list)             or not isinstance(value.get("assignments"), list):
+        return None
+    used = {a.get("roleDefinitionId") for a in value["assignments"] if isinstance(a, dict)}
+    return {d.get("templateId") for d in value["role_definitions"]
+            if isinstance(d, dict) and d.get("id") in used and d.get("templateId")}
+
+
+def _targets(policy: dict, assigned: set[str] | None = None) -> dict[str, bool]:
+    """Who a policy applies to: all users, privileged roles, external users, or unverifiable.
+
+    ``assigned`` is the set of role template IDs that have assignments in the
+    tenant. A role-targeted policy covers privileged accounts only when it
+    lists Global Administrator and every other assigned role.
+    """
     users = _dict(_dict(policy.get("conditions")).get("users"))
     include = _list(users.get("includeUsers"))
     out = {"all": False, "privileged": False, "external": False, "unverifiable": False}
+    if _list(users.get("excludeRoles")) or len(_list(users.get("excludeUsers"))) > MAX_BREAK_GLASS_EXCLUSIONS:
+        return out  # admins carved out, or more than a break-glass pair: a real gap, not coverage
     if "All" in include:
-        if _list(users.get("excludeRoles")) or users.get("excludeGuestsOrExternalUsers"):
-            return out  # admins or guests are carved out: a real gap, not coverage
-        if len(_list(users.get("excludeUsers"))) > MAX_BREAK_GLASS_EXCLUSIONS:
-            return out
         if _list(users.get("excludeGroups")):
             out["unverifiable"] = True  # a group may be a break-glass group or half the company
-            return out
-        out["all"] = True
+        elif users.get("excludeGuestsOrExternalUsers"):
+            out["privileged"] = True  # guests are a gap for general users; internal admins are covered
+        else:
+            out["all"] = True
         return out
-    if _list(users.get("includeRoles")):
-        out["privileged"] = True
+    roles = _list(users.get("includeRoles"))
+    if roles:
+        if _list(users.get("excludeGroups")):
+            out["unverifiable"] = True
+        elif GLOBAL_ADMIN_TEMPLATE_ID in roles:
+            if assigned is None:
+                out["unverifiable"] = True  # cannot tell which other roles are in use
+            elif assigned <= set(roles) | {GLOBAL_ADMIN_TEMPLATE_ID}:
+                out["privileged"] = True
     if users.get("includeGuestsOrExternalUsers"):
         out["external"] = True
-    if not out["privileged"] and not out["external"] and (
+    if not any(out.values()) and (
             _list(users.get("includeGroups")) or [u for u in include if u != "None"]):
         out["unverifiable"] = True  # specific groups or users: size unknown
     return out
+
+
+# Condition keys handled explicitly in _narrowed; any other non-empty key narrows the policy.
+_KNOWN_CONDITIONS = {"users", "applications", "clientAppTypes", "platforms", "locations"}
 
 
 def _narrowed(policy: dict, client_types: tuple[str, ...]) -> bool:
@@ -124,12 +160,14 @@ def _narrowed(policy: dict, client_types: tuple[str, ...]) -> bool:
     apps = _dict(cond.get("applications"))
     if "All" not in _list(apps.get("includeApplications")) or _list(apps.get("excludeApplications")):
         return True
+    if _list(apps.get("includeUserActions")) or _list(apps.get("includeAuthenticationContextClassReferences")):
+        return True
     types = set(_list(cond.get("clientAppTypes")))
     if "all" not in types and not set(client_types) <= types:
         return True
-    if _list(cond.get("userRiskLevels")) or _list(cond.get("signInRiskLevels")):
-        return True
-    if cond.get("devices") or cond.get("deviceStates"):
+    # Unknown or future condition keys (authenticationFlows, clientApplications, times, risk
+    # levels, device filters, ...) narrow the policy whenever they hold anything.
+    if any(not _empty(v) for k, v in cond.items() if k not in _KNOWN_CONDITIONS):
         return True
     platforms = cond.get("platforms")
     if platforms and "all" not in _list(_dict(platforms).get("includePlatforms")):
@@ -175,12 +213,13 @@ def _derive_mfa(checks: dict) -> dict | None:
     if sd:
         return {"all_users": True, "privileged_covered": True, "external_covered": True,
                 "via": "security_defaults"}
+    assigned = _assigned_templates(checks)
     all_users = privileged = external = unknown = False
     for p in _enabled(policies or []):
         required = _requires_mfa(p)
         if required is False:
             continue
-        t = _targets(p)
+        t = _targets(p, assigned)
         if not (t["all"] or t["privileged"] or t["external"] or t["unverifiable"]):
             continue
         if required is None or _narrowed(p, ("browser", "mobileAppsAndDesktopClients")):
@@ -272,7 +311,7 @@ def _derive_roles(checks: dict) -> dict | None:
     out: dict[str, Any] = {}
     roles_with_members = {a.get("roleDefinitionId") for a in assignments if a.get("roleDefinitionId")}
     if roles_with_members:
-        out["privileged_role_count"] = len(roles_with_members)
+        out["assigned_role_count"] = len(roles_with_members)
     if not ga_ids:
         return out
     ga = [a for a in assignments

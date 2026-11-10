@@ -328,7 +328,7 @@ m365:
         - id: privileged_identified
           objectives: ["3.1.5[a]"]
           rationale: Directory role assignments list the privileged accounts (names withheld when redacted); whether the list is complete and justified is for the assessor to judge.
-          met_if: {path: privileged_role_count, ge: 1}
+          met_if: {path: assigned_role_count, ge: 1}
           met_result: not_assessed
           fail_result: not_assessed
 
