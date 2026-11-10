@@ -64,6 +64,11 @@ def validate(data: Any) -> dict:
     return data
 
 
+def effective_checks(data: dict) -> dict:
+    """The checks the rules are evaluated against (Windows has no derived checks)."""
+    return data["checks"]
+
+
 def _parse_when(text: Any) -> datetime | None:
     if not isinstance(text, str):
         return None

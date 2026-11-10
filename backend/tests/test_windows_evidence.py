@@ -219,6 +219,7 @@ def test_default_odp_values():
         "password_history": 24,
         "audit_retention_days": 90,
         "max_patch_age_days": 35,
+        "max_signin_frequency_hours": 12,
     }
 
 

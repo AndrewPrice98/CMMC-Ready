@@ -1,0 +1,149 @@
+{
+  "collector": "m365",
+  "version": 1,
+  "collected_at": "2026-11-02T14:00:00Z",
+  "tenant": {
+    "id": "00000000-0000-0000-0000-00000000d3a0",
+    "names_redacted": false
+  },
+  "checks": {
+    "security_defaults": {
+      "status": "ok",
+      "value": {
+        "@odata.context": "https://graph.microsoft.com/v1.0/$metadata#policies/identitySecurityDefaultsEnforcementPolicy/$entity",
+        "id": "00000000-0000-0000-0000-000000000005",
+        "displayName": "Security Defaults",
+        "description": "Security defaults is a set of basic identity security mechanisms recommended by Microsoft.",
+        "isEnabled": true
+      },
+      "reason": null,
+      "command": "GET /v1.0/policies/identitySecurityDefaultsEnforcementPolicy"
+    },
+    "conditional_access": {
+      "status": "ok",
+      "value": {
+        "policies": []
+      },
+      "reason": null,
+      "command": "GET /v1.0/identity/conditionalAccess/policies"
+    },
+    "auth_methods": {
+      "status": "ok",
+      "value": {
+        "@odata.context": "https://graph.microsoft.com/v1.0/$metadata#authenticationMethodsPolicy",
+        "id": "authenticationMethodsPolicy",
+        "displayName": "Authentication Methods Policy",
+        "policyVersion": "1.5",
+        "registrationEnforcement": {
+          "authenticationMethodsRegistrationCampaign": {
+            "state": "enabled"
+          }
+        },
+        "authenticationMethodConfigurations": [
+          {
+            "id": "MicrosoftAuthenticator",
+            "state": "enabled"
+          },
+          {
+            "id": "Fido2",
+            "state": "enabled"
+          },
+          {
+            "id": "Sms",
+            "state": "disabled"
+          },
+          {
+            "id": "Voice",
+            "state": "disabled"
+          },
+          {
+            "id": "Email",
+            "state": "disabled"
+          },
+          {
+            "id": "TemporaryAccessPass",
+            "state": "enabled"
+          },
+          {
+            "id": "SoftwareOath",
+            "state": "enabled"
+          },
+          {
+            "id": "X509Certificate",
+            "state": "disabled"
+          }
+        ]
+      },
+      "reason": null,
+      "command": "GET /v1.0/policies/authenticationMethodsPolicy"
+    },
+    "role_assignments": {
+      "status": "ok",
+      "value": {
+        "role_definitions": [
+          {
+            "id": "00000000-0000-0000-0000-0000000000a1",
+            "templateId": "62e90394-69f5-4237-9190-012177145e10",
+            "displayName": "Global Administrator"
+          },
+          {
+            "id": "00000000-0000-0000-0000-0000000000a2",
+            "templateId": "fe930be7-5e62-47db-91af-98c3a49a38b1",
+            "displayName": "User Administrator"
+          },
+          {
+            "id": "00000000-0000-0000-0000-0000000000a3",
+            "templateId": "729827e3-9c14-49f7-bb1b-9608f156bbb8",
+            "displayName": "Helpdesk Administrator"
+          }
+        ],
+        "assignments": [
+          {
+            "id": "00000000-0000-0000-0000-0000000f0001",
+            "roleDefinitionId": "00000000-0000-0000-0000-0000000000a1",
+            "principalId": "00000000-0000-0000-0000-0000000e0001",
+            "directoryScopeId": "/",
+            "appScopeId": null,
+            "principal": {
+              "@odata.type": "#microsoft.graph.user",
+              "id": "00000000-0000-0000-0000-0000000e0001",
+              "displayName": "Demo Admin 1"
+            }
+          },
+          {
+            "id": "00000000-0000-0000-0000-0000000f0002",
+            "roleDefinitionId": "00000000-0000-0000-0000-0000000000a1",
+            "principalId": "00000000-0000-0000-0000-0000000e0002",
+            "directoryScopeId": "/",
+            "appScopeId": null,
+            "principal": {
+              "@odata.type": "#microsoft.graph.user",
+              "id": "00000000-0000-0000-0000-0000000e0002",
+              "displayName": "Demo Admin 2"
+            }
+          }
+        ]
+      },
+      "reason": null,
+      "command": "GET /v1.0/roleManagement/directory/roleAssignments?$expand=principal"
+    },
+    "session_controls": {
+      "status": "ok",
+      "value": {
+        "policies": []
+      },
+      "reason": null,
+      "command": "GET /v1.0/identity/conditionalAccess/policies (sessionControls)"
+    },
+    "audit_log": {
+      "status": "ok",
+      "value": {
+        "window_days": 7,
+        "entries_found": true,
+        "latest_activity": "2026-11-01T11:58:42Z"
+      },
+      "reason": null,
+      "command": "GET /v1.0/auditLogs/directoryAudits?$top=1&$filter=activityDateTime ge ..."
+    }
+  }
+}

@@ -1,0 +1,95 @@
+{
+  "collector": "m365",
+  "version": 1,
+  "collected_at": "2026-11-02T14:00:00Z",
+  "tenant": {
+    "id": "00000000-0000-0000-0000-00000000d3a0",
+    "names_redacted": false
+  },
+  "checks": {
+    "security_defaults": {
+      "status": "unavailable",
+      "value": null,
+      "reason": "Insufficient privileges to complete the operation (Policy.Read.All not consented)",
+      "command": "GET /v1.0/policies/identitySecurityDefaultsEnforcementPolicy"
+    },
+    "conditional_access": {
+      "status": "unavailable",
+      "value": null,
+      "reason": "Your tenant is not licensed for this feature: Microsoft Entra ID P1 or P2 is required for Conditional Access",
+      "command": "GET /v1.0/identity/conditionalAccess/policies"
+    },
+    "auth_methods": {
+      "status": "ok",
+      "value": {
+        "@odata.context": "https://graph.microsoft.com/v1.0/$metadata#authenticationMethodsPolicy",
+        "id": "authenticationMethodsPolicy",
+        "displayName": "Authentication Methods Policy",
+        "policyVersion": "1.5",
+        "registrationEnforcement": {
+          "authenticationMethodsRegistrationCampaign": {
+            "state": "enabled"
+          }
+        },
+        "authenticationMethodConfigurations": [
+          {
+            "id": "MicrosoftAuthenticator",
+            "state": "enabled"
+          },
+          {
+            "id": "Fido2",
+            "state": "enabled"
+          },
+          {
+            "id": "Sms",
+            "state": "disabled"
+          },
+          {
+            "id": "Voice",
+            "state": "disabled"
+          },
+          {
+            "id": "Email",
+            "state": "disabled"
+          },
+          {
+            "id": "TemporaryAccessPass",
+            "state": "enabled"
+          },
+          {
+            "id": "SoftwareOath",
+            "state": "enabled"
+          },
+          {
+            "id": "X509Certificate",
+            "state": "disabled"
+          }
+        ]
+      },
+      "reason": null,
+      "command": "GET /v1.0/policies/authenticationMethodsPolicy"
+    },
+    "role_assignments": {
+      "status": "unavailable",
+      "value": null,
+      "reason": "Insufficient privileges to complete the operation (RoleManagement.Read.Directory not consented)",
+      "command": "GET /v1.0/roleManagement/directory/roleAssignments?$expand=principal"
+    },
+    "session_controls": {
+      "status": "unavailable",
+      "value": null,
+      "reason": "Your tenant is not licensed for this feature: Microsoft Entra ID P1 or P2 is required for Conditional Access",
+      "command": "GET /v1.0/identity/conditionalAccess/policies (sessionControls)"
+    },
+    "audit_log": {
+      "status": "ok",
+      "value": {
+        "window_days": 7,
+        "entries_found": true,
+        "latest_activity": "2026-11-01T11:58:42Z"
+      },
+      "reason": null,
+      "command": "GET /v1.0/auditLogs/directoryAudits?$top=1&$filter=activityDateTime ge ..."
+    }
+  }
+}

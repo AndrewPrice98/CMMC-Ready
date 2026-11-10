@@ -28,13 +28,14 @@ def _collect_parse(args: argparse.Namespace) -> int:
     import json
     from collections import Counter
 
-    from cmmcready.evidence import windows
+    from cmmcready.evidence import m365, windows
     from cmmcready.evidence.engine import DEFAULT_ODP, combine, evaluate
 
+    module = {"windows": windows, "m365": m365}[args.collector]
     try:
         with open(args.file, encoding="utf-8-sig") as handle:
             data = json.load(handle)
-        windows.validate(data)
+        module.validate(data)
         ok_count = sum(1 for c in data["checks"].values() if c["status"] == "ok")
         if ok_count < args.min_ok:
             raise ValueError(f"only {ok_count} checks were readable; at least {args.min_ok} required")
@@ -42,9 +43,13 @@ def _collect_parse(args: argparse.Namespace) -> int:
     except (OSError, ValueError) as exc:  # json.JSONDecodeError is a ValueError
         print(f"collect-parse error: {exc}", file=sys.stderr)
         return 1
-    info = windows.summarize(data)
-    print(f"windows collector v{data['version']}: {info['os']} build {info['build']}, "
-          f"elevated={info['elevated']}")
+    info = module.summarize(data)
+    if module is windows:
+        print(f"windows collector v{data['version']}: {info['os']} build {info['build']}, "
+              f"elevated={info['elevated']}")
+    else:
+        print(f"m365 collector v{data['version']}: tenant {info['tenant_id']}, "
+              f"names redacted={info['redacted']}")
     print(f"checks: {len(info['ok'])} ok, {len(info['unavailable'])} unavailable")
     for check_id, reason in info["unavailable"].items():
         print(f"  unavailable {check_id}: {reason}")
@@ -65,7 +70,7 @@ def build_parser() -> argparse.ArgumentParser:
     catalog.set_defaults(func=_catalog)
 
     parse = sub.add_parser("collect-parse", help="validate collector output and summarise the findings")
-    parse.add_argument("collector", choices=["windows"])
+    parse.add_argument("collector", choices=["windows", "m365"])
     parse.add_argument("file")
     parse.add_argument("--min-ok", type=int, default=0, metavar="N",
                        help="fail unless at least N checks have status ok")

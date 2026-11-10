@@ -29,9 +29,12 @@ from typing import Any, Literal
 import yaml
 
 from cmmcready.catalog import load_catalog
-from cmmcready.evidence import windows
+from cmmcready.evidence import m365, windows
 
 RULES_FILE = Path(__file__).with_name("rules.yml")
+
+# Collector modules share one interface: COLLECTOR, validate(), effective_checks(), normalize().
+_COLLECTORS = {windows.COLLECTOR: windows, m365.COLLECTOR: m365}
 
 Result = Literal["met", "not_met", "not_assessed"]
 
@@ -43,6 +46,7 @@ DEFAULT_ODP: dict[str, int] = {
     "password_history": 24,
     "audit_retention_days": 90,
     "max_patch_age_days": 35,
+    "max_signin_frequency_hours": 12,
 }
 
 ODP_DESCRIPTIONS = {
@@ -52,6 +56,7 @@ ODP_DESCRIPTIONS = {
     "password_history": "Passwords remembered before reuse, or more",
     "audit_retention_days": "Audit log retention (days), or more",
     "max_patch_age_days": "Newest installed hotfix may be at most this many days old",
+    "max_signin_frequency_hours": "Cloud sign-in frequency (hours) may be at most this long",
 }
 
 
@@ -65,6 +70,10 @@ class EvidenceFinding:
     expected: str
     rule_id: str = ""
     rationale: str = ""
+    # Optional pointer to a partial-credit choice in the catalog (for example
+    # "mfa_remote_privileged_only"). It is a suggestion shown to the assessor
+    # and is never applied to scoring automatically.
+    partial_hint: str | None = None
 
 
 @dataclass(frozen=True)
@@ -78,6 +87,8 @@ class Rule:
     fail_result: str = "not_met"
     met_result: str = "met"  # "not_assessed": a compliant value is only supporting evidence
     info: dict | None = None  # information-only rule: {"observe": [paths], "text": str}
+    partial_hint: str | None = None  # attached to a not_met finding when partial_hint_if is true
+    partial_hint_if: dict | None = None
 
 
 _SPEC = re.compile(r"^(\d+\.\d+\.\d+)\[([a-z])(?:-([a-z]))?\]$")
@@ -121,11 +132,13 @@ def _check_condition(cond: Any, where: str) -> None:
                 raise ValueError(f"{where}: unknown ODP {arg!r}")
 
 
-def _build_rules(raw: dict) -> dict[str, list[Rule]]:
-    known = {o.id for r in load_catalog().requirements for o in r.objectives}
-    section = raw.get(windows.COLLECTOR)
+def _build_rules(raw: dict, collector: str) -> dict[str, list[Rule]]:
+    catalog = load_catalog()
+    known = {o.id for r in catalog.requirements for o in r.objectives}
+    hints = {key for r in catalog.requirements for key in (r.partial or {})}
+    section = raw.get(collector)
     if not isinstance(section, dict) or not isinstance(section.get("checks"), dict):
-        raise ValueError("rules.yml needs windows.checks")
+        raise ValueError(f"rules.yml needs {collector}.checks")
     rules: dict[str, list[Rule]] = {}
     for check_id, check in section["checks"].items():
         out: list[Rule] = []
@@ -151,16 +164,22 @@ def _build_rules(raw: dict) -> dict[str, list[Rule]]:
             met_result = item.get("met_result", "met")
             if met_result not in ("met", "not_assessed"):
                 raise ValueError(f"{where}: bad met_result {met_result!r}")
+            hint = item.get("partial_hint")
+            if hint is not None:
+                if hint not in hints:
+                    raise ValueError(f"{where}: unknown partial_hint {hint!r}")
+                _check_condition(item.get("partial_hint_if"), where)
             out.append(Rule(item["id"], check_id, tuple(objectives), rationale,
-                            item.get("met_if"), item.get("unmet_if"), fail, met_result, info))
+                            item.get("met_if"), item.get("unmet_if"), fail, met_result, info,
+                            hint, item.get("partial_hint_if")))
         rules[check_id] = out
     return rules
 
 
 @cache
-def load_rules() -> dict[str, list[Rule]]:
+def load_rules(collector: str = windows.COLLECTOR) -> dict[str, list[Rule]]:
     raw = yaml.safe_load(RULES_FILE.read_text(encoding="utf-8"))
-    return _build_rules(raw)
+    return _build_rules(raw, collector)
 
 
 # --- condition evaluation ---------------------------------------------------
@@ -292,13 +311,18 @@ def _show(observed: dict) -> str:
 
 # --- evaluation -------------------------------------------------------------
 
-def _finding(rule: Rule, oid: str, result: Result, detail: str, observed: Any, expected: str) -> EvidenceFinding:
-    return EvidenceFinding(oid, result, rule.check_id, detail, observed, expected, rule.id, rule.rationale)
+def _finding(rule: Rule, oid: str, result: Result, detail: str, observed: Any, expected: str,
+             hint: str | None = None) -> EvidenceFinding:
+    return EvidenceFinding(oid, result, rule.check_id, detail, observed, expected, rule.id, rule.rationale, hint)
 
 
 def _eval_rule(rule: Rule, raw_check: dict | None, value: dict | None, odp: dict[str, int]) -> list[EvidenceFinding]:
     def emit(result: Result, detail: str, observed: Any, expected: str) -> list[EvidenceFinding]:
-        return [_finding(rule, oid, result, detail, observed, expected) for oid in rule.objectives]
+        hint = None
+        if (result == "not_met" and rule.partial_hint and value is not None
+                and _eval(rule.partial_hint_if, value, odp) is True):
+            hint = rule.partial_hint
+        return [_finding(rule, oid, result, detail, observed, expected, hint) for oid in rule.objectives]
 
     if rule.info is not None:
         expected = rule.info["text"]
@@ -349,15 +373,18 @@ def evaluate(collector_json: dict, odp: dict | None = None) -> list[EvidenceFind
     Raises ``ValueError`` for unknown collectors or versions. Use
     :func:`combine` for one result per objective.
     """
-    windows.validate(collector_json)
+    module = _COLLECTORS.get(collector_json.get("collector")) if isinstance(collector_json, dict) else None
+    if module is None:
+        raise ValueError("not a recognised collector file")
+    module.validate(collector_json)
     merged = {**DEFAULT_ODP, **(odp or {})}
     for name, val in merged.items():
         if name in DEFAULT_ODP and (not _is_num(val) or val <= 0):
             raise ValueError(f"ODP {name} must be a positive number")
-    values = windows.normalize(collector_json)
-    checks = collector_json["checks"]
+    values = module.normalize(collector_json)
+    checks = module.effective_checks(collector_json)
     findings: list[EvidenceFinding] = []
-    for check_id, rules in load_rules().items():
+    for check_id, rules in load_rules(module.COLLECTOR).items():
         for rule in rules:
             try:
                 findings.extend(_eval_rule(rule, checks.get(check_id), values.get(check_id), merged))
@@ -389,5 +416,6 @@ def combine(findings: list[EvidenceFinding]) -> dict[str, EvidenceFinding]:
             "; ".join(f.expected for f in group if f.expected),
             ",".join(f.rule_id for f in group),
             " ".join(f.rationale for f in group),
+            next((f.partial_hint for f in group if f.result == "not_met" and f.partial_hint), None),
         )
     return out

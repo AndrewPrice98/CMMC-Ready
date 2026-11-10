@@ -246,3 +246,105 @@ windows:
           rationale: A disabled Guest account closes an unauthenticated route onto the system.
           met_if: {path: enabled, eq: false}
           met_result: not_assessed
+
+# Microsoft 365 / Entra ID. Check ids are the collector's derived checks (see evidence/m365.py):
+# mfa, legacy_auth, session_timeout and privileged_roles are computed from the raw Graph
+# responses; only enabled Conditional Access policies count (report-only and disabled never do).
+m365:
+  checks:
+    mfa:
+      rules:
+        - id: general_users
+          objectives: ["3.5.3[d]"]
+          rationale: MFA required for every user by security defaults or an enabled all-users, all-apps Conditional Access policy (at most two break-glass exclusions) implements MFA for network access to non-privileged accounts.
+          met_if: {path: all_users, eq: true}
+          unmet_if: {path: all_users, eq: false}
+          partial_hint: mfa_remote_privileged_only
+          partial_hint_if:
+            all:
+              - {path: all_users, eq: false}
+              - {path: privileged_covered, eq: true}
+        - id: privileged_network
+          objectives: ["3.5.3[c]"]
+          rationale: MFA required for administrator roles (directly or through an all-users policy) implements MFA for network access to privileged accounts.
+          met_if: {path: privileged_covered, eq: true}
+          unmet_if: {path: privileged_covered, eq: false}
+        - id: privileged_local
+          objectives: ["3.5.3[b]"]
+          rationale: Cloud MFA covers sign-in to Microsoft 365 but not logon at a local console, so it is supporting evidence only and a gap here does not fail local access.
+          met_if: {path: privileged_covered, eq: true}
+          met_result: not_assessed
+          fail_result: not_assessed
+
+    legacy_auth:
+      rules:
+        - id: bypass_closed
+          objectives: ["3.5.3[d]"]
+          rationale: Legacy protocols (IMAP, POP, SMTP AUTH) cannot perform MFA, so unless security defaults or an enabled block policy covers them they bypass the MFA requirement.
+          met_if: {path: blocked, eq: true}
+          unmet_if: {path: blocked, eq: false}
+        - id: remote_control
+          objectives: ["3.1.12[c]"]
+          rationale: Blocking legacy authentication controls one remote access path; it does not show that all remote access sessions are controlled, so it is supporting evidence only.
+          met_if: {path: blocked, eq: true}
+          met_result: not_assessed
+          fail_result: not_assessed
+
+    session_timeout:
+      rules:
+        - id: frequency_enforced
+          objectives: ["3.1.11[b]"]
+          rationale: An enabled all-users sign-in frequency within the limit ends cloud sessions automatically, but it does not cover other systems; a limit longer than the organization's own is a gap, and no policy is inconclusive because other controls may apply.
+          met_if: {path: sign_in_frequency_hours, le: {odp: max_signin_frequency_hours}}
+          met_result: not_assessed
+          unmet_if: {path: sign_in_frequency_hours, gt: {odp: max_signin_frequency_hours}}
+        - id: condition_defined
+          objectives: ["3.1.11[a]"]
+          rationale: A configured sign-in frequency is a defined termination condition for cloud sessions; the organization still has to document it for its other systems.
+          met_if: {path: sign_in_frequency_hours, le: {odp: max_signin_frequency_hours}}
+          met_result: not_assessed
+          fail_result: not_assessed
+
+    privileged_roles:
+      rules:
+        - id: global_admin_limit
+          objectives: ["3.1.5[b]", "3.1.5[d]"]
+          rationale: Microsoft advises fewer than five Global Administrators; more is a clear least-privilege gap, but four or fewer only supports the objective because role scoping and approval are not visible here.
+          met_if:
+            all:
+              - {path: global_admin_count, ge: 1}
+              - {path: global_admin_count, le: 4}
+          met_result: not_assessed
+          unmet_if: {path: global_admin_count, gt: 4}
+        - id: non_privileged_use
+          objectives: ["3.1.6[b]"]
+          rationale: A small Global Administrator group is consistent with admins using narrower roles, but the data cannot show that they use separate non-privileged accounts for everyday work, so it never decides this objective.
+          met_if:
+            all:
+              - {path: global_admin_count, ge: 1}
+              - {path: global_admin_count, le: 4}
+          met_result: not_assessed
+          fail_result: not_assessed
+        - id: privileged_identified
+          objectives: ["3.1.5[a]"]
+          rationale: Directory role assignments list the privileged accounts (names withheld when redacted); whether the list is complete and justified is for the assessor to judge.
+          met_if: {path: privileged_role_count, ge: 1}
+          met_result: not_assessed
+          fail_result: not_assessed
+
+    auth_methods:
+      rules:
+        - id: enabled_methods
+          objectives: ["3.5.2[a]"]
+          rationale: The authentication methods policy shows which sign-in methods users can authenticate with; review them against your own policy.
+          info:
+            observe: [enabled_methods]
+            text: review the enabled authentication methods against your policy
+
+    audit_log:
+      rules:
+        - id: recent_entries
+          objectives: ["3.3.1[c]"]
+          rationale: Recent directory audit entries show this tenant generates audit records; an empty window is inconclusive because a quiet tenant legitimately has no changes.
+          met_if: {path: entries_found, eq: true}
+          fail_result: not_assessed
