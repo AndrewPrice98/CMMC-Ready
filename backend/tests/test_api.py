@@ -148,6 +148,15 @@ def test_requirement_detail_poam_rule_reason(client):
     assert client.get(a("/requirements/3.13.11")).json()["poam_rule_reason"] is None
 
 
+def test_ssp_cannot_be_not_applicable(client):
+    r = client.put(a("/objectives/3.12.4[a]"), json={"answer": "na", "justification": "We have no SSP."})
+    assert r.status_code == 422
+    assert r.json()["detail"] == "A System Security Plan is required; 3.12.4 cannot be not applicable."
+    assert client.get(a("/requirements/3.12.4")).json()["objectives"][0]["answer"] == "met"
+    # Other answers on 3.12.4 are still accepted.
+    assert client.put(a("/objectives/3.12.4[a]"), json={"answer": "not_met"}).status_code == 200
+
+
 def test_unknown_ids_are_404(client):
     assert client.get(a("/requirements/9.9.9")).status_code == 404
     assert client.get("/api/assessments/999/overview").status_code == 404

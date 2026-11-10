@@ -555,6 +555,8 @@ def put_objective(_w: Annotated[str, Writer], assessment: Assessment, obj_id: st
     req = _objective_index().get(obj_id)
     if req is None:
         raise HTTPException(404, "objective not found")
+    if body.answer == "na" and req.id == SSP_REQUIREMENT:
+        raise HTTPException(422, "A System Security Plan is required; 3.12.4 cannot be not applicable.")
     if body.answer == "na" and not body.justification.strip():
         raise HTTPException(422, "Not applicable needs a justification")
     try:

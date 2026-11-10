@@ -13,6 +13,8 @@ const POAM_STATUS = {
   closed: { label: 'Closed', tone: 'good', glyph: '✓' },
 }
 const ANSWER_ORDER = ['met', 'not_met', 'na', 'unanswered']
+// A System Security Plan can never be not applicable; the server refuses N/A on 3.12.4.
+const SSP = '3.12.4'
 
 function formatValue(value) {
   if (value === null || value === undefined) return 'none'
@@ -139,7 +141,7 @@ function AnswerEditor({ objective, assessmentId, onSaved }) {
     <form className="answer-form" onSubmit={save}>
       <fieldset className="segmented">
         <legend>Assessor answer</legend>
-        {ANSWER_ORDER.map((value) => (
+        {ANSWER_ORDER.filter((value) => !(value === 'na' && objective.id.startsWith(`${SSP}[`))).map((value) => (
           <label key={value} className={`seg ${ANSWERS[value].tone} ${answer === value ? 'on' : ''}`}>
             <input type="radio" name={`${uid}-answer`} value={value} checked={answer === value}
               onChange={() => setAnswer(value)} />

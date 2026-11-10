@@ -139,3 +139,11 @@ def test_top_gaps_order():
     assert [d.req_id for d in top_gaps(r)] == ["3.1.1", "3.1.2", "3.5.3", "3.2.1"]
     assert len(top_gaps(r, 2)) == 2
     assert top_gaps(r, 0) == []
+
+
+def test_ssp_marked_na_is_never_conditional():
+    # An SSP can never be not applicable: N/A on 3.12.4 still counts as a missing SSP.
+    r = score(CAT, _answers({"3.12.4": "na"}), {})
+    assert r.score == 110 and r.score >= 88
+    assert r.ssp_missing and r.provisional
+    assert not r.conditional_eligible

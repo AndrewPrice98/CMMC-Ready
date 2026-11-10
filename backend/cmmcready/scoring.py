@@ -116,7 +116,8 @@ def score(
         deductions=deductions,
         provisional=ssp_missing or not_assessed > 0,
         ssp_missing=ssp_missing,
-        conditional_eligible=final >= CONDITIONAL_THRESHOLD and all_gaps_eligible,
+        # A missing SSP blocks conditional status even if 3.12.4 was (wrongly) marked N/A.
+        conditional_eligible=final >= CONDITIONAL_THRESHOLD and all_gaps_eligible and not ssp_missing,
         poam_eligible_ids=eligible_ids,
         not_assessed=not_assessed,
     )
