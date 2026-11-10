@@ -395,6 +395,15 @@ def evaluate(collector_json: dict, odp: dict | None = None) -> list[EvidenceFind
     return findings
 
 
+def collected_checks(collector_json: dict) -> dict[str, dict]:
+    """Every check the rules see for this file, collected or derived, each with its
+    ``status``, ``reason``, ``value`` and the exact ``command`` it ran. For display only."""
+    module = _COLLECTORS.get(collector_json.get("collector")) if isinstance(collector_json, dict) else None
+    if module is None:
+        raise ValueError("not a recognised collector file")
+    return module.effective_checks(collector_json)
+
+
 def combine(findings: list[EvidenceFinding]) -> dict[str, EvidenceFinding]:
     """One finding per objective: any not_met -> not_met; all met -> met; else not_assessed."""
     grouped: dict[str, list[EvidenceFinding]] = {}

@@ -11,7 +11,7 @@ GETS = [
     "/api/history", f"{A}/overview", f"{A}/requirements", f"{A}/requirements/3.1.1",
     f"{A}/requirements?family=AC&status=not_met&q=access", f"{A}/evidence", f"{A}/poam",
     f"{A}/exports/ssp.docx", f"{A}/exports/poam.docx", f"{A}/exports/poam.csv",
-    f"{A}/exports/sprs.md",
+    f"{A}/exports/sprs.md", f"{A}/sprs", f"{A}/evidence/1",
 ]
 
 

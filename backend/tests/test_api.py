@@ -244,6 +244,35 @@ def test_evidence_list_and_upload(client):
     assert len(client.get(a("/evidence")).json()) == 4
 
 
+def test_evidence_detail_lists_checks_commands_and_findings(client):
+    first = client.get(a("/evidence")).json()[0]
+    body = client.get(a(f"/evidence/{first['id']}")).json()
+    assert body["id"] == first["id"] and body["host"] == first["host"] and "raw_json" not in body
+    assert body["findings"] == first["findings"]
+    assert body["source"]["name"] == first["host"]
+    password = next(c for c in body["checks"] if c["id"] == "password_policy")
+    assert password["status"] == "ok" and password["command"].startswith("secedit /export")
+    assert password["findings"] and all(f["check_id"] == "password_policy" for f in password["findings"])
+    assert {f["objective_id"].split("[")[0] for f in password["findings"]} >= {"3.5.7"}
+    assert password["result"] in ("met", "not_met", "not_assessed")
+    total = sum(len(c["findings"]) for c in body["checks"])
+    assert total == sum(body["findings"].values())
+
+
+def test_evidence_detail_includes_derived_m365_checks(client):
+    m365 = next(e for e in client.get(a("/evidence")).json() if e["collector"] == "m365")
+    checks = {c["id"]: c for c in client.get(a(f"/evidence/{m365['id']}")).json()["checks"]}
+    assert checks["mfa"]["command"].startswith("derived from ")
+    assert checks["security_defaults"]["command"].startswith("GET /v1.0/")
+
+
+def test_evidence_detail_unknown_is_404(client):
+    assert client.get(a("/evidence/999")).status_code == 404
+    assert client.get(a("/evidence/abc")).status_code == 404
+    first = client.get(a("/evidence")).json()[0]["id"]
+    assert client.get(a(f"/evidence/{first}", INITIAL)).status_code == 404  # belongs to another assessment
+
+
 # -- POA&M -------------------------------------------------------------------------------------
 
 def test_poam_get(client):
@@ -302,6 +331,16 @@ def test_exports(client, name, media, ext):
     assert all(c.isalnum() or c in '-."; =' for c in disposition)
     if ext == "docx":
         assert r.content[:2] == b"PK"
+
+
+def test_sprs_summary_route_matches_markdown(client):
+    body = client.get(a("/sprs")).json()
+    assert body["disclaimer"].startswith("CMMC Ready is a self-assessment aid.")
+    assert {"assessment_date", "score", "max_score", "provisional", "provisional_note", "scope",
+            "ssp_name", "ssp_version", "poam_completion_date"} <= set(body)
+    markdown = client.get(a("/exports/sprs.md")).text
+    assert f"**Score:** {body['score']} (maximum {body['max_score']})" in markdown
+    assert f"**Planned POA&M completion date:** {body['poam_completion_date']}" in markdown
 
 
 def test_unknown_export_is_404(client):

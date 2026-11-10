@@ -21,7 +21,7 @@ from pydantic import BaseModel, Field
 
 from . import __version__, auth, config, db, demo, exports, poam
 from .catalog import Requirement, load_catalog
-from .evidence.engine import DEFAULT_ODP, ODP_DESCRIPTIONS
+from .evidence.engine import DEFAULT_ODP, ODP_DESCRIPTIONS, collected_checks
 from .scoring import SSP_REQUIREMENT, ScoreResult, poam_rule_allows, requirement_status, top_gaps
 from .uploads import EVIDENCE_MAX_LINE_CHARS, UploadError, decode_json_upload
 
@@ -634,6 +634,45 @@ def list_evidence(assessment: Assessment, conn: Conn):
     return items
 
 
+_SOURCE_KEYS = {"windows": "host", "m365": "tenant"}
+
+
+def _check_result(findings: list[dict]) -> str | None:
+    """One result per check, like ``engine.combine`` does per objective."""
+    results = {f["result"] for f in findings}
+    if not results:
+        return None
+    return "not_met" if "not_met" in results else "met" if results == {"met"} else "not_assessed"
+
+
+@protected.get("/api/assessments/{assessment_id}/evidence/{evidence_id}")
+def get_evidence(assessment: Assessment, evidence_id: str, conn: Conn):
+    """One collector run: each check with its status, value, the exact command it ran
+    and the objective findings it produced."""
+    row = conn.execute(
+        "SELECT id, assessment_id, collector, collected_at, host, uploaded_at, raw_json FROM evidence "
+        "WHERE id = ? AND assessment_id = ?",
+        (_int_id(evidence_id, "evidence"), assessment["id"])).fetchone()
+    if row is None:
+        raise HTTPException(404, "evidence not found")
+    item = dict(row)
+    raw = json.loads(item.pop("raw_json"))
+    findings = _findings_for(conn, item["id"])
+    by_check: dict[str, list[dict]] = {}
+    for f in findings:
+        by_check.setdefault(f["check_id"], []).append(f)
+    checks = []
+    for check_id, check in collected_checks(raw).items():
+        mine = by_check.get(check_id, [])
+        checks.append({"id": check_id, "status": check.get("status"), "reason": check.get("reason"),
+                       "command": check.get("command"), "value": check.get("value"),
+                       "result": _check_result(mine), "findings": mine})
+    counts = {k: sum(1 for f in findings if f["result"] == k) for k in ("met", "not_met", "not_assessed")}
+    return {**item, "version": raw.get("version"),
+            "source": raw.get(_SOURCE_KEYS.get(item["collector"], ""), {}),
+            "findings": counts, "checks": checks}
+
+
 @protected.post("/api/assessments/{assessment_id}/evidence")
 def upload_evidence(_w: Annotated[str, Writer], assessment: Assessment, conn: Conn,
                     file: Annotated[UploadFile, File(description="Collector output (.json)")]):
@@ -779,6 +818,12 @@ def export_poam_docx(assessment: Assessment, conn: Conn):
 def export_poam_csv(assessment: Assessment, conn: Conn):
     return _download(exports.poam_csv(conn, assessment["id"]), "text/csv; charset=utf-8", "csv",
                      conn, assessment, "poam")
+
+
+@protected.get("/api/assessments/{assessment_id}/sprs")
+def sprs(assessment: Assessment, conn: Conn):
+    """The SPRS summary as data, for showing on the Documents page (same values as sprs.md)."""
+    return {**exports.sprs_summary(conn, assessment["id"]), "disclaimer": exports.DISCLAIMER}
 
 
 @protected.get("/api/assessments/{assessment_id}/exports/sprs.md")
