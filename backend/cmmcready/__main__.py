@@ -6,10 +6,39 @@ import argparse
 import sys
 from pathlib import Path
 
+DEFAULT_DEMO_DB = Path(__file__).resolve().parent.parent / "data" / "demo.db"
+
+
+def _coverage(args: argparse.Namespace) -> int:
+    from cmmcready import coverage
+
+    if args.check:
+        stale = coverage.stale_files()
+        if stale:
+            print(f"collector coverage is out of date in {', '.join(stale)}; "
+                  "run: python -m cmmcready catalog --coverage-md --write", file=sys.stderr)
+            return 1
+        print("collector coverage tables are current")
+    elif args.write:
+        try:
+            coverage.write()
+        except ValueError as exc:
+            print(f"coverage error: {exc}", file=sys.stderr)
+            return 1
+        print(f"wrote {coverage.COVERAGE_DOC} and the coverage section of {coverage.README}")
+    else:
+        sys.stdout.write(coverage.coverage_markdown())
+    return 0
+
 
 def _catalog(args: argparse.Namespace) -> int:
     from cmmcready.catalog import load_catalog, validate
 
+    if args.coverage_md:
+        return _coverage(args)
+    if args.write:
+        print("--write is only used with --coverage-md", file=sys.stderr)
+        return 2
     catalog = load_catalog()
     if args.check:
         problems = validate(catalog)
@@ -117,13 +146,82 @@ def _create_admin(args: argparse.Namespace) -> int:
     return 0
 
 
+def _server_args(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument("--host", default="127.0.0.1", help="address to listen on (default 127.0.0.1)")
+    parser.add_argument("--port", type=int, default=8000, help="port (default 8000)")
+    parser.add_argument("--reload", action="store_true", help="restart when the code changes (development)")
+
+
+def _serve(args: argparse.Namespace) -> int:
+    import uvicorn
+
+    uvicorn.run("cmmcready.api:app", host=args.host, port=args.port, reload=args.reload)
+    return 0
+
+
+def _remove_db(path: Path) -> None:
+    for candidate in (path, path.with_name(path.name + "-wal"), path.with_name(path.name + "-shm")):
+        candidate.unlink(missing_ok=True)
+
+
+def _demo(args: argparse.Namespace) -> int:
+    import os
+
+    path = Path(args.db or DEFAULT_DEMO_DB).resolve()
+    # The demo always runs on its own database file, never on CMMCREADY_DB from backend/.env.
+    os.environ["CMMCREADY_DB"] = str(path)
+    if args.reset:
+        _remove_db(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+
+    from cmmcready import db, demo
+
+    conn = db.connect(path)
+    try:
+        if demo.seed(conn):
+            print(f"Loaded the fictional demo organization into {path}")
+        else:
+            print(f"{path} already holds an organization; left it as it is (use --reset to reload)")
+        org = db.get_organization(conn)
+        print(f"Organization: {org['name'] if org else '(none)'}")
+        for a in sorted(db.list_assessments(conn), key=lambda a: a["id"]):
+            result = db.current_score(conn, a["id"])
+            print(f"  assessment {a['id']}: {a['title']}: SPRS score {result.score}"
+                  f"{' (provisional)' if result.provisional else ''}")
+    finally:
+        conn.close()
+    if args.serve:
+        # Demo mode: read-only guests unless an admin signs in (see create-admin).
+        os.environ["CMMCREADY_DEMO"] = "true"
+        return _serve(args)
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="cmmcready")
     sub = parser.add_subparsers(dest="command", required=True)
 
     catalog = sub.add_parser("catalog", help="inspect the NIST SP 800-171 Rev 2 catalog")
-    catalog.add_argument("--check", action="store_true", help="validate the catalog data")
+    catalog.add_argument("--check", action="store_true",
+                         help="validate the catalog data (with --coverage-md: fail if the "
+                              "committed coverage tables are out of date)")
+    catalog.add_argument("--coverage-md", action="store_true",
+                         help="print the collector coverage table generated from rules.yml")
+    catalog.add_argument("--write", action="store_true",
+                         help="with --coverage-md: update docs/COLLECTOR_COVERAGE.md and the README section")
     catalog.set_defaults(func=_catalog)
+
+    demo = sub.add_parser("demo", help="load the fictional demo organization into a separate database")
+    demo.add_argument("--db", type=Path, default=None, metavar="PATH",
+                      help=f"demo database file (default: {DEFAULT_DEMO_DB})")
+    demo.add_argument("--reset", action="store_true", help="delete the demo database first and reload it")
+    demo.add_argument("--serve", action="store_true", help="start the API on it afterwards (demo mode)")
+    _server_args(demo)
+    demo.set_defaults(func=_demo)
+
+    serve = sub.add_parser("serve", help="run the API server")
+    _server_args(serve)
+    serve.set_defaults(func=_serve)
 
     parse = sub.add_parser("collect-parse", help="validate collector output and summarise the findings")
     parse.add_argument("collector", choices=["windows", "m365"])

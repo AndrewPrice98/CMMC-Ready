@@ -34,7 +34,7 @@ Source: https://www.acq.osd.mil/asda/dpc/cp/cyber/docs/safeguarding/NIST-SP-800-
 
 ### NIST SP 800-171 Rev 2
 
-- Source: https://csrc.nist.gov/pubs/sp/800/171/r2/upd1/final (February 2020, includes updates as of January 28, 2021). The PDF is the authoritative text. The page notes Rev 2 was withdrawn May 14, 2024 and superseded by Rev 3; CMMC Level 2 is defined against Rev 2 (per the project plan; not separately re-verified here), which is why Rev 3 is out of scope.
+- Source: https://csrc.nist.gov/pubs/sp/800/171/r2/upd1/final (February 2020, includes updates as of January 28, 2021). The PDF is the authoritative text. The page notes Rev 2 was withdrawn May 14, 2024 and superseded by Rev 3. CMMC Level 2 is still defined against Rev 2: 32 CFR 170.2(a)(9) incorporates by reference "SP 800-171, ... Revision 2, February 2020 (includes updates as of January 28, 2021), (NIST SP 800-171 R2)", IBR approved for 170.4(b) and 170.14(a) through (c) (verified 2026-11-10 at https://www.ecfr.gov/api/versioner/v1/full/2025-01-01/title-32.xml?part=170&section=170.2). That is why Rev 3 is out of scope.
 - Requirement counts per family, confirmed against the numbering in the DoD methodology Annex A: AC 22, AT 3, AU 9, CM 9, IA 11, IR 3, MA 6, MP 9, PS 2, PE 6, RA 3, CA 4, SC 16, SI 7 = 110.
 - SP 800-171A (June 2018, https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-171a.pdf) has 320 assessment objectives: 297 lettered objectives plus 23 requirements with a single, unlettered objective. NIST's CPRT JSON export and the 800-171A CSV also contain 320 (verified 2026-11-09).
 - The Basic requirements in the Rev 2 CSV (31) are exactly the 30 Basic requirements in the methodology's 5-point and 3-point lists (Section 5(d)) plus 3.12.4.
@@ -61,6 +61,15 @@ Built by `backend/scripts/build_catalog.py` into `backend/data/nist_800_171r2.js
 - D1: Plan says a POA&M may hold only weight-1 requirements plus 3.13.11 at -3. 32 CFR 170.21 also bars six specific requirements from the POA&M even though they are weight 1: 3.1.20, 3.1.22, 3.12.4, 3.10.3, 3.10.4, 3.10.5. Task 2 and Task 3 need an exclusion list.
 - D2: Plan (Task 2) says every weight is in {1, 3, 5}. The methodology gives 3.12.4 a value of "NA" (not scored). Total 313 only holds if 3.12.4 contributes 0; with it at 1 the total would be 314. Weights also include the 3.5.3 and 3.13.11 maxima of 5 with partial values of 3.
 
+## Deployment, documentation and CI (Task 11)
+
+- The README's "Why CMMC matters now" uses only the dates verified above (32 CFR 170 effective December 16, 2024; the DFARS rule effective November 10, 2025, starting Phase 1). The later phase dates come from secondary sources only and are not cited.
+- `python -m cmmcready demo` loads the fixture into its own file, `backend/data/demo.db` (git-ignored), never into `CMMCREADY_DB`; `--reset` deletes and reloads it, `--serve` then runs uvicorn on it with `CMMCREADY_DEMO=true`. `serve` runs the API on the configured database.
+- The collector coverage table is generated from `rules.yml` (`backend/cmmcready/coverage.py`). The full table is `docs/COLLECTOR_COVERAGE.md`; a per-family summary sits in the README between `coverage:start` / `coverage:end` markers. `catalog --coverage-md --check` (CI and a test) fails when either is stale. What a rule "may record" is derived from its definition: `met_result`, `unmet_if`/`fail_result`, and `info`.
+- Packaging: the app is run from `backend/` and never pip-installed, so `pyproject.toml` declares no package data. The Vercel function gets `rules.yml` and `backend/data/*.json` through `includeFiles` (`{backend/cmmcready/**,backend/data/**}`); `test_vercel_entry.py` checks that every file the API reads is matched by it and not excluded by `.vercelignore`, and that the root `requirements.txt` equals the backend runtime dependencies minus uvicorn.
+- No new dependencies. Screenshots are taken from the guest view of the demo at 1400 px wide with Playwright (not a project dependency).
+- Accepted advisories: 2 moderate npm advisories in react-router 6.x (GHSA-wrjc-x8rr-h8h6, GHSA-337j-9hxr-rhxg). The fix is react-router v7, outside the pinned stack; the second concerns SSR hydration, which this client-only app does not use. CI fails only on high severity.
+
 ## Licence position
 
-NIST and DoD publications are works of the U.S. Government and the text may be included with attribution. NIST SP 800-171 Rev 2, SP 800-171A and the DoD Assessment Methodology are cited by title, version, URL and retrieval date in the `source` field of `backend/data/nist_800_171r2.json`. No third-party commentary is copied.
+NIST and DoD publications are works of the U.S. Government and the text may be included with attribution. NIST SP 800-171 Rev 2, SP 800-171A and the DoD Assessment Methodology are cited by title, version, URL and retrieval date in the `source` field of `backend/data/nist_800_171r2.json`. No third-party commentary is copied. The code is MIT-licensed (LICENSE); the licence file and README note that the NIST and DoD text are U.S. Government works.
