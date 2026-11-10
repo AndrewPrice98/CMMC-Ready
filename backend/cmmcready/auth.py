@@ -12,6 +12,7 @@ Create the credentials with:  python -m cmmcready create-admin
 """
 
 import base64
+import functools
 import hashlib
 import hmac
 import secrets
@@ -63,14 +64,17 @@ def verify_password(password: str, encoded: str) -> bool:
 
 # A real hash to verify against when the username is wrong, so a wrong username takes
 # as long as a wrong password and response times don't reveal valid usernames.
-_DUMMY_HASH = hash_password(secrets.token_urlsafe(16), iterations=DEFAULT_ITERATIONS)
+# Computed on first use, not at import, so importing the module (tests, the CLI) stays fast.
+@functools.cache
+def _dummy_hash() -> str:
+    return hash_password(secrets.token_urlsafe(16), iterations=DEFAULT_ITERATIONS)
 
 
 def check_credentials(username: str, password: str) -> bool:
     expected_user = config.admin_user()
     expected_hash = config.admin_password_hash()
     user_ok = hmac.compare_digest(username.encode(), expected_user.encode())
-    pw_ok = verify_password(password, expected_hash if user_ok else _DUMMY_HASH)
+    pw_ok = verify_password(password, expected_hash if user_ok else _dummy_hash())
     return user_ok and pw_ok
 
 

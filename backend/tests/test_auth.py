@@ -278,3 +278,21 @@ def test_health_reports_guest(demo_env, anon):
 def test_no_guest_outside_demo(anon):
     assert anon.get("/api/assessments").status_code == 401
     assert anon.get("/api/health").json()["guest"] is False
+
+
+def test_unknown_user_still_pays_for_a_full_password_hash(monkeypatch):
+    assert "_DUMMY_HASH" not in vars(auth)  # nothing is hashed at import time
+    calls = []
+    real = auth.hashlib.pbkdf2_hmac
+
+    def spy(name, password, salt, iterations, *args):
+        calls.append(iterations)
+        return real(name, password, salt, iterations, *args)
+
+    monkeypatch.setattr(auth.hashlib, "pbkdf2_hmac", spy)
+    auth._dummy_hash.cache_clear()
+    assert auth.check_credentials("nobody", "whatever") is False
+    assert calls.count(auth.DEFAULT_ITERATIONS) == 2  # building the dummy, then verifying it
+    calls.clear()
+    assert auth.check_credentials("nobody", "whatever") is False
+    assert calls == [auth.DEFAULT_ITERATIONS]  # cached: one full verify per attempt
