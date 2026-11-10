@@ -128,7 +128,7 @@ npm install
 npm run dev
 ```
 
-Open <http://localhost:5173>. You browse the demo read-only as a guest; if you ran `create-admin`, choose **Sign in** (user `admin`) to answer objectives, upload evidence and edit POA&M items. API docs are at <http://localhost:8000/docs>.
+Open <http://localhost:5173>. You browse the demo read-only as a guest; if you ran `create-admin`, choose **Sign in as admin to edit** in the sidebar (user `admin`) to answer objectives, upload evidence and edit POA&M items. API docs are at <http://localhost:8000/docs>.
 
 `demo` loads the fictional company into its own database file, `backend/data/demo.db`, so it never touches your real data:
 
@@ -179,7 +179,7 @@ Each function instance builds its own SQLite database in `/tmp` from the demo fi
 1. In Vercel, choose **Add New → Project**, import the repository and keep the detected defaults (framework Vite, `npm run build`, output `dist`).
 2. Under **Settings → General → Node.js Version**, choose 20.x or 22.x (Vite 8 needs 20.19+ or 22.12+).
 3. Optional, for an admin login on the hosted copy: run `python -m cmmcready create-admin --print` locally and add `CMMCREADY_ADMIN_USER`, `CMMCREADY_ADMIN_PASSWORD_HASH` and `CMMCREADY_SECRET_KEY` as environment variables. Leave `CMMCREADY_COOKIE_SECURE` unset. Without them nobody can sign in, and the guest view works as normal.
-4. Deploy. The dashboard should load without a password and show "Demo · read-only".
+4. Deploy. The dashboard should load without a password and show "Demo, read-only" at the bottom of the sidebar.
 
 `api/index.py` sets the hosted defaults, each overridable in Vercel's settings: `CMMCREADY_DB=/tmp/cmmcready.db`, `CMMCREADY_DEMO=true`, `CMMCREADY_TRUST_PROXY=true` and `CMMCREADY_MAX_UPLOAD_MB=4` (Vercel caps request bodies at 4.5 MB).
 
@@ -211,7 +211,7 @@ flowchart LR
 | Storage | `backend/cmmcready/db.py` | SQLite in WAL mode; demo seeding is a single transaction under a write lock. |
 | API | `backend/cmmcready/api.py`, `auth.py`, `uploads.py` | Parameterised SQL, allow-listed filters, guest read-only enforcement, upload validation. |
 | Exports | `backend/cmmcready/exports.py` | python-docx documents; the disclaimer is the first paragraph of every export. |
-| Dashboard | `src/` | React 18, Vite and React Router, hand-drawn SVG charts, light and dark themes. |
+| Dashboard | `src/` | React 18, Vite and React Router. A flat, table-first interface with a fixed sidebar, a light theme (dark follows the system setting), Inter Variable bundled with the app, `lucide-react` icons and hand-drawn SVG charts. See [THIRD_PARTY.md](THIRD_PARTY.md). |
 | Demo data | `backend/data/demo_fixture.json` | Built deterministically by `backend/scripts/build_demo.py` (CI checks it is current). The company, people and notes are invented; the Windows hosts and the tenant are derived from the synthetic test fixtures. |
 
 ## Security
@@ -264,6 +264,6 @@ There are **401 tests: 369 backend (pytest) and 32 frontend (node:test)**. They 
 
 ## Licence
 
-The code is released under the [MIT License](LICENSE), Copyright (c) 2026 Andrew T. Price II.
+The code is released under the [MIT License](LICENSE), Copyright (c) 2026 Andrew T. Price II. The bundled Inter typeface (SIL Open Font License 1.1) and the `lucide-react` icons (ISC) are listed in [THIRD_PARTY.md](THIRD_PARTY.md).
 
 The NIST SP 800-171 Rev 2 and SP 800-171A text and the DoD Assessment Methodology values in `backend/data/nist_800_171r2.json` are works of the U.S. Government and are not subject to copyright in the United States. They are included with attribution: the file's `source` field cites each publication by title, version, URL and retrieval date. CMMC Ready is not affiliated with or endorsed by NIST or the Department of Defense.
