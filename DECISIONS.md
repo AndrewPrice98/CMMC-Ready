@@ -1,0 +1,53 @@
+# Decisions
+
+## Sources and verified facts
+
+Verified 2026-11-09 against primary sources. Where a source disagrees with the
+project plan, the source wins and the difference is recorded below.
+
+### DoD Assessment Methodology v1.2.1 (June 24, 2020)
+
+Source: https://www.acq.osd.mil/asda/dpc/cp/cyber/docs/safeguarding/NIST-SP-800-171-Assessment-Methodology-Version-1.2.1-6.24.2020.pdf
+(Section 5 and Annex A, read directly from the PDF.)
+
+- Maximum score is 110 ("a contractor is awarded a score of 110"); each requirement not met is subtracted from 110, which "may result in a negative score".
+- Deduction values are 5, 3 and 1 (Section 5(d)). 5-point: 23 basic + 19 derived listed in 5(d)(i), plus 3.5.3 and 3.13.11 at their maximum of 5 = 44 requirements. 3-point: 7 basic + 7 derived = 14 requirements. 1-point: all remaining scored derived requirements = 51.
+- 3.12.4 (System Security Plan) has Annex A value "NA", so it carries no deduction. Weights therefore total 44x5 + 14x3 + 51x1 = 313, giving a minimum score of 110 - 313 = -203.
+- 3.5.3 (MFA), Section 5(e)(i): 3 points subtracted if MFA is implemented only for remote and privileged users; 5 points if not implemented for any users. Annex A value "3 to 5".
+- 3.13.11 (FIPS-validated cryptography), Section 5(e)(ii) and 5(i)(iii): 3 points if encryption is employed but not FIPS-validated; 5 points if encryption is not employed. Annex A value "3 to 5".
+- Section 5(g): without a system security plan the assessment cannot be completed ("an assessment could not be completed due to incomplete information and noncompliance with DFARS clause 252.204-7012"). A plan of action is not a substitute for a completed requirement.
+- Basic (self) assessment confidence is "Low"; summary score is posted to SPRS.
+
+### 32 CFR 170 (CMMC Program final rule)
+
+- Effective date December 16, 2024; 89 FR 83092 (Oct. 15, 2024). DATES section: "This rule is effective December 16, 2024." https://www.govinfo.gov/content/pkg/FR-2024-10-15/html/2024-22905.htm . The eCFR version history lists 170.21 as issued 2024-12-16: https://www.ecfr.gov/api/versioner/v1/versions/title-32.json?part=170&section=170.21
+- 32 CFR 170.21 (POA&M rules), text at https://www.ecfr.gov/api/versioner/v1/full/2025-01-01/title-32.xml?part=170&section=170.21 :
+  - Level 2 conditional status requires assessment score divided by the number of Level 2 requirements to be at least 0.8; with 110 requirements that is 88. (The CFR states the 0.8 ratio, not the number 88; 88 is derived.)
+  - No requirement with a point value greater than 1 may be on the POA&M, except SC.L2-3.13.11, which may be included if encryption is used but not FIPS-validated (point value 3).
+  - Closeout assessment must confirm closure within 180 days of the Conditional CMMC Status Date, otherwise conditional status expires.
+  - Additionally (not in the original plan, see DISCREPANCY D1): AC.L2-3.1.20, AC.L2-3.1.22, CA.L2-3.12.4, PE.L2-3.10.3, PE.L2-3.10.4 and PE.L2-3.10.5 may not be on the POA&M.
+
+### 48 CFR (DFARS) CMMC acquisition rule
+
+- Final rule published September 10, 2025, 90 FR 43560 (DFARS Case 2019-D041); DATES: "This rule is effective November 10, 2025." Phase 1 (Level 1 and Level 2 self-assessments in applicable solicitations) begins on that date. https://www.govinfo.gov/content/pkg/FR-2025-09-10/html/2025-17359.htm
+- Later phases (Phase 2 on November 10, 2026; Phase 4 on November 10, 2028) are reported by secondary law-firm sources only and were not needed for any scoring constant.
+
+### NIST SP 800-171 Rev 2
+
+- Source: https://csrc.nist.gov/pubs/sp/800/171/r2/upd1/final (February 2020, includes updates as of January 28, 2021). The PDF is the authoritative text. The page notes Rev 2 was withdrawn May 14, 2024 and superseded by Rev 3; CMMC Level 2 is defined against Rev 2 (per the project plan; not separately re-verified here), which is why Rev 3 is out of scope.
+- Requirement counts per family, confirmed against the numbering in the DoD methodology Annex A: AC 22, AT 3, AU 9, CM 9, IA 11, IR 3, MA 6, MP 9, PS 2, PE 6, RA 3, CA 4, SC 16, SI 7 = 110.
+- The 320 objective count (SP 800-171A) is not asserted here; Task 2 builds and pins it from the NIST text.
+
+### Facts not independently verified
+
+- The 5 organization-defined parameter defaults (password length 12, lockout 10, session lock 15 minutes, password history 24, log retention 90 days) are project design choices, not source facts.
+- Federal Register website pages blocked automated access; govinfo.gov copies of the same documents were used instead.
+
+### Discrepancies between the plan and sources
+
+- D1: Plan says a POA&M may hold only weight-1 requirements plus 3.13.11 at -3. 32 CFR 170.21 also bars six specific requirements from the POA&M even though they are weight 1: 3.1.20, 3.1.22, 3.12.4, 3.10.3, 3.10.4, 3.10.5. Task 2 and Task 3 need an exclusion list.
+- D2: Plan (Task 2) says every weight is in {1, 3, 5}. The methodology gives 3.12.4 a value of "NA" (not scored). Total 313 only holds if 3.12.4 contributes 0; with it at 1 the total would be 314. Weights also include the 3.5.3 and 3.13.11 maxima of 5 with partial values of 3.
+
+## Licence position
+
+NIST and DoD publications are works of the U.S. Government and the text may be included with attribution. NIST SP 800-171 Rev 2, SP 800-171A and the DoD Assessment Methodology are cited by title, version and URL in `backend/data/` and in the README. No third-party commentary is copied.
