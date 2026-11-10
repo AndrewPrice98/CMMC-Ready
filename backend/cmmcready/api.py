@@ -7,6 +7,8 @@ import logging
 import math
 import re
 import sqlite3
+from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager
 from dataclasses import asdict
 from datetime import date
 from functools import lru_cache
@@ -14,15 +16,20 @@ from typing import Annotated, Any, Iterator, Literal
 
 from fastapi import (APIRouter, Body, Depends, FastAPI, File, HTTPException, Query, Request,
                      Response, UploadFile)
+from fastapi.concurrency import run_in_threadpool
+from fastapi.responses import JSONResponse
+from fastapi.concurrency import run_in_threadpool
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
 from . import __version__, auth, config, db, demo, exports, poam
 from .catalog import Requirement, load_catalog
 from .evidence.engine import DEFAULT_ODP, ODP_DESCRIPTIONS
 from .scoring import ScoreResult, requirement_status, top_gaps
-from .uploads import UploadError, decode_json_upload
+from .uploads import EVIDENCE_MAX_LINE_CHARS, UploadError, decode_json_upload
 
 app = FastAPI(
+    lifespan=lambda a: lifespan(a),
     title="CMMC Ready API",
     version=__version__,
     description="CMMC Level 2 / NIST SP 800-171 Rev 2 self-assessment aid. "
@@ -54,12 +61,54 @@ async def security_headers(request: Request, call_next):
     return response
 
 
+MULTIPART_OVERHEAD = 64 * 1024
+
+
+@app.middleware("http")
+async def reject_oversize(request: Request, call_next):
+    """Refuse an announced body over the upload cap before reading any of it."""
+    declared = request.headers.get("content-length", "")
+    if declared.isdigit() and int(declared) > config.max_upload_bytes() + MULTIPART_OVERHEAD:
+        return JSONResponse({"detail": f"Request too large (max {config.max_upload_bytes() // (1024 * 1024)} MB)"},
+                            status_code=413)
+    return await call_next(request)
+
+
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
+    if config.demo_mode():
+        await run_in_threadpool(demo.ensure_seeded)
+    yield
+
+
+MULTIPART_OVERHEAD = 64 * 1024
+
+
+@app.middleware("http")
+async def reject_oversize(request: Request, call_next):
+    """Refuse an announced body over the upload cap before reading any of it."""
+    declared = request.headers.get("content-length", "")
+    if declared.isdigit() and int(declared) > config.max_upload_bytes() + MULTIPART_OVERHEAD:
+        return JSONResponse(
+            {"detail": f"Request too large (max {config.max_upload_bytes() // (1024 * 1024)} MB)"},
+            status_code=413)
+    return await call_next(request)
+
+
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
+    if config.demo_mode():
+        await run_in_threadpool(demo.ensure_seeded)
+    yield
+
+
 def get_conn() -> Iterator[sqlite3.Connection]:
     conn = db.connect()
     try:
-        if config.demo_mode():
+        if config.demo_mode() and db.get_organization(conn) is None:
+            # Normally seeded at startup; this covers a cold or reset database.
             try:
-                demo.seed(conn)  # no-op once the demo organization exists
+                demo.seed(conn)
             except Exception:
                 conn.rollback()
                 log.exception("Demo seeding failed; serving the request anyway")
@@ -197,11 +246,53 @@ def me(user: Annotated[str, Depends(auth.require_user)]):
     return {"username": user, "guest": user == auth.GUEST_USER}
 
 
+CAGE = re.compile(r"^[A-Za-z0-9]{5}$")
+
+
+def _org_out(org: dict | None) -> dict | None:
+    if org is None:
+        return None
+    codes = [c.strip() for c in org["cage_codes"].split(",") if c.strip()]
+    return {**org, "cage_codes": codes}
+
+
 @protected.get("/api/organization")
 def organization(conn: Conn):
+    return _org_out(db.get_organization(conn))
+
+
+class OrganizationBody(BaseModel):
+    name: str = Field(min_length=1, max_length=200)
+    cage_codes: list[str] = Field(default_factory=list, max_length=20)
+    description: str = Field(default="", max_length=5000)
+    cui_boundary: str = Field(default="", max_length=10000)
+
+
+@protected.put("/api/organization")
+def put_organization(_w: Annotated[str, Writer], body: OrganizationBody, conn: Conn):
+    name = body.name.strip()
+    if not name:
+        raise HTTPException(422, "name must not be blank")
+    codes = [c.strip().upper() for c in body.cage_codes]
+    if not all(CAGE.match(c) for c in codes):
+        raise HTTPException(422, "each CAGE code must be 5 letters or digits")
+    joined = ", ".join(dict.fromkeys(codes))
+    existing = db.get_organization(conn)
+    with conn:
+        if existing is None:
+            conn.execute("INSERT INTO organization (name, cage_codes, description, cui_boundary) "
+                         "VALUES (?, ?, ?, ?)", (name, joined, body.description, body.cui_boundary))
+        else:
+            conn.execute("UPDATE organization SET name = ?, cage_codes = ?, description = ?, "
+                         "cui_boundary = ? WHERE id = ?",
+                         (name, joined, body.description, body.cui_boundary, existing["id"]))
+    return _org_out(db.get_organization(conn))
+
+
+def _need_org(conn: sqlite3.Connection) -> dict:
     org = db.get_organization(conn)
     if org is None:
-        raise HTTPException(404, "no organization")
+        raise HTTPException(409, "Create the organization first (PUT /api/organization)")
     return org
 
 
@@ -213,6 +304,52 @@ def assets(conn: Conn):
     rows = conn.execute("SELECT id, name, category, description FROM assets WHERE org_id = ? ORDER BY id",
                         (org["id"],)).fetchall()
     return [dict(r) for r in rows]
+
+
+class AssetBody(BaseModel):
+    name: str = Field(min_length=1, max_length=200)
+    category: Literal["cui", "spa", "crma", "specialized", "out_of_scope"]
+    description: str = Field(default="", max_length=5000)
+
+
+def _asset(conn: sqlite3.Connection, org: dict, raw_id: str) -> dict:
+    row = conn.execute("SELECT id, name, category, description FROM assets WHERE id = ? AND org_id = ?",
+                       (_int_id(raw_id, "asset"), org["id"])).fetchone()
+    if row is None:
+        raise HTTPException(404, "asset not found")
+    return dict(row)
+
+
+@protected.post("/api/assets", status_code=201)
+def create_asset(_w: Annotated[str, Writer], body: AssetBody, conn: Conn):
+    org = _need_org(conn)
+    if not body.name.strip():
+        raise HTTPException(422, "name must not be blank")
+    with conn:
+        cur = conn.execute("INSERT INTO assets (org_id, name, category, description) VALUES (?, ?, ?, ?)",
+                           (org["id"], body.name.strip(), body.category, body.description))
+    return _asset(conn, org, str(cur.lastrowid))
+
+
+@protected.put("/api/assets/{asset_id}")
+def update_asset(_w: Annotated[str, Writer], asset_id: str, body: AssetBody, conn: Conn):
+    org = _need_org(conn)
+    current = _asset(conn, org, asset_id)
+    if not body.name.strip():
+        raise HTTPException(422, "name must not be blank")
+    with conn:
+        conn.execute("UPDATE assets SET name = ?, category = ?, description = ? WHERE id = ?",
+                     (body.name.strip(), body.category, body.description, current["id"]))
+    return _asset(conn, org, asset_id)
+
+
+@protected.delete("/api/assets/{asset_id}")
+def delete_asset(_w: Annotated[str, Writer], asset_id: str, conn: Conn):
+    org = _need_org(conn)
+    current = _asset(conn, org, asset_id)
+    with conn:
+        conn.execute("DELETE FROM assets WHERE id = ?", (current["id"],))
+    return {"ok": True}
 
 
 def _org_assessments(conn: sqlite3.Connection) -> list[dict]:
@@ -231,6 +368,82 @@ def list_assessments(conn: Conn):
                     "completed_at": a["completed_at"], "odp": a["odp"],
                     "score": result.score, "max": result.max, "provisional": result.provisional})
     return out
+
+
+_WHEN = re.compile(r"^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}Z)?$")
+
+
+def _check_when(value: str | None) -> str | None:
+    if value in (None, ""):
+        return None
+    try:
+        if not _WHEN.match(value):
+            raise ValueError
+        date.fromisoformat(value[:10])
+    except ValueError:
+        raise HTTPException(422, "completed_at must be YYYY-MM-DD or YYYY-MM-DDTHH:MM:SSZ") from None
+    return value
+
+
+class AssessmentCreate(BaseModel):
+    title: str = Field(min_length=1, max_length=200)
+    copy_from: int | None = Field(default=None, ge=1, le=999_999_999)
+
+
+class AssessmentPatch(BaseModel):
+    title: str | None = Field(default=None, min_length=1, max_length=200)
+    completed_at: str | None = Field(default=None, max_length=20)
+
+
+def _summary(conn: sqlite3.Connection, assessment_id: int) -> dict:
+    a = db.get_assessment(conn, assessment_id)
+    result = db.current_score(conn, assessment_id)
+    return {"id": a["id"], "title": a["title"], "started_at": a["started_at"],
+            "completed_at": a["completed_at"], "odp": a["odp"],
+            "score": result.score, "max": result.max, "provisional": result.provisional}
+
+
+@protected.post("/api/assessments", status_code=201)
+def create_assessment(_w: Annotated[str, Writer], body: AssessmentCreate, conn: Conn):
+    org = _need_org(conn)
+    title = body.title.strip()
+    if not title:
+        raise HTTPException(422, "title must not be blank")
+    source = None
+    if body.copy_from is not None:
+        source = db.get_assessment(conn, body.copy_from)
+        if source is None or source["org_id"] != org["id"]:
+            raise HTTPException(404, "assessment to copy not found")
+    conn.commit()
+    with conn:  # one transaction: the assessment and its copied answers, or nothing
+        new_id = db.create_assessment(
+            conn, org["id"], title, commit=False,
+            odp=source["odp"] if source else None,
+            partial_choices=source["partial_choices"] if source else None)
+        if source:
+            conn.execute(
+                "INSERT INTO answers (assessment_id, objective_id, answer, note, justification, answered_at) "
+                "SELECT ?, objective_id, answer, note, justification, answered_at FROM answers "
+                "WHERE assessment_id = ?", (new_id, source["id"]))
+    return _summary(conn, new_id)
+
+
+@protected.patch("/api/assessments/{assessment_id}")
+def patch_assessment(_w: Annotated[str, Writer], assessment: Assessment, body: AssessmentPatch, conn: Conn):
+    sets, params = [], []
+    if "title" in body.model_fields_set:
+        if body.title is None or not body.title.strip():
+            raise HTTPException(422, "title must not be blank")
+        sets.append("title = ?")
+        params.append(body.title.strip())
+    if "completed_at" in body.model_fields_set:
+        sets.append("completed_at = ?")
+        params.append(_check_when(body.completed_at))
+    if sets:
+        with conn:
+            conn.execute(f"UPDATE assessments SET {', '.join(sets)} WHERE id = ?",  # fixed column names
+                         [*params, assessment["id"]])
+    return _summary(conn, assessment["id"])
 
 
 @protected.get("/api/assessments/{assessment_id}/overview")
@@ -410,7 +623,7 @@ def upload_evidence(_w: Annotated[str, Writer], assessment: Assessment, conn: Co
     if len(data) > limit:
         raise HTTPException(413, f"File too large (max {limit // (1024 * 1024)} MB)")
     try:
-        text = decode_json_upload(data)
+        text = decode_json_upload(data, EVIDENCE_MAX_LINE_CHARS)
     except UploadError as exc:
         raise HTTPException(exc.status, str(exc)) from None
     try:
@@ -485,7 +698,7 @@ def create_poam_item(_w: Annotated[str, Writer], assessment: Assessment, body: P
         if st.status[req.id] in ("met", "na"):
             reason = f"{req.id} is not a gap in this assessment, so it needs no POA&M item."
         else:
-            reason = poam._ineligible_reason(st.catalog, req.id, assessment["partial_choices"].get(req.id))
+            reason = poam.ineligible_reason(st.catalog, req.id, assessment["partial_choices"].get(req.id))
         raise HTTPException(422, reason)
     if any(i["req_id"] == req.id for i in db.list_poam_items(conn, assessment["id"])):
         raise HTTPException(409, f"{req.id} already has a POA&M item")

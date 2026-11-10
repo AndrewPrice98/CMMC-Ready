@@ -51,7 +51,7 @@ def _existing_ids(existing: list) -> set[str]:
     return ids
 
 
-def _ineligible_reason(catalog: Catalog, req_id: str, choice: str | None) -> str:
+def ineligible_reason(catalog: Catalog, req_id: str, choice: str | None) -> str:
     req = catalog.by_id(req_id)
     if req_id == FIPS_REQUIREMENT and req.poam_allowed:
         return (f"Not eligible under {CITATION}: {req_id} may be on a POA&M only when "
@@ -90,6 +90,6 @@ def generate_poam(
             req_id=req.id,
             weakness=f"Requirement {req.id} is not met: {req.text}",
             due_date=due, points=gap.points, allowed=allowed,
-            reason="" if allowed else _ineligible_reason(catalog, req.id, choices.get(req.id)),
+            reason="" if allowed else ineligible_reason(catalog, req.id, choices.get(req.id)),
         ))
     return drafts

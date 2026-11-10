@@ -79,9 +79,9 @@ def test_invalid_utf8_is_415(client):
 
 
 def test_long_line_is_413(client):
-    minified = json.dumps({"collector": "windows", "pad": "x" * 9000}).encode()
+    minified = json.dumps({"collector": "windows", "pad": "x" * 70000}).encode()
     r = post(client, minified)
-    assert r.status_code == 413 and "Line 1" in r.text
+    assert r.status_code == 413 and "Line 1" in r.text and "65536" in r.text
 
 
 def test_oversize_is_413(client, monkeypatch):
@@ -91,3 +91,16 @@ def test_oversize_is_413(client, monkeypatch):
 
 def test_unknown_assessment_is_404(client):
     assert post(client, WINDOWS, assessment=999).status_code == 404
+
+
+def test_line_between_old_and_new_limit_is_accepted_as_line_length(client):
+    # 9000 characters on one line is fine for evidence JSON now; it fails later as "not a collector".
+    padded = json.dumps({"collector": "linux", "pad": "x" * 9000}).encode()
+    assert post(client, padded).status_code == 400
+
+
+def test_declared_content_length_over_cap_is_413_before_reading(client, monkeypatch):
+    monkeypatch.setenv("CMMCREADY_MAX_UPLOAD_MB", "1")
+    big = b"x" * (1024 * 1024 + 70_000)
+    r = client.post("/api/assessments/2/evidence", files={"file": ("e.json", big)})
+    assert r.status_code == 413 and "too large" in r.text.lower()

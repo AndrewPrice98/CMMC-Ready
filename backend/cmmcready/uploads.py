@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 MAX_LINE_CHARS = 8192
+EVIDENCE_MAX_LINE_CHARS = 65536  # pretty-printed collector JSON; some values are long
+EVIDENCE_MAX_LINE_CHARS = 65536  # pretty-printed collector JSON; some values (policies) are long
 
 
 class UploadError(Exception):
@@ -25,5 +27,5 @@ def decode_json_upload(data: bytes, max_line: int = MAX_LINE_CHARS) -> str:
         raise UploadError(415, "File is not UTF-8 text") from None
     for n, line in enumerate(text.splitlines(), 1):
         if len(line) > max_line:
-            raise UploadError(413, f"Line {n} is longer than {max_line} characters")
+            raise UploadError(413, f"Line {n} is longer than the limit of {max_line} characters ({len(line)} found)")
     return text
