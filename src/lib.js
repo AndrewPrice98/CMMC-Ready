@@ -47,3 +47,20 @@ export function listWords(items, max = 3) {
   if (items.length > max) return `${items.slice(0, max).join(', ')} and ${items.length - max} more`
   return `${items.slice(0, -1).join(', ')} and ${items[items.length - 1]}`
 }
+
+// -- scoping (CMMC Level 2 Scoping Guide asset categories) ---------------------------------
+
+export const ASSET_CATEGORIES = [
+  ['cui', 'CUI assets',
+    'Process, store or transmit CUI. Assessed against all 110 requirements.'],
+  ['spa', 'Security protection assets',
+    'Provide security functions to the assessment scope, such as identity, firewalls and logging, whether or not they handle CUI.'],
+  ['crma', 'Contractor risk managed assets',
+    'Can, but are not intended to, handle CUI because of policies, procedures and practices. Documented in the SSP.'],
+  ['specialized', 'Specialized assets',
+    'Can handle CUI but cannot be fully secured: IoT, operational technology, government property, test equipment. Documented in the SSP.'],
+  ['out_of_scope', 'Out-of-scope assets',
+    'Cannot process, store or transmit CUI, protect no CUI assets, and are physically or logically separated from them.'],
+].map(([code, name, help]) => ({ code, name, help }))
+
+export const COLLECTORS = { windows: 'Windows', m365: 'Microsoft 365 / Entra ID' }

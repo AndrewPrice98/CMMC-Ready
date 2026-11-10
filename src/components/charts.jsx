@@ -1,4 +1,6 @@
+import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { chartPoints, scoreTicks } from '../history.js'
 import { MAX_SCORE, MIN_SCORE, THRESHOLD, plural } from '../lib.js'
 import { scoreTone } from '../verdict.js'
 
@@ -143,5 +145,79 @@ export function FamilyHeatmap({ rows }) {
         )
       })}
     </ul>
+  )
+}
+
+/** Width of an element, kept current with a ResizeObserver, so SVG text stays at its real size. */
+export function useWidth(ref, fallback = 640) {
+  const [width, setWidth] = useState(fallback)
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return undefined
+    const measure = () => setWidth(Math.max(240, Math.round(el.getBoundingClientRect().width)))
+    measure()
+    const observer = new ResizeObserver(measure)
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [ref])
+  return width
+}
+
+const fmtScore = (n) => (n < 0 ? `−${Math.abs(n)}` : String(n))
+
+/**
+ * SPRS score over assessments, oldest first, with the 88-point threshold and the
+ * conditional-status zone (88-110) marked. Provisional scores are hollow points.
+ */
+export function ScoreHistoryChart({ assessments, formatDate }) {
+  const wrap = useRef(null)
+  const width = useWidth(wrap)
+  const narrow = width < 480
+  const height = narrow ? 240 : 280
+  const box = { left: narrow ? 40 : 48, right: width - (narrow ? 28 : 44), top: 28, bottom: height - 48 }
+  const { range, y, points } = chartPoints(assessments, box)
+  const ticks = scoreTicks(range)
+  const label = `SPRS score over ${plural(assessments.length, 'assessment')}: `
+    + assessments.map((a) => `${formatDate(a.date)}, ${fmtScore(a.score)}${a.provisional ? ' (provisional)' : ''}`).join('; ')
+    + `. Conditional Level 2 status needs at least ${THRESHOLD}.`
+  return (
+    <figure className="history-chart" ref={wrap}>
+      <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} role="img" aria-label={label}>
+        <rect className="hc-zone" x={box.left} y={y(MAX_SCORE)} width={box.right - box.left} height={y(THRESHOLD) - y(MAX_SCORE)} />
+        {ticks.map((t) => (
+          <g key={t} className="hc-tick">
+            <line x1={box.left} x2={box.right} y1={y(t)} y2={y(t)} />
+            <text x={box.left - 8} y={y(t) + 4} textAnchor="end">{fmtScore(t)}</text>
+          </g>
+        ))}
+        <g className="hc-threshold">
+          <line x1={box.left} x2={box.right} y1={y(THRESHOLD)} y2={y(THRESHOLD)} />
+          <text x={box.left - 8} y={y(THRESHOLD) + 4} textAnchor="end">{THRESHOLD}</text>
+          <text className="hc-threshold-label" x={box.left + 8} y={y(THRESHOLD) + 15}>
+            {narrow ? 'Conditional status' : `${THRESHOLD}: conditional Level 2 status`}
+          </text>
+        </g>
+        {points.length > 1 && (
+          <polyline className="hc-line" pathLength="1" points={points.map((p) => `${p.x},${p.y}`).join(' ')} />
+        )}
+        {points.map((p, i) => {
+          const tone = scoreTone(p.score)
+          const anchor = points.length > 1 && i === 0 ? 'start' : points.length > 1 && i === points.length - 1 ? 'end' : 'middle'
+          const dx = anchor === 'start' ? -6 : anchor === 'end' ? 6 : 0
+          return (
+            <g key={p.id} className="hc-point">
+              <circle cx={p.x} cy={p.y} r="6" className={`${tone} ${p.provisional ? 'hollow' : ''}`} />
+              <text className={`hc-value ${tone}`} x={p.x + dx} y={p.y - 13} textAnchor={anchor}>{fmtScore(p.score)}</text>
+              <text className="hc-date" x={p.x + dx} y={box.bottom + 22} textAnchor={anchor}>{formatDate(p.date)}</text>
+            </g>
+          )
+        })}
+      </svg>
+      <figcaption className="gauge-legend">
+        <span><i className="swatch line" aria-hidden="true" /> SPRS score</span>
+        <span><i className="swatch zone" aria-hidden="true" /> {THRESHOLD}–{MAX_SCORE}: conditional status range</span>
+        <span><i className="swatch hollow" aria-hidden="true" /> Hollow point: provisional</span>
+      </figcaption>
+    </figure>
   )
 }

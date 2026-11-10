@@ -2,40 +2,12 @@ import { useEffect, useId, useState } from 'react'
 import { Link, useLocation, useParams } from 'react-router-dom'
 import { api } from '../api.js'
 import {
-  ANSWERS, Chip, ErrorState, FINDING_RESULTS, Icon, Loading, POAM_CITATION, StatusChip, cmmcId, formatDate,
-  partialLabel, plural, useAsync, usePageTitle, useSession,
+  ANSWERS, COLLECTORS, Chip, ErrorState, FINDING_RESULTS, Icon, Loading, Observed, POAM_CITATION, POAM_STATUS,
+  StatusChip, cmmcId, formatDate, partialLabel, plural, useAsync, usePageTitle, useSession,
 } from '../components/ui.jsx'
-
-const COLLECTORS = { windows: 'Windows', m365: 'Microsoft 365 / Entra ID' }
-const POAM_STATUS = {
-  open: { label: 'Open', tone: 'warn', glyph: '○' },
-  in_progress: { label: 'In progress', tone: 'info', glyph: '◐' },
-  closed: { label: 'Closed', tone: 'good', glyph: '✓' },
-}
 const ANSWER_ORDER = ['met', 'not_met', 'na', 'unanswered']
 // A System Security Plan can never be not applicable; the server refuses N/A on 3.12.4.
 const SSP = '3.12.4'
-
-function formatValue(value) {
-  if (value === null || value === undefined) return 'none'
-  if (typeof value === 'boolean') return value ? 'true' : 'false'
-  if (typeof value === 'object') return JSON.stringify(value)
-  return String(value)
-}
-
-function Observed({ observed }) {
-  const entries = observed && typeof observed === 'object' && !Array.isArray(observed)
-    ? Object.entries(observed) : null
-  if (!entries) return <code>{formatValue(observed)}</code>
-  if (!entries.length) return <span className="muted">nothing reported</span>
-  return (
-    <>
-      {entries.map(([k, v], i) => (
-        <span key={k}>{i > 0 && ', '}<code>{k} = {formatValue(v)}</code></span>
-      ))}
-    </>
-  )
-}
 
 function Finding({ f, reqId }) {
   return (

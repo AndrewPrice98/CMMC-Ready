@@ -67,7 +67,30 @@ export const api = {
   requirements: (id, params = {}) => request(`${assessment(id)}/requirements${qs(params)}`),
   requirement: (id, reqId) => request(`${assessment(id)}/requirements/${enc(reqId)}`),
 
+  assets: () => request('/assets'),
+  evidence: (id) => request(`${assessment(id)}/evidence`),
+  evidenceRun: (id, evidenceId) => request(`${assessment(id)}/evidence/${enc(evidenceId)}`),
+  poam: (id) => request(`${assessment(id)}/poam`),
+  sprs: (id) => request(`${assessment(id)}/sprs`),
+  history: () => request('/history'),
+  /** Same-origin download link; the session cookie goes with it. */
+  exportUrl: (id, name) => `/api${assessment(id)}/exports/${name}`,
+
   // Writer-only routes; the server answers 403 for guests.
   answer: (id, objectiveId, body) => request(`${assessment(id)}/objectives/${enc(objectiveId)}`, send('PUT', body)),
   partial: (id, reqId, choice) => request(`${assessment(id)}/partial/${enc(reqId)}`, send('PUT', { choice })),
+  odp: (id, values) => request(`${assessment(id)}/odp`, send('PUT', values)),
+  saveOrganization: (body) => request('/organization', send('PUT', body)),
+  createAsset: (body) => request('/assets', send('POST', body)),
+  updateAsset: (assetId, body) => request(`/assets/${enc(assetId)}`, send('PUT', body)),
+  deleteAsset: (assetId) => request(`/assets/${enc(assetId)}`, { method: 'DELETE' }),
+  createAssessment: (body) => request('/assessments', send('POST', body)),
+  updateAssessment: (id, body) => request(assessment(id), send('PATCH', body)),
+  uploadEvidence: (id, file) => {
+    const form = new FormData()
+    form.append('file', file)
+    return request(`${assessment(id)}/evidence`, { method: 'POST', body: form })
+  },
+  createPoam: (id, body) => request(`${assessment(id)}/poam`, send('POST', body)),
+  updatePoam: (id, itemId, body) => request(`${assessment(id)}/poam/${enc(itemId)}`, send('PATCH', body)),
 }

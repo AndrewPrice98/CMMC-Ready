@@ -1,12 +1,18 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { BrowserRouter, NavLink, Route, Routes, useLocation } from 'react-router-dom'
+import { BrowserRouter, Link, NavLink, Route, Routes, useLocation } from 'react-router-dom'
 import { api } from './api.js'
 import Overview from './pages/Overview.jsx'
 import Requirements from './pages/Requirements.jsx'
 import RequirementDetail from './pages/RequirementDetail.jsx'
+import Evidence from './pages/Evidence.jsx'
+import EvidenceDetail from './pages/EvidenceDetail.jsx'
+import Poam from './pages/Poam.jsx'
+import Documents from './pages/Documents.jsx'
+import History from './pages/History.jsx'
+import Scope from './pages/Scope.jsx'
 import Login from './pages/Login.jsx'
 import {
-  ComingSoon, DISCLAIMER, Empty, ErrorState, GITHUB_URL, Icon, Loading, SessionContext, useSession,
+  DISCLAIMER, Empty, ErrorState, GITHUB_URL, Icon, Loading, SessionContext, usePageTitle, useSession,
 } from './components/ui.jsx'
 
 const NAV = [
@@ -71,8 +77,8 @@ function AccountArea({ onLogout, onSignIn }) {
   )
 }
 
-function ContextBar({ org, onSignIn }) {
-  const { assessments, assessmentId, setAssessmentId, guest, authConfigured } = useSession()
+function ContextBar({ onSignIn }) {
+  const { org, assessments, assessmentId, setAssessmentId, guest, authConfigured } = useSession()
   return (
     <div className="contextbar">
       <div className="contextbar-inner">
@@ -124,8 +130,73 @@ function useFocusOnNavigate(mainRef) {
   }, [pathname, mainRef])
 }
 
-function Shell({ org, onLogout, onSignIn }) {
-  const { version, assessmentId } = useSession()
+/**
+ * Shown instead of an assessment page when there is no assessment yet (a new, empty
+ * database): admins are sent to Scope to set things up, guests are told why it is empty.
+ */
+function SetupPrompt({ title }) {
+  usePageTitle(title)
+  const { org, guest } = useSession()
+  const steps = [
+    ['Describe your organization', 'Name, CAGE codes and the CUI boundary.', Boolean(org)],
+    ['List your assets', 'Group them by CMMC asset category.', false],
+    ['Start an assessment', 'Then answer the 320 objectives and upload collector output.', false],
+  ]
+  return (
+    <div className="page">
+      <header className="page-head">
+        <div>
+          <p className="eyebrow">Getting started</p>
+          <h1 tabIndex={-1}>{title}</h1>
+        </div>
+      </header>
+      <section className="card setup-card" aria-labelledby="setup-title">
+        {guest ? (
+          <>
+            <h2 id="setup-title">No assessment yet</h2>
+            <p className="muted">
+              This instance has {org ? 'an organization but no assessment' : 'no organization or assessment'} yet.
+              An administrator sets them up on the Scope page; until then there is nothing to score.
+            </p>
+            <Link className="btn secondary" to="/scope">View scope <Icon name="arrow" size={16} /></Link>
+          </>
+        ) : (
+          <>
+            <h2 id="setup-title">{org ? 'Start your first assessment' : 'Set up your organization to begin'}</h2>
+            <p className="muted">
+              {org
+                ? `${org.name} is set up. Start an assessment on the Scope page to see the score, gaps and documents here.`
+                : 'CMMC Ready needs an organization and an assessment before it can score anything. It takes a minute.'}
+            </p>
+            <ol className="setup-steps">
+              {steps.map(([name, help, done], i) => (
+                <li key={name} className={done ? 'done' : ''}>
+                  <span className="setup-num" aria-hidden="true">{done ? <Icon name="check" size={14} /> : i + 1}</span>
+                  <span>
+                    <strong>{name}</strong>{done && <span className="sr-only"> (done)</span>}{' '}
+                    <span className="muted">{help}</span>
+                  </span>
+                </li>
+              ))}
+            </ol>
+            <Link className="btn primary" to={org ? '/scope#new-assessment' : '/scope'}>
+              {org ? 'Start an assessment' : 'Set up the organization'} <Icon name="arrow" size={16} />
+            </Link>
+          </>
+        )}
+      </section>
+    </div>
+  )
+}
+
+/** Pages that need an assessment fall back to the setup prompt. */
+function NeedsAssessment({ title, children }) {
+  const { assessmentId } = useSession()
+  return assessmentId == null ? <SetupPrompt title={title} /> : children
+}
+
+function Shell({ onLogout, onSignIn }) {
+  const { version } = useSession()
   const mainRef = useRef(null)
   useFocusOnNavigate(mainRef)
   return (
@@ -150,28 +221,22 @@ function Shell({ org, onLogout, onSignIn }) {
           </div>
         </div>
       </header>
-      <ContextBar org={org} onSignIn={onSignIn} />
+      <ContextBar onSignIn={onSignIn} />
       <main id="main" className="main" ref={mainRef}>
-        {assessmentId == null ? (
-          <Empty>No assessment exists yet. Sign in as admin and create one to start.</Empty>
-        ) : (
-          <Routes>
-            <Route path="/" element={<Overview />} />
-            <Route path="/requirements" element={<Requirements />} />
-            <Route path="/requirements/:reqId" element={<RequirementDetail />} />
-            <Route path="/evidence" element={<ComingSoon title="Evidence">
-              Collector uploads and the findings they produced, objective by objective.</ComingSoon>} />
-            <Route path="/poam" element={<ComingSoon title="POA&M">
-              The plan of action and milestones, with the 32 CFR §170.21 eligibility rules and 180-day closeout dates.</ComingSoon>} />
-            <Route path="/documents" element={<ComingSoon title="Documents">
-              System Security Plan and POA&M exports (DOCX and CSV) and the SPRS summary.</ComingSoon>} />
-            <Route path="/history" element={<ComingSoon title="History">
-              Score over time and what changed between assessments.</ComingSoon>} />
-            <Route path="/scope" element={<ComingSoon title="Scope">
-              The CUI boundary, asset categories and organization-defined parameters.</ComingSoon>} />
-            <Route path="*" element={<Empty><h1 tabIndex={-1} className="h-inline">Page not found.</h1></Empty>} />
-          </Routes>
-        )}
+        <Routes>
+          <Route path="/" element={<NeedsAssessment title="Overview"><Overview /></NeedsAssessment>} />
+          <Route path="/requirements" element={<NeedsAssessment title="Requirements"><Requirements /></NeedsAssessment>} />
+          <Route path="/requirements/:reqId"
+            element={<NeedsAssessment title="Requirement"><RequirementDetail /></NeedsAssessment>} />
+          <Route path="/evidence" element={<NeedsAssessment title="Evidence"><Evidence /></NeedsAssessment>} />
+          <Route path="/evidence/:evidenceId"
+            element={<NeedsAssessment title="Evidence"><EvidenceDetail /></NeedsAssessment>} />
+          <Route path="/poam" element={<NeedsAssessment title="POA&M"><Poam /></NeedsAssessment>} />
+          <Route path="/documents" element={<NeedsAssessment title="Documents"><Documents /></NeedsAssessment>} />
+          <Route path="/history" element={<History />} />
+          <Route path="/scope" element={<Scope />} />
+          <Route path="*" element={<Empty><h1 tabIndex={-1} className="h-inline">Page not found.</h1></Empty>} />
+        </Routes>
       </main>
       <footer className="footer">
         <div className="footer-inner">
@@ -227,11 +292,24 @@ function App() {
     setAssessmentIdState(id)
   }, [])
 
+  /** Re-read the organization and assessments after Scope changes them; optionally select one. */
+  const refresh = useCallback(async (selectId) => {
+    const [org, assessments] = await Promise.all([api.organization(), api.assessments()])
+    setState((s) => (s.phase === 'user' ? { ...s, org, assessments } : s))
+    if (selectId != null) {
+      storeAssessment(selectId)
+      setAssessmentIdState(selectId)
+    } else {
+      setAssessmentIdState((current) => (
+        assessments.some((a) => a.id === current) ? current : defaultAssessment(assessments)))
+    }
+  }, [])
+
   const session = useMemo(() => (state.phase === 'user' ? {
     user: state.user, guest: state.guest, demo: state.demo, version: state.version,
-    authConfigured: state.authConfigured, assessments: state.assessments,
-    assessmentId, setAssessmentId,
-  } : null), [state, assessmentId, setAssessmentId])
+    authConfigured: state.authConfigured, org: state.org, assessments: state.assessments,
+    assessmentId, setAssessmentId, refresh,
+  } : null), [state, assessmentId, setAssessmentId, refresh])
 
   async function logout() {
     try { await api.logout() } catch { /* clearing local state is enough */ }
@@ -263,7 +341,7 @@ function App() {
   return (
     <SessionContext.Provider value={session}>
       <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-        <Shell org={state.org} onLogout={logout}
+        <Shell onLogout={logout}
           onSignIn={() => setState((s) => ({ ...s, phase: 'anon', canCancel: true, notice: undefined }))} />
       </BrowserRouter>
     </SessionContext.Provider>

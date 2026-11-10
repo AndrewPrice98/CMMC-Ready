@@ -1,7 +1,8 @@
-import { createContext, useCallback, useContext, useEffect, useState } from 'react'
+import { createContext, useCallback, useContext, useEffect, useId, useRef, useState } from 'react'
 
 export {
-  DISCLAIMER, FAMILIES, GITHUB_URL, MAX_SCORE, MIN_SCORE, POAM_CITATION, THRESHOLD, cmmcId, listWords, plural,
+  ASSET_CATEGORIES, COLLECTORS, DISCLAIMER, FAMILIES, GITHUB_URL, MAX_SCORE, MIN_SCORE, POAM_CITATION, THRESHOLD,
+  cmmcId, listWords, plural,
 } from '../lib.js'
 
 // -- status vocabulary: every status has a text label, a tone and a glyph -------------------
@@ -24,6 +25,12 @@ export const FINDING_RESULTS = {
   met: { label: 'Evidence: met', tone: 'good', glyph: '✓' },
   not_met: { label: 'Evidence: not met', tone: 'bad', glyph: '✕' },
   not_assessed: { label: 'Not assessed by collector', tone: 'neutral', glyph: '–' },
+}
+
+export const POAM_STATUS = {
+  open: { label: 'Open', tone: 'warn', glyph: '○' },
+  in_progress: { label: 'In progress', tone: 'info', glyph: '◐' },
+  closed: { label: 'Closed', tone: 'good', glyph: '✓' },
 }
 
 export const STATUS_OPTIONS = [
@@ -98,6 +105,17 @@ export function Icon({ name, size = 16, label }) {
     lock: <><rect x="4" y="9" width="12" height="8.5" rx="1.5" /><path d="M7 9V6.5a3 3 0 0 1 6 0V9" /></>,
     external: <><path d="M11 3.5h5.5V9" /><path d="M16.5 3.5 9 11" /><path d="M14 12v4a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h4" /></>,
     shield: <><path d="M10 1.8 3 4.6v5c0 4.4 3 8 7 8.9 4-.9 7-4.5 7-8.9v-5L10 1.8Z" /><path d="m7 10 2.2 2.2L13.3 8" /></>,
+    copy: <><rect x="7" y="7" width="10" height="10" rx="1.5" /><path d="M13 7V4.5A1.5 1.5 0 0 0 11.5 3h-7A1.5 1.5 0 0 0 3 4.5v7A1.5 1.5 0 0 0 4.5 13H7" /></>,
+    check: <path d="m4.5 10.5 3.5 3.5 7.5-8" />,
+    download: <><path d="M10 3v10" /><path d="m5.5 8.5 4.5 4.5 4.5-4.5" /><path d="M3.5 16.5h13" /></>,
+    upload: <><path d="M10 13V3" /><path d="M5.5 7.5 10 3l4.5 4.5" /><path d="M3.5 16.5h13" /></>,
+    plus: <><path d="M10 4v12" /><path d="M4 10h12" /></>,
+    edit: <><path d="m12.5 4 3.5 3.5L7.5 16H4v-3.5L12.5 4Z" /></>,
+    trash: <><path d="M3.5 5.5h13" /><path d="M8 5.5V3.8h4v1.7" /><path d="M5.5 5.5 6.3 16a1 1 0 0 0 1 .9h5.4a1 1 0 0 0 1-.9l.8-10.5" /></>,
+    terminal: <><rect x="2.5" y="3.5" width="15" height="13" rx="1.5" /><path d="m6 8 2.5 2L6 12" /><path d="M10.5 12.5H14" /></>,
+    file: <><path d="M5 2.5h6.5L15.5 6.5V17a.5.5 0 0 1-.5.5H5a.5.5 0 0 1-.5-.5V3a.5.5 0 0 1 .5-.5Z" /><path d="M11.5 2.5v4h4" /></>,
+    close: <><path d="m5 5 10 10" /><path d="M15 5 5 15" /></>,
+    calendar: <><rect x="3" y="4.5" width="14" height="12.5" rx="1.5" /><path d="M3 8.5h14" /><path d="M7 3v3M13 3v3" /></>,
   }
   return (
     <svg className="icon" width={size} height={size} viewBox="0 0 20 20" fill="none" stroke="currentColor"
@@ -109,20 +127,111 @@ export function Icon({ name, size = 16, label }) {
   )
 }
 
-/** Placeholder for sections that ship in the next release (keeps the navigation from 404ing). */
-export function ComingSoon({ title, children }) {
-  usePageTitle(title)
+export function formatValue(value) {
+  if (value === null || value === undefined) return 'none'
+  if (typeof value === 'boolean') return value ? 'true' : 'false'
+  if (typeof value === 'object') return JSON.stringify(value)
+  return String(value)
+}
+
+/** An observed value: `key = value` pairs for objects, the value itself otherwise. */
+export function Observed({ observed }) {
+  const entries = observed && typeof observed === 'object' && !Array.isArray(observed)
+    ? Object.entries(observed) : null
+  if (!entries) return <code>{formatValue(observed)}</code>
+  if (!entries.length) return <span className="muted">nothing reported</span>
   return (
-    <div className="page">
-      <header className="page-head">
-        <h1 tabIndex={-1}>{title}</h1>
-      </header>
-      <div className="card coming-soon">
-        <p className="eyebrow">Coming in this release</p>
-        <p>{children}</p>
-      </div>
+    <>
+      {entries.map(([k, v], i) => (
+        <span key={k}>{i > 0 && ', '}<code>{k} = {formatValue(v)}</code></span>
+      ))}
+    </>
+  )
+}
+
+/** Copies text to the clipboard; says so visibly and to screen readers. */
+export function CopyButton({ text, what }) {
+  const [state, setState] = useState('idle')
+  useEffect(() => {
+    if (state === 'idle') return undefined
+    const t = setTimeout(() => setState('idle'), 2500)
+    return () => clearTimeout(t)
+  }, [state])
+  async function copy() {
+    try {
+      await navigator.clipboard.writeText(text)
+      setState('copied')
+    } catch {
+      setState('failed')
+    }
+  }
+  return (
+    <span className="copy">
+      <button type="button" className="btn ghost small copy-btn" onClick={copy}>
+        <Icon name={state === 'copied' ? 'check' : 'copy'} size={15} />
+        {state === 'copied' ? 'Copied' : 'Copy'}<span className="sr-only"> {what}</span>
+      </button>
+      <span role="status" className={state === 'failed' ? 'form-msg error small' : 'sr-only'}>
+        {state === 'copied' ? `${what} copied to the clipboard` : ''}
+        {state === 'failed' ? 'Copy failed. Select the text and copy it.' : ''}
+      </span>
+    </span>
+  )
+}
+
+/** A command or other copyable text block with its copy button. */
+export function CommandBlock({ command, what }) {
+  return (
+    <div className="cmd">
+      <pre tabIndex={0} aria-label={what}><code>{command}</code></pre>
+      <CopyButton text={command} what={what} />
     </div>
   )
+}
+
+/**
+ * Modal dialog on the native <dialog> element: the browser traps focus, Escape closes it,
+ * and focus returns to whatever opened it.
+ */
+export function Modal({ open, title, onClose, children, wide }) {
+  const ref = useRef(null)
+  const opener = useRef(null)
+  const titleId = useId()
+  useEffect(() => {
+    const dialog = ref.current
+    if (!dialog) return
+    if (open && !dialog.open) {
+      opener.current = document.activeElement
+      dialog.showModal()
+    } else if (!open && dialog.open) {
+      dialog.close()
+    }
+    if (!open && opener.current) {
+      opener.current.focus?.()
+      opener.current = null
+    }
+  }, [open])
+  return (
+    <dialog ref={ref} className={`modal ${wide ? 'wide' : ''}`} aria-labelledby={titleId}
+      onCancel={(e) => { e.preventDefault(); onClose() }}>
+      {open && (
+        <div className="modal-inner">
+          <header className="modal-head">
+            <h2 id={titleId}>{title}</h2>
+            <button type="button" className="btn ghost small icon-only" onClick={onClose}>
+              <Icon name="close" size={16} /><span className="sr-only">Close</span>
+            </button>
+          </header>
+          {children}
+        </div>
+      )}
+    </dialog>
+  )
+}
+
+/** Inline result of a save: "Saved." in green, errors in red. Announced politely. */
+export function FormMessage({ message }) {
+  return <span role="status" className={`form-msg ${message?.tone || ''}`}>{message?.text}</span>
 }
 
 // -- formatting -----------------------------------------------------------------------------
@@ -139,7 +248,7 @@ export function formatDate(iso) {
 
 export const SessionContext = createContext(null)
 
-/** { user, guest, demo, version, authConfigured, assessmentId, assessments, setAssessmentId, signIn } */
+/** { user, guest, demo, version, authConfigured, org, assessments, assessmentId, setAssessmentId, refresh } */
 export function useSession() {
   return useContext(SessionContext)
 }
