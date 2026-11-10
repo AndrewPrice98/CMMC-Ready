@@ -24,6 +24,35 @@ def _catalog(args: argparse.Namespace) -> int:
     return 0
 
 
+def _collect_parse(args: argparse.Namespace) -> int:
+    import json
+    from collections import Counter
+
+    from cmmcready.evidence import windows
+    from cmmcready.evidence.engine import DEFAULT_ODP, combine, evaluate
+
+    try:
+        with open(args.file, encoding="utf-8-sig") as handle:
+            data = json.load(handle)
+        windows.validate(data)
+        findings = combine(evaluate(data, DEFAULT_ODP))
+    except (OSError, ValueError) as exc:  # json.JSONDecodeError is a ValueError
+        print(f"collect-parse error: {exc}", file=sys.stderr)
+        return 1
+    info = windows.summarize(data)
+    print(f"windows collector v{data['version']}: {info['os']} build {info['build']}, "
+          f"elevated={info['elevated']}")
+    print(f"checks: {len(info['ok'])} ok, {len(info['unavailable'])} unavailable")
+    for check_id, reason in info["unavailable"].items():
+        print(f"  unavailable {check_id}: {reason}")
+    if info["missing"]:
+        print(f"  not reported: {', '.join(info['missing'])}")
+    counts = Counter(f.result for f in findings.values())
+    print(f"objectives: {counts['met']} met, {counts['not_met']} not met, "
+          f"{counts['not_assessed']} not assessed")
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="cmmcready")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -31,6 +60,11 @@ def build_parser() -> argparse.ArgumentParser:
     catalog = sub.add_parser("catalog", help="inspect the NIST SP 800-171 Rev 2 catalog")
     catalog.add_argument("--check", action="store_true", help="validate the catalog data")
     catalog.set_defaults(func=_catalog)
+
+    parse = sub.add_parser("collect-parse", help="validate collector output and summarise the findings")
+    parse.add_argument("collector", choices=["windows"])
+    parse.add_argument("file")
+    parse.set_defaults(func=_collect_parse)
     return parser
 
 

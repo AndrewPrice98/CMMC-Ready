@@ -1,0 +1,262 @@
+{
+  "collector": "windows",
+  "version": 1,
+  "collected_at": "2026-11-01T14:00:00Z",
+  "host": {
+    "name": "WS-DEMO-02",
+    "os": "Microsoft Windows 11 Pro",
+    "build": "26100",
+    "domain_joined": true,
+    "elevated": true
+  },
+  "checks": {
+    "password_policy": {
+      "status": "ok",
+      "value": {
+        "MinimumPasswordAge": 1,
+        "MaximumPasswordAge": 60,
+        "MinimumPasswordLength": 8,
+        "PasswordComplexity": 0,
+        "PasswordHistorySize": 5,
+        "ClearTextPassword": 0
+      },
+      "reason": null,
+      "command": "secedit /export /cfg \"$env:TEMP\\cmmcready-<guid>.inf\" /areas SECURITYPOLICY"
+    },
+    "lockout_policy": {
+      "status": "ok",
+      "value": {
+        "LockoutBadCount": 0,
+        "ResetLockoutCount": 15,
+        "LockoutDuration": 15
+      },
+      "reason": null,
+      "command": "secedit /export /cfg \"$env:TEMP\\cmmcready-<guid>.inf\" /areas SECURITYPOLICY"
+    },
+    "audit_policy": {
+      "status": "ok",
+      "value": {
+        "subcategories": {
+          "{0CCE9215-69AE-11D9-BED3-505054503030}": {
+            "name": "Logon",
+            "setting": "No Auditing"
+          },
+          "{0CCE9216-69AE-11D9-BED3-505054503030}": {
+            "name": "Logoff",
+            "setting": "Success"
+          },
+          "{0CCE9217-69AE-11D9-BED3-505054503030}": {
+            "name": "Account Lockout",
+            "setting": "Failure"
+          },
+          "{0CCE921B-69AE-11D9-BED3-505054503030}": {
+            "name": "Special Logon",
+            "setting": "Success"
+          },
+          "{0CCE922B-69AE-11D9-BED3-505054503030}": {
+            "name": "Process Creation",
+            "setting": "Success"
+          },
+          "{0CCE922F-69AE-11D9-BED3-505054503030}": {
+            "name": "Audit Policy Change",
+            "setting": "Success"
+          },
+          "{0CCE9235-69AE-11D9-BED3-505054503030}": {
+            "name": "User Account Management",
+            "setting": "Success and Failure"
+          },
+          "{0CCE9237-69AE-11D9-BED3-505054503030}": {
+            "name": "Security Group Management",
+            "setting": "Success"
+          },
+          "{0CCE923F-69AE-11D9-BED3-505054503030}": {
+            "name": "Credential Validation",
+            "setting": "Success and Failure"
+          }
+        }
+      },
+      "reason": null,
+      "command": "auditpol /get /category:* /r"
+    },
+    "event_log_retention": {
+      "status": "ok",
+      "value": {
+        "log_name": "Security",
+        "enabled": true,
+        "log_mode": "Circular",
+        "max_size_kb": 20480,
+        "record_count": 812345,
+        "oldest_record_number": 9120,
+        "oldest_event_age_days": 6
+      },
+      "reason": null,
+      "command": "Get-WinEvent -ListLog Security; Get-WinEvent -LogName Security -Oldest -MaxEvents 1"
+    },
+    "bitlocker": {
+      "status": "ok",
+      "value": {
+        "volumes": [
+          {
+            "mount_point": "C:",
+            "volume_type": "OperatingSystem",
+            "protection_status": "On",
+            "encryption_percentage": 100
+          },
+          {
+            "mount_point": "D:",
+            "volume_type": "Data",
+            "protection_status": "Off",
+            "encryption_percentage": 100
+          }
+        ]
+      },
+      "reason": null,
+      "command": "Get-BitLockerVolume"
+    },
+    "firewall_profiles": {
+      "status": "ok",
+      "value": {
+        "profiles": [
+          {
+            "name": "Domain",
+            "enabled": true,
+            "default_inbound_action": "Block"
+          },
+          {
+            "name": "Private",
+            "enabled": true,
+            "default_inbound_action": "Block"
+          },
+          {
+            "name": "Public",
+            "enabled": false,
+            "default_inbound_action": "Allow"
+          }
+        ]
+      },
+      "reason": null,
+      "command": "Get-NetFirewallProfile"
+    },
+    "screen_lock": {
+      "status": "ok",
+      "value": {
+        "inactivity_timeout_secs": null,
+        "screensaver_active": null,
+        "screensaver_timeout_secs": null,
+        "screensaver_secure": null
+      },
+      "reason": null,
+      "command": "Get-ItemProperty HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System; Get-ItemProperty HKCU:\\Software\\Policies\\Microsoft\\Windows\\Control Panel\\Desktop"
+    },
+    "smb_signing": {
+      "status": "ok",
+      "value": {
+        "require_security_signature": false,
+        "enable_security_signature": true
+      },
+      "reason": null,
+      "command": "Get-SmbServerConfiguration"
+    },
+    "smb1": {
+      "status": "ok",
+      "value": {
+        "server_enabled": true
+      },
+      "reason": null,
+      "command": "Get-SmbServerConfiguration"
+    },
+    "local_admins": {
+      "status": "ok",
+      "value": {
+        "count": 2,
+        "members": [
+          {
+            "name": "WS-DEMO-01\\Administrator",
+            "object_class": "User",
+            "principal_source": "Local"
+          },
+          {
+            "name": "DEMO\\Domain Admins",
+            "object_class": "Group",
+            "principal_source": "ActiveDirectory"
+          }
+        ]
+      },
+      "reason": null,
+      "command": "Get-LocalGroupMember -SID S-1-5-32-544"
+    },
+    "rdp": {
+      "status": "ok",
+      "value": {
+        "deny_connections": false,
+        "nla_required": false,
+        "security_layer": 0,
+        "min_encryption_level": 3
+      },
+      "reason": null,
+      "command": "Get-ItemProperty HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Terminal Server; Get-CimInstance Win32_TSGeneralSetting"
+    },
+    "defender": {
+      "status": "ok",
+      "value": {
+        "antivirus_enabled": true,
+        "realtime_protection_enabled": false,
+        "on_access_protection_enabled": true,
+        "antivirus_signature_age_days": 40,
+        "running_mode": "Normal"
+      },
+      "reason": null,
+      "command": "Get-MpComputerStatus"
+    },
+    "autoplay": {
+      "status": "ok",
+      "value": {
+        "no_drive_type_auto_run": null
+      },
+      "reason": null,
+      "command": "Get-ItemProperty HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer"
+    },
+    "usb_storage": {
+      "status": "ok",
+      "value": {
+        "usbstor_start": 3
+      },
+      "reason": null,
+      "command": "Get-ItemProperty HKLM:\\SYSTEM\\CurrentControlSet\\Services\\USBSTOR"
+    },
+    "patch_level": {
+      "status": "ok",
+      "value": {
+        "latest_installed_on": "2026-05-02",
+        "hotfix_count": 31
+      },
+      "reason": null,
+      "command": "Get-HotFix"
+    },
+    "fips_mode": {
+      "status": "ok",
+      "value": {
+        "enabled": false
+      },
+      "reason": null,
+      "command": "Get-ItemProperty HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Lsa\\FipsAlgorithmPolicy"
+    },
+    "logon_banner": {
+      "status": "ok",
+      "value": {
+        "caption": null,
+        "text": null
+      },
+      "reason": null,
+      "command": "Get-ItemProperty HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System"
+    },
+    "guest_account": {
+      "status": "ok",
+      "value": {
+        "enabled": true
+      },
+      "reason": null,
+      "command": "Get-CimInstance Win32_UserAccount (SID ending -501)"
+    }
+  }
+}

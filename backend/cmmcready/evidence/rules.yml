@@ -1,0 +1,234 @@
+# Evidence rules: collector check -> assessment objectives.
+#
+# A rule maps one setting to the objectives it genuinely informs. The
+# one-line rationale is shown to the assessor next to the finding.
+#
+# Conditions (see engine.py): leaf {path, ge|le|gt|lt|eq|ne|nonempty, quant?}
+# or {all: [...]} / {any: [...]}. A threshold may be {odp: name, mul: n}.
+#   met_if      true  -> met
+#   unmet_if    when met_if is false: true -> not_met, otherwise not_assessed
+#   fail_result when met_if is false and there is no unmet_if (default not_met;
+#               not_assessed where a missing setting alone does not fail the objective)
+# Objectives accept ranges, e.g. 3.1.10[a-c]. Several rules on one objective
+# combine as: any not_met -> not_met; all met -> met; otherwise not_assessed.
+
+windows:
+  checks:
+    password_policy:
+      rules:
+        - id: min_length
+          objectives: ["3.5.7[a]"]
+          rationale: A minimum length in the local password policy defines the length requirement.
+          met_if: {path: MinimumPasswordLength, ge: {odp: min_password_length}}
+        - id: complexity
+          objectives: ["3.5.7[c]"]
+          rationale: The complexity rule is enforced by the system when a password is created or changed.
+          met_if: {path: PasswordComplexity, eq: 1}
+        - id: history
+          objectives: ["3.5.8[a]", "3.5.8[b]"]
+          rationale: The password history size defines and enforces how many generations cannot be reused.
+          met_if: {path: PasswordHistorySize, ge: {odp: password_history}}
+        - id: reversible
+          objectives: ["3.5.10[a]"]
+          rationale: Storing passwords with reversible encryption weakens storage protection, so it must be off.
+          met_if: {path: ClearTextPassword, eq: 0}
+
+    lockout_policy:
+      rules:
+        - id: threshold
+          objectives: ["3.1.8[a]", "3.1.8[b]"]
+          rationale: A lockout threshold (never 0, which disables lockout) defines and implements the limit on failed logons.
+          met_if:
+            all:
+              - {path: LockoutBadCount, ge: 1}
+              - {path: LockoutBadCount, le: {odp: lockout_threshold}}
+
+    audit_policy:
+      rules:
+        - id: core_events
+          objectives: ["3.3.1[c]"]
+          rationale: Auditing of logon, account management, policy change and process creation shows audit records are generated.
+          met_if:
+            all:
+              - {path: logon.success, eq: true}
+              - {path: logon.failure, eq: true}
+              - {path: credential_validation.success, eq: true}
+              - {path: user_account_management.success, eq: true}
+              - {path: security_group_management.success, eq: true}
+              - {path: audit_policy_change.success, eq: true}
+              - {path: process_creation.success, eq: true}
+
+    event_log_retention:
+      rules:
+        - id: retention
+          objectives: ["3.3.1[f]"]
+          rationale: The oldest Security log event shows how long records are actually kept; a wrapped log shorter than the target fails.
+          met_if: {path: oldest_event_age_days, ge: {odp: audit_retention_days}}
+          unmet_if:
+            all:
+              - {path: oldest_record_number, gt: 1}
+              - {path: oldest_event_age_days, lt: {odp: audit_retention_days}}
+
+    bitlocker:
+      rules:
+        - id: fixed_volumes
+          objectives: ["3.13.16[a]"]
+          rationale: BitLocker protection on the operating system and fixed data volumes protects CUI at rest on this device.
+          met_if: {path: "volumes[].protection_status", eq: "On"}
+
+    firewall_profiles:
+      rules:
+        - id: enabled
+          objectives: ["3.13.1[f]"]
+          rationale: An enabled host firewall controls communications at the endpoint, a key internal boundary.
+          met_if: {path: "profiles[].enabled", eq: true}
+        - id: default_deny
+          objectives: ["3.13.6[a]"]
+          rationale: A default inbound action of Block denies network traffic unless a rule allows it.
+          met_if: {path: "profiles[].default_inbound_action", eq: "Block"}
+          unmet_if: {path: "profiles[].default_inbound_action", eq: "Allow", quant: any}
+
+    screen_lock:
+      rules:
+        - id: inactivity_lock
+          objectives: ["3.1.10[a-c]"]
+          rationale: An inactivity limit (or a password-protected screen saver) within the target defines the period and locks and conceals the session.
+          met_if:
+            any:
+              - all:
+                  - {path: inactivity_timeout_secs, ge: 1}
+                  - {path: inactivity_timeout_secs, le: {odp: session_lock_minutes, mul: 60}}
+              - all:
+                  - {path: screensaver_active, eq: 1}
+                  - {path: screensaver_secure, eq: 1}
+                  - {path: screensaver_timeout_secs, ge: 1}
+                  - {path: screensaver_timeout_secs, le: {odp: session_lock_minutes, mul: 60}}
+
+    smb_signing:
+      rules:
+        - id: required
+          objectives: ["3.13.15[a]"]
+          rationale: Required SMB signing protects the authenticity of file-sharing sessions.
+          met_if: {path: require_security_signature, eq: true}
+
+    smb1:
+      rules:
+        - id: disabled
+          objectives: ["3.4.7[l]"]
+          rationale: SMB1 is an obsolete protocol that is not essential on a current system; disabled means it is restricted.
+          met_if: {path: server_enabled, eq: false}
+
+    local_admins:
+      rules:
+        - id: list
+          objectives: ["3.1.5[a]"]
+          rationale: The Administrators group lists privileged local accounts; whether each is justified is for the assessor to judge.
+          info:
+            observe: [count, "members[].name"]
+            text: review the members against your list of authorized privileged users
+
+    rdp:
+      rules:
+        - id: controlled
+          objectives: ["3.1.12[c]"]
+          rationale: Remote Desktop is either off or requires Network Level Authentication before a session starts.
+          met_if:
+            any:
+              - {path: deny_connections, eq: true}
+              - {path: nla_required, eq: true}
+        - id: encrypted
+          objectives: ["3.1.13[b]"]
+          rationale: When Remote Desktop is on, forcing the TLS security layer protects session confidentiality.
+          met_if:
+            all:
+              - {path: deny_connections, eq: false}
+              - {path: security_layer, eq: 2}
+          unmet_if:
+            all:
+              - {path: deny_connections, eq: false}
+              - {path: security_layer, eq: 0}
+
+    defender:
+      rules:
+        - id: protection_on
+          objectives: ["3.14.2[b]"]
+          rationale: Antivirus with real-time protection on provides malicious code protection on this device.
+          met_if:
+            all:
+              - {path: antivirus_enabled, eq: true}
+              - {path: realtime_protection_enabled, eq: true}
+          unmet_if:
+            all:
+              - {path: running_mode, eq: "Normal"}
+              - any:
+                  - {path: antivirus_enabled, eq: false}
+                  - {path: realtime_protection_enabled, eq: false}
+        - id: signatures
+          objectives: ["3.14.4[a]"]
+          rationale: Signatures no more than 7 days old show protection updates are applied when released.
+          met_if: {path: antivirus_signature_age_days, le: 7}
+          unmet_if:
+            all:
+              - {path: running_mode, eq: "Normal"}
+              - {path: antivirus_signature_age_days, gt: 7}
+        - id: realtime_scan
+          objectives: ["3.14.5[c]"]
+          rationale: On-access scanning with real-time protection scans files from external sources as they are opened or downloaded.
+          met_if:
+            all:
+              - {path: realtime_protection_enabled, eq: true}
+              - {path: on_access_protection_enabled, eq: true}
+          unmet_if:
+            all:
+              - {path: running_mode, eq: "Normal"}
+              - any:
+                  - {path: realtime_protection_enabled, eq: false}
+                  - {path: on_access_protection_enabled, eq: false}
+
+    autoplay:
+      rules:
+        - id: all_drives
+          objectives: ["3.8.7[a]"]
+          rationale: Disabling AutoPlay on all drive types limits automatic use of removable media.
+          met_if: {path: no_drive_type_auto_run, eq: 255}
+          fail_result: not_assessed
+
+    usb_storage:
+      rules:
+        - id: blocked
+          objectives: ["3.8.7[a]"]
+          rationale: A disabled USB storage driver prevents removable media; leaving it on can still be controlled by other means.
+          met_if: {path: usbstor_start, eq: 4}
+          fail_result: not_assessed
+
+    patch_level:
+      rules:
+        - id: recent
+          objectives: ["3.14.1[f]"]
+          rationale: A recent hotfix suggests flaws are corrected on time; over 90 days without one suggests they are not.
+          met_if: {path: days_since_latest, le: 35}
+          unmet_if: {path: days_since_latest, gt: 90}
+
+    fips_mode:
+      rules:
+        - id: enabled
+          objectives: ["3.13.11[a]"]
+          rationale: FIPS mode makes Windows use FIPS-approved algorithms; confirm module validation separately.
+          met_if: {path: enabled, eq: true}
+
+    logon_banner:
+      rules:
+        - id: notice
+          objectives: ["3.1.9[b]"]
+          rationale: A legal notice caption and text shown before logon displays the required privacy and security notice.
+          met_if:
+            all:
+              - {path: caption, nonempty: true}
+              - {path: text, nonempty: true}
+
+    guest_account:
+      rules:
+        - id: disabled
+          objectives: ["3.1.1[d]"]
+          rationale: A disabled Guest account closes an unauthenticated route onto the system.
+          met_if: {path: enabled, eq: false}
