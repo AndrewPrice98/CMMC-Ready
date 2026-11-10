@@ -8,7 +8,6 @@ import math
 import re
 import sqlite3
 from contextlib import asynccontextmanager
-from contextlib import asynccontextmanager
 from dataclasses import asdict
 from datetime import date
 from functools import lru_cache
@@ -16,8 +15,6 @@ from typing import Annotated, Any, Iterator, Literal
 
 from fastapi import (APIRouter, Body, Depends, FastAPI, File, HTTPException, Query, Request,
                      Response, UploadFile)
-from fastapi.concurrency import run_in_threadpool
-from fastapi.responses import JSONResponse
 from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
@@ -28,8 +25,16 @@ from .evidence.engine import DEFAULT_ODP, ODP_DESCRIPTIONS
 from .scoring import ScoreResult, requirement_status, top_gaps
 from .uploads import EVIDENCE_MAX_LINE_CHARS, UploadError, decode_json_upload
 
+
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
+    if config.demo_mode():
+        await run_in_threadpool(demo.ensure_seeded)
+    yield
+
+
 app = FastAPI(
-    lifespan=lambda a: lifespan(a),
+    lifespan=lifespan,
     title="CMMC Ready API",
     version=__version__,
     description="CMMC Level 2 / NIST SP 800-171 Rev 2 self-assessment aid. "
@@ -69,37 +74,10 @@ async def reject_oversize(request: Request, call_next):
     """Refuse an announced body over the upload cap before reading any of it."""
     declared = request.headers.get("content-length", "")
     if declared.isdigit() and int(declared) > config.max_upload_bytes() + MULTIPART_OVERHEAD:
-        return JSONResponse({"detail": f"Request too large (max {config.max_upload_bytes() // (1024 * 1024)} MB)"},
-                            status_code=413)
-    return await call_next(request)
-
-
-@asynccontextmanager
-async def lifespan(_app: FastAPI):
-    if config.demo_mode():
-        await run_in_threadpool(demo.ensure_seeded)
-    yield
-
-
-MULTIPART_OVERHEAD = 64 * 1024
-
-
-@app.middleware("http")
-async def reject_oversize(request: Request, call_next):
-    """Refuse an announced body over the upload cap before reading any of it."""
-    declared = request.headers.get("content-length", "")
-    if declared.isdigit() and int(declared) > config.max_upload_bytes() + MULTIPART_OVERHEAD:
         return JSONResponse(
             {"detail": f"Request too large (max {config.max_upload_bytes() // (1024 * 1024)} MB)"},
             status_code=413)
     return await call_next(request)
-
-
-@asynccontextmanager
-async def lifespan(_app: FastAPI):
-    if config.demo_mode():
-        await run_in_threadpool(demo.ensure_seeded)
-    yield
 
 
 def get_conn() -> Iterator[sqlite3.Connection]:
@@ -277,8 +255,10 @@ def put_organization(_w: Annotated[str, Writer], body: OrganizationBody, conn: C
     if not all(CAGE.match(c) for c in codes):
         raise HTTPException(422, "each CAGE code must be 5 letters or digits")
     joined = ", ".join(dict.fromkeys(codes))
-    existing = db.get_organization(conn)
-    with conn:
+    conn.commit()  # no transaction may be open when taking the write lock
+    conn.execute("BEGIN IMMEDIATE")  # read-then-write is atomic: two first PUTs cannot both insert
+    try:
+        existing = db.get_organization(conn)
         if existing is None:
             conn.execute("INSERT INTO organization (name, cage_codes, description, cui_boundary) "
                          "VALUES (?, ?, ?, ?)", (name, joined, body.description, body.cui_boundary))
@@ -286,6 +266,10 @@ def put_organization(_w: Annotated[str, Writer], body: OrganizationBody, conn: C
             conn.execute("UPDATE organization SET name = ?, cage_codes = ?, description = ?, "
                          "cui_boundary = ? WHERE id = ?",
                          (name, joined, body.description, body.cui_boundary, existing["id"]))
+        conn.commit()
+    except BaseException:
+        conn.rollback()
+        raise
     return _org_out(db.get_organization(conn))
 
 

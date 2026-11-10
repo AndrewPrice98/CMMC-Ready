@@ -4,7 +4,6 @@ from __future__ import annotations
 
 MAX_LINE_CHARS = 8192
 EVIDENCE_MAX_LINE_CHARS = 65536  # pretty-printed collector JSON; some values are long
-EVIDENCE_MAX_LINE_CHARS = 65536  # pretty-printed collector JSON; some values (policies) are long
 
 
 class UploadError(Exception):
