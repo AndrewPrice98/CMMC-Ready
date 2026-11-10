@@ -35,9 +35,6 @@ function ScoreCard({ ov }) {
     <section className="card score-card" aria-labelledby="score-title">
       <div className="card-head">
         <h2 id="score-title">SPRS score</h2>
-        {ov.provisional && (
-          <Chip tone="warn" glyph="!" title="The score is computed but not final; see the note above.">Provisional</Chip>
-        )}
       </div>
       <div className="score-body">
         <ScoreGauge score={ov.score.score} provisional={ov.provisional} />

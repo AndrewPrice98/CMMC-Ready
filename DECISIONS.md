@@ -2,8 +2,8 @@
 
 ## Sources and verified facts
 
-Verified 2026-11-09 against primary sources. Where a source disagrees with the
-project plan, the source wins and the difference is recorded below.
+Verified 2026-11-09 against primary sources. Where a source disagrees with an
+earlier assumption, the source wins and the difference is recorded below.
 
 ### DoD Assessment Methodology v1.2.1 (June 24, 2020)
 
@@ -25,12 +25,12 @@ Source: https://www.acq.osd.mil/asda/dpc/cp/cyber/docs/safeguarding/NIST-SP-800-
   - Level 2 conditional status requires assessment score divided by the number of Level 2 requirements to be at least 0.8; with 110 requirements that is 88. (The CFR states the 0.8 ratio, not the number 88; 88 is derived.)
   - No requirement with a point value greater than 1 may be on the POA&M, except SC.L2-3.13.11, which may be included if encryption is used but not FIPS-validated (point value 3).
   - Closeout assessment must confirm closure within 180 days of the Conditional CMMC Status Date, otherwise conditional status expires.
-  - Additionally (not in the original plan, see DISCREPANCY D1): AC.L2-3.1.20, AC.L2-3.1.22, CA.L2-3.12.4, PE.L2-3.10.3, PE.L2-3.10.4 and PE.L2-3.10.5 may not be on the POA&M.
+  - Additionally (see D1): AC.L2-3.1.20, AC.L2-3.1.22, CA.L2-3.12.4, PE.L2-3.10.3, PE.L2-3.10.4 and PE.L2-3.10.5 may not be on the POA&M.
 
 ### 48 CFR (DFARS) CMMC acquisition rule
 
 - Final rule published September 10, 2025, 90 FR 43560 (DFARS Case 2019-D041); DATES: "This rule is effective November 10, 2025." Phase 1 (Level 1 and Level 2 self-assessments in applicable solicitations) begins on that date. https://www.govinfo.gov/content/pkg/FR-2025-09-10/html/2025-17359.htm
-- Later phases (Phase 2 on November 10, 2026; Phase 4 on November 10, 2028) are reported by secondary law-firm sources only and were not needed for any scoring constant.
+- Phase dates are set by 32 CFR 170.3(e) (https://www.ecfr.gov/api/versioner/v1/full/2025-01-01/title-32.xml?part=170&section=170.3, verified 2026-11-10): Phase 1 begins on the effective date of the DFARS rule; Phase 2 "begins one calendar year following the start date of Phase 1"; Phase 3 one calendar year after Phase 2; Phase 4 one calendar year after Phase 3. With Phase 1 starting November 10, 2025, Phase 2 begins November 10, 2026 (DoD intends to require Level 2 (C3PAO) status in applicable solicitations from then), Phase 3 November 10, 2027 and Phase 4 November 10, 2028. No scoring constant depends on them.
 
 ### NIST SP 800-171 Rev 2
 
@@ -39,7 +39,7 @@ Source: https://www.acq.osd.mil/asda/dpc/cp/cyber/docs/safeguarding/NIST-SP-800-
 - SP 800-171A (June 2018, https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-171a.pdf) has 320 assessment objectives: 297 lettered objectives plus 23 requirements with a single, unlettered objective. NIST's CPRT JSON export and the 800-171A CSV also contain 320 (verified 2026-11-09).
 - The Basic requirements in the Rev 2 CSV (31) are exactly the 30 Basic requirements in the methodology's 5-point and 3-point lists (Section 5(d)) plus 3.12.4.
 
-### Control catalog (Task 2)
+### Control catalog
 
 Built by `backend/scripts/build_catalog.py` into `backend/data/nist_800_171r2.json`; source files were retrieved 2026-11-09 and the URLs are recorded in the JSON `source` field.
 
@@ -53,17 +53,17 @@ Built by `backend/scripts/build_catalog.py` into `backend/data/nist_800_171r2.js
 
 ### Facts not independently verified
 
-- The 5 organization-defined parameter defaults (password length 12, lockout 10, session lock 15 minutes, password history 24, log retention 90 days) are project design choices, not source facts.
+- The 7 organization-defined parameter defaults (minimum password length 12 characters, lockout after 10 failed attempts, session lock after 15 minutes, password history of 24, audit log retention of 90 days, maximum patch age of 35 days, maximum sign-in frequency of 12 hours) are project design choices, not source facts. They are defaults the assessor can change per assessment.
 - Federal Register website pages blocked automated access; govinfo.gov copies of the same documents were used instead.
 
-### Discrepancies between the plan and sources
+### Discrepancies between early assumptions and sources
 
-- D1: Plan says a POA&M may hold only weight-1 requirements plus 3.13.11 at -3. 32 CFR 170.21 also bars six specific requirements from the POA&M even though they are weight 1: 3.1.20, 3.1.22, 3.12.4, 3.10.3, 3.10.4, 3.10.5. Task 2 and Task 3 need an exclusion list.
-- D2: Plan (Task 2) says every weight is in {1, 3, 5}. The methodology gives 3.12.4 a value of "NA" (not scored). Total 313 only holds if 3.12.4 contributes 0; with it at 1 the total would be 314. Weights also include the 3.5.3 and 3.13.11 maxima of 5 with partial values of 3.
+- D1: It is easy to assume a POA&M may hold only weight-1 requirements plus 3.13.11 at -3. 32 CFR 170.21 also bars six specific requirements from the POA&M even though they are weight 1: 3.1.20, 3.1.22, 3.12.4, 3.10.3, 3.10.4, 3.10.5. The catalog therefore carries an explicit exclusion list.
+- D2: It is easy to assume every weight is in {1, 3, 5}. The methodology gives 3.12.4 a value of "NA" (not scored). Total 313 only holds if 3.12.4 contributes 0; with it at 1 the total would be 314. Weights also include the 3.5.3 and 3.13.11 maxima of 5 with partial values of 3.
 
-## Deployment, documentation and CI (Task 11)
+## Deployment, documentation and CI
 
-- The README's "Why CMMC matters now" uses only the dates verified above (32 CFR 170 effective December 16, 2024; the DFARS rule effective November 10, 2025, starting Phase 1). The later phase dates come from secondary sources only and are not cited.
+- The README's "Why CMMC matters now" uses only the dates verified above (32 CFR 170 effective December 16, 2024; the DFARS rule effective November 10, 2025, starting Phase 1; Phase 2 one calendar year later under 32 CFR 170.3(e)).
 - `python -m cmmcready demo` loads the fixture into its own file, `backend/data/demo.db` (git-ignored), never into `CMMCREADY_DB`; `--reset` deletes and reloads it, `--serve` then runs uvicorn on it with `CMMCREADY_DEMO=true`. `serve` runs the API on the configured database.
 - The collector coverage table is generated from `rules.yml` (`backend/cmmcready/coverage.py`). The full table is `docs/COLLECTOR_COVERAGE.md`; a per-family summary sits in the README between `coverage:start` / `coverage:end` markers. `catalog --coverage-md --check` (CI and a test) fails when either is stale. What a rule "may record" is derived from its definition: `met_result`, `unmet_if`/`fail_result`, and `info`.
 - Packaging: the app is run from `backend/` and never pip-installed, so `pyproject.toml` declares no package data. The Vercel function gets `rules.yml` and `backend/data/*.json` through `includeFiles` (`{backend/cmmcready/**,backend/data/**}`); `test_vercel_entry.py` checks that every file the API reads is matched by it and not excluded by `.vercelignore`, and that the root `requirements.txt` equals the backend runtime dependencies minus uvicorn.
