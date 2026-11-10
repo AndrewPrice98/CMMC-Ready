@@ -90,6 +90,7 @@ CREATE TABLE IF NOT EXISTS poam_items (
     milestone_json TEXT NOT NULL DEFAULT '[]',
     due_date       TEXT,
     status         TEXT NOT NULL DEFAULT 'open'
+                   CHECK (status IN ('open','in_progress','closed'))
 );
 CREATE INDEX IF NOT EXISTS idx_evidence_assessment ON evidence(assessment_id);
 CREATE INDEX IF NOT EXISTS idx_poam_assessment     ON poam_items(assessment_id);
