@@ -68,8 +68,9 @@ export default function Requirements() {
   const filters = readFilters(params)
   const [search, setSearch] = useState(filters.q)
 
-  // Keep the text box in step when the URL changes (back/forward, heatmap links).
-  useEffect(() => { setSearch(filters.q) }, [filters.q])
+  // Keep the text box in step when the URL changes (back/forward, heatmap links), but not
+  // when the change came from the box itself: that would eat a trailing space mid-typing.
+  useEffect(() => { setSearch((s) => (s.trim() === filters.q ? s : filters.q)) }, [filters.q])
 
   function update(changes) {
     const next = { ...filters, ...changes }

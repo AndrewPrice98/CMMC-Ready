@@ -22,7 +22,7 @@ from pydantic import BaseModel, Field
 from . import __version__, auth, config, db, demo, exports, poam
 from .catalog import Requirement, load_catalog
 from .evidence.engine import DEFAULT_ODP, ODP_DESCRIPTIONS
-from .scoring import ScoreResult, poam_rule_allows, requirement_status, top_gaps
+from .scoring import SSP_REQUIREMENT, ScoreResult, poam_rule_allows, requirement_status, top_gaps
 from .uploads import EVIDENCE_MAX_LINE_CHARS, UploadError, decode_json_upload
 
 
@@ -166,6 +166,22 @@ def _evidence_objectives(conn: sqlite3.Connection, assessment_id: int) -> set[st
         "SELECT DISTINCT f.objective_id FROM findings f JOIN evidence e ON e.id = f.evidence_id "
         "WHERE e.assessment_id = ?", (assessment_id,)).fetchall()
     return {r["objective_id"] for r in rows}
+
+
+def _poam_blockers(st: State) -> list[str]:
+    """Gaps that 32 CFR 170.21 keeps off a POA&M, so they block conditional status.
+
+    A gap is a not-met or not-assessed requirement; the partial choice counts (3.13.11).
+    3.12.4 is included whenever the SSP is missing, even though it carries no points.
+    """
+    out = []
+    for r in st.catalog.requirements:
+        gap = st.status[r.id] in ("not_met", "not_assessed")
+        if r.id == SSP_REQUIREMENT and st.result.ssp_missing:
+            out.append(r.id)
+        elif gap and not poam_rule_allows(r, st.assessment["partial_choices"].get(r.id)):
+            out.append(r.id)
+    return out
 
 
 def _conflict_objectives(conn: sqlite3.Connection, assessment_id: int,
@@ -456,6 +472,7 @@ def overview(assessment: Assessment, conn: Conn):
         "provisional": st.result.provisional,
         "ssp_missing": st.result.ssp_missing,
         "conditional_eligible": st.result.conditional_eligible,
+        "poam_blocker_ids": _poam_blockers(st),
         "conflicts_count": len(_conflict_objectives(conn, assessment["id"])),
         "odp": assessment["odp"],
         "odp_descriptions": ODP_DESCRIPTIONS,

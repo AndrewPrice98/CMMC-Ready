@@ -242,7 +242,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .btn.secondary:hover { border-color: var(--accent); color: var(--accent-text); }
 .btn.ghost { background: transparent; color: var(--text-2); border-color: var(--border-strong); }
 .btn.ghost:hover { background: var(--surface-2); color: var(--text); }
-.btn:disabled { opacity: 0.55; cursor: not-allowed; }
+.btn:disabled, .btn[aria-disabled="true"] { opacity: 0.55; cursor: not-allowed; }
 
 button.link {
   background: none; border: 0; padding: 0; color: var(--accent-text); cursor: pointer;
@@ -505,6 +505,9 @@ input[type="checkbox"], input[type="radio"] { accent-color: var(--accent); width
 .form-msg { font-size: 0.85rem; font-weight: 600; }
 .form-msg.ok { color: var(--good); }
 .form-msg.error { color: var(--bad); }
+.form-msg.warn { color: var(--warn); }
+.partial-actions { margin-top: 10px; }
+.partial-options[aria-disabled="true"] { opacity: 0.7; }
 
 .findings { border-top: 1px solid var(--border); padding-top: 10px; }
 .findings h4 { margin-bottom: 8px; color: var(--text-2); }

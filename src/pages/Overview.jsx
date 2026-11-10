@@ -1,63 +1,12 @@
 import { Link } from 'react-router-dom'
 import { api } from '../api.js'
-import { FamilyHeatmap, HeatmapLegend, ScoreGauge, scoreTone } from '../components/charts.jsx'
+import { FamilyHeatmap, HeatmapLegend, ScoreGauge } from '../components/charts.jsx'
+import { conditionalStatus, verdict } from '../verdict.js'
 import {
-  Chip, DISCLAIMER, ErrorState, Icon, Loading, POAM_CITATION, THRESHOLD, cmmcId, formatDate, listWords,
-  plural, useAsync, usePageTitle, useSession,
+  Chip, DISCLAIMER, ErrorState, Icon, Loading, cmmcId, formatDate, plural, useAsync, usePageTitle, useSession,
 } from '../components/ui.jsx'
 
 const SSP = '3.12.4'
-
-function idKey(id) {
-  return id.split('.').map(Number)
-}
-
-function byId(a, b) {
-  const x = idKey(a)
-  const y = idKey(b)
-  for (let i = 0; i < Math.max(x.length, y.length); i += 1) {
-    if ((x[i] ?? 0) !== (y[i] ?? 0)) return (x[i] ?? 0) - (y[i] ?? 0)
-  }
-  return 0
-}
-
-/** Requirements whose gap keeps the assessment from conditional status (32 CFR 170.21). */
-export function poamBlockers(ov) {
-  const eligible = new Set(ov.score.poam_eligible_ids)
-  const ids = ov.score.deductions.filter((d) => !eligible.has(d.req_id)).map((d) => d.req_id)
-  // 3.12.4 carries no points, so it never appears as a deduction, but it can't go on a POA&M.
-  if (ov.ssp_missing && !ids.includes(SSP)) ids.push(SSP)
-  return ids.sort(byId)
-}
-
-/** One sentence on conditional Level 2 status, computed from the score and POA&M rules. */
-export function verdict(ov) {
-  const score = ov.score.score
-  const blockers = poamBlockers(ov)
-  const gaps = ov.score.deductions.length + (ov.ssp_missing && !ov.score.deductions.some((d) => d.req_id === SSP) ? 1 : 0)
-  const names = listWords(blockers.map(cmmcId))
-  const cant = `can't be placed on a POA&M under ${POAM_CITATION}`
-  if (score >= THRESHOLD) {
-    if (!blockers.length && !gaps) {
-      return { tone: 'good', text: 'Every requirement is met or not applicable: the maximum score of 110.' }
-    }
-    if (!blockers.length) {
-      return {
-        tone: 'good',
-        text: `Meets the ${THRESHOLD}-point threshold for conditional Level 2 status, and ${gaps === 1 ? 'the one open gap' : `all ${gaps} open gaps`} can go on a POA&M with closeout within 180 days.`,
-      }
-    }
-    return {
-      tone: 'warn',
-      text: `Clears the ${THRESHOLD}-point threshold, but ${names} ${cant}, so conditional status needs ${blockers.length === 1 ? 'it' : 'them'} met first.`,
-    }
-  }
-  const short = `${plural(THRESHOLD - score, 'point')} short of conditional status (${THRESHOLD})`
-  if (!blockers.length) {
-    return { tone: scoreTone(score), text: `${short}; every open gap could go on a POA&M.` }
-  }
-  return { tone: 'bad', text: `${short}, and ${names} ${cant}.` }
-}
 
 /** Keep CMMC identifiers such as IA.L2-3.5.3 on one line inside running text. */
 function NoBreakIds({ text }) {
@@ -77,6 +26,7 @@ function Banner({ tone, title, children }) {
 
 function ScoreCard({ ov }) {
   const v = verdict(ov)
+  const status = conditionalStatus(ov)
   const totals = ov.family_heatmap.reduce((acc, f) => {
     for (const k of ['met', 'not_met', 'na', 'not_assessed']) acc[k] += f[k]
     return acc
@@ -97,9 +47,7 @@ function ScoreCard({ ov }) {
             <div>
               <dt>Conditional Level 2 status</dt>
               <dd>
-                {ov.conditional_eligible
-                  ? <Chip tone="good" glyph="✓">Eligible</Chip>
-                  : <Chip tone="bad" glyph="✕">Not yet</Chip>}
+                <Chip tone={status.tone} glyph={status.glyph}>{status.label}</Chip>
               </dd>
             </div>
             <div><dt>Requirements met or N/A</dt><dd className="num">{totals.met + totals.na} of 110</dd></div>

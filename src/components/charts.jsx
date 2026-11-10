@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
-import { MAX_SCORE, MIN_SCORE, THRESHOLD, plural } from './ui.jsx'
+import { MAX_SCORE, MIN_SCORE, THRESHOLD, plural } from '../lib.js'
+import { scoreTone } from '../verdict.js'
 
 // Hand-drawn SVG charts. No chart library: the shapes are simple and this keeps the
 // bundle small and the CSP strict.
@@ -16,12 +17,6 @@ function arcPath(from, to) {
   const [x1, y1] = gaugePoint(from)
   const [x2, y2] = gaugePoint(to)
   return `M${x1.toFixed(2)},${y1.toFixed(2)} A${GAUGE.r},${GAUGE.r} 0 0 1 ${x2.toFixed(2)},${y2.toFixed(2)}`
-}
-
-export function scoreTone(score) {
-  if (score >= THRESHOLD) return 'good'
-  if (score >= 0) return 'warn'
-  return 'bad'
 }
 
 function Tick({ value, label, emphasis }) {

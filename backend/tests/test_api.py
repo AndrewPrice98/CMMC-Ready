@@ -89,6 +89,22 @@ def test_overview_flags_missing_ssp_on_initial(client):
     assert body["ssp_missing"] and body["provisional"] and not body["conditional_eligible"]
 
 
+def test_overview_poam_blocker_ids(client):
+    annual = client.get(a("/overview")).json()
+    # 3.5.3 at the 3-point partial and 3.8.8 (weight 3) can't go on a POA&M; weight-1 gaps can.
+    assert annual["poam_blocker_ids"] == ["3.5.3", "3.8.8"]
+    eligible = set(annual["score"]["poam_eligible_ids"])
+    assert not eligible & set(annual["poam_blocker_ids"])
+    initial = client.get(a("/overview", INITIAL)).json()
+    assert "3.12.4" in initial["poam_blocker_ids"]  # SSP missing, though it carries no points
+    # 3.13.11 stops blocking once it is at the not-FIPS-validated partial choice.
+    for obj in client.get(a("/requirements/3.13.11")).json()["objectives"]:
+        assert client.put(a(f"/objectives/{obj['id']}"), json={"answer": "not_met"}).status_code == 200
+    assert "3.13.11" in client.get(a("/overview")).json()["poam_blocker_ids"]
+    assert client.put(a("/partial/3.13.11"), json={"choice": "encryption_not_fips"}).status_code == 200
+    assert "3.13.11" not in client.get(a("/overview")).json()["poam_blocker_ids"]
+
+
 # -- requirements ----------------------------------------------------------------------------
 
 def test_requirement_list_and_filters(client):

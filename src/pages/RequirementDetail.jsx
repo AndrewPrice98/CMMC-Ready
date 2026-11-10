@@ -87,6 +87,15 @@ function ConflictFlag({ objective }) {
   )
 }
 
+/** Reload the page data after a successful save. A failure here is not a failed save. */
+async function refreshAfterSave(onSaved, setMessage) {
+  try {
+    await onSaved()
+  } catch {
+    setMessage({ tone: 'warn', text: 'Saved, but the page could not refresh. Reload to see the new score.' })
+  }
+}
+
 function AnswerEditor({ objective, assessmentId, onSaved }) {
   const uid = useId()
   const [answer, setAnswer] = useState(objective.answer)
@@ -107,6 +116,7 @@ function AnswerEditor({ objective, assessmentId, onSaved }) {
 
   async function save(e) {
     e.preventDefault()
+    if (!dirty || busy) return
     if (needsJustification) {
       setMessage({ tone: 'error', text: 'Not applicable needs a justification.' })
       return
@@ -115,13 +125,14 @@ function AnswerEditor({ objective, assessmentId, onSaved }) {
     setMessage(null)
     try {
       await api.answer(assessmentId, objective.id, { answer, note, justification: answer === 'na' ? justification : '' })
-      await onSaved()
-      setMessage({ tone: 'ok', text: 'Saved.' })
     } catch (err) {
       setMessage({ tone: 'error', text: err.message })
-    } finally {
       setBusy(false)
+      return
     }
+    setMessage({ tone: 'ok', text: 'Saved.' })
+    setBusy(false)
+    await refreshAfterSave(onSaved, setMessage)
   }
 
   return (
@@ -150,7 +161,9 @@ function AnswerEditor({ objective, assessmentId, onSaved }) {
         <textarea rows={3} maxLength={5000} value={note} onChange={(e) => setNote(e.target.value)} />
       </label>
       <div className="form-actions">
-        <button className="btn primary small" disabled={!dirty || busy}>{busy ? 'Saving…' : 'Save answer'}</button>
+        <button className="btn primary small" aria-disabled={!dirty || busy ? 'true' : undefined}>
+          {busy ? 'Saving…' : 'Save answer'}
+        </button>
         <span role="status" className={`form-msg ${message?.tone || ''}`}>{message?.text}</span>
       </div>
     </form>
@@ -209,20 +222,29 @@ function PartialCredit({ data, guest, assessmentId, onSaved }) {
   const choices = [null, ...Object.keys(req.partial)]
   const points = (c) => (c === null ? req.weight : req.partial[c])
 
-  async function choose(choice) {
+  const changed = selected !== data.partial_choice
+
+  function choose(choice) {
+    if (busy) return // keep the control focusable while saving, but ignore changes
     setSelected(choice)
+    setMessage(null)
+  }
+
+  async function save(e) {
+    e.preventDefault()
+    if (!changed || busy) return
     setBusy(true)
     setMessage(null)
     try {
-      await api.partial(assessmentId, req.id, choice)
-      await onSaved()
-      setMessage({ tone: 'ok', text: 'Saved.' })
+      await api.partial(assessmentId, req.id, selected)
     } catch (err) {
-      setSelected(data.partial_choice)
       setMessage({ tone: 'error', text: err.message })
-    } finally {
       setBusy(false)
+      return
     }
+    setMessage({ tone: 'ok', text: 'Saved.' })
+    setBusy(false)
+    await refreshAfterSave(onSaved, setMessage)
   }
 
   return (
@@ -240,17 +262,24 @@ function PartialCredit({ data, guest, assessmentId, onSaved }) {
           ))}
         </ul>
       ) : (
-        <fieldset className="partial-options" disabled={busy}>
-          <legend className="sr-only">Partial-credit choice for {req.id}</legend>
-          {choices.map((c) => (
-            <label key={String(c)} className={`radio-row ${selected === c ? 'on' : ''}`}>
-              <input type="radio" name="partial" checked={selected === c} onChange={() => choose(c)} />
-              <span>{partialLabel(req.id, c)}</span>
-              <span className="num">−{points(c)}</span>
-            </label>
-          ))}
-          <span role="status" className={`form-msg ${message?.tone || ''}`}>{message?.text}</span>
-        </fieldset>
+        <form onSubmit={save}>
+          <fieldset className="partial-options" aria-disabled={busy ? 'true' : undefined}>
+            <legend className="sr-only">Partial-credit choice for {req.id}</legend>
+            {choices.map((c) => (
+              <label key={String(c)} className={`radio-row ${selected === c ? 'on' : ''}`}>
+                <input type="radio" name="partial" checked={selected === c} onChange={() => choose(c)} />
+                <span>{partialLabel(req.id, c)}</span>
+                <span className="num">−{points(c)}</span>
+              </label>
+            ))}
+          </fieldset>
+          <div className="form-actions partial-actions">
+            <button className="btn primary small" aria-disabled={!changed || busy ? 'true' : undefined}>
+              {busy ? 'Saving…' : 'Save partial credit'}
+            </button>
+            <span role="status" className={`form-msg ${message?.tone || ''}`}>{message?.text}</span>
+          </div>
+        </form>
       )}
     </div>
   )
