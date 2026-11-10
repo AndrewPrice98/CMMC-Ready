@@ -4,7 +4,7 @@ A **CMMC Level 2 self-assessment workbench** for small defense contractors. It w
 
 > **CMMC Ready is a self-assessment aid. It does not certify compliance or replace an assessment by a C3PAO or DIBCAC.** It is not legal advice, and it has no C3PAO workflow.
 
-**Live demo: <https://cmmc-ready.vercel.app/>** (read-only, no password; the company in it is fictional).
+**Live demo: <https://cmmc-ready-demo.vercel.app/>** (read-only, no password; the company in it is fictional).
 
 ![Overview: SPRS score 86 of 110, two points short of conditional status, with the family heatmap and the gaps that move the score most](docs/screenshots/overview.png)
 
