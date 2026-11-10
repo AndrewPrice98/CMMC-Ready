@@ -72,4 +72,4 @@ Built by `backend/scripts/build_catalog.py` into `backend/data/nist_800_171r2.js
 
 ## Licence position
 
-NIST and DoD publications are works of the U.S. Government and the text may be included with attribution. NIST SP 800-171 Rev 2, SP 800-171A and the DoD Assessment Methodology are cited by title, version, URL and retrieval date in the `source` field of `backend/data/nist_800_171r2.json`. No third-party commentary is copied. The code is MIT-licensed (LICENSE); the licence file and README note that the NIST and DoD text are U.S. Government works.
+NIST and DoD publications are works of the U.S. Government and the text may be included with attribution. NIST SP 800-171 Rev 2, SP 800-171A and the DoD Assessment Methodology are cited by title, version, URL and retrieval date in the `source` field of `backend/data/nist_800_171r2.json`. No third-party commentary is copied. The code is MIT-licensed (LICENSE, standard text so GitHub detects it); the README notes that the NIST and DoD text are U.S. Government works.

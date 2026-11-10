@@ -19,8 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
-The NIST SP 800-171 Rev 2 and SP 800-171A text in backend/data/nist_800_171r2.json
-and the DoD Assessment Methodology values are works of the U.S. Government and
-are not subject to copyright in the United States. They are included with
-attribution; see the "source" field of that file and DECISIONS.md.
