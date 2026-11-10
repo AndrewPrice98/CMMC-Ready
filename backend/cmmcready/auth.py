@@ -2,8 +2,9 @@
 
 - The password is stored only as a salted PBKDF2-SHA256 hash (CMMCREADY_ADMIN_PASSWORD_HASH).
 - A successful login returns a signed JWT in an httpOnly, SameSite=Strict cookie, so page
-  JavaScript never sees it and other sites cannot send it. API clients can send the same
-  token as "Authorization: Bearer <token>".
+  JavaScript never sees it and other sites cannot send it. The login response body does
+  not contain the token. API clients keep the session cookie, or send the same token
+  (the cookie's value) as "Authorization: Bearer <token>".
 - Failed logins are rate-limited per client IP.
 - Fail closed: if the admin or the signing secret is not configured, nothing is accessible.
 

@@ -226,8 +226,8 @@ def login(body: LoginRequest, request: Request, response: Response):
     auth.limiter.reset(ip)
     token, expires = auth.issue_token(body.username)
     _set_session_cookie(response, token, expires)
-    return {"username": body.username, "expires_at": expires.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            "token": token}
+    # The token travels only in the httpOnly cookie, never in the response body.
+    return {"username": body.username, "expires_at": expires.strftime("%Y-%m-%dT%H:%M:%SZ")}
 
 
 @app.post("/api/auth/logout")

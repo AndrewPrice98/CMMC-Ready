@@ -29,7 +29,7 @@ def test_login_me_logout(seeded_db):
     c = TestClient(app)
     assert c.get("/api/auth/me").status_code == 401
     r = c.post("/api/auth/login", json={"username": TEST_USER, "password": TEST_PASSWORD})
-    assert r.status_code == 200 and {"username", "expires_at", "token"} <= set(r.json())
+    assert r.status_code == 200 and set(r.json()) == {"username", "expires_at"}
     assert "httponly" in r.headers["set-cookie"].lower()
     assert c.get("/api/auth/me").json() == {"username": TEST_USER, "guest": False}
     assert c.post("/api/auth/logout").json() == {"ok": True}

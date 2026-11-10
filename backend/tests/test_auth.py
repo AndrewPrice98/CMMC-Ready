@@ -43,7 +43,7 @@ def make_app() -> FastAPI:
         token, expires = auth.issue_token(body.username)
         response.set_cookie(auth.COOKIE_NAME, token, expires=expires, httponly=True,
                             secure=config.cookie_secure(), samesite="strict", path="/api")
-        return {"username": body.username, "token": token}
+        return {"username": body.username}
 
     @app.post("/api/auth/logout")
     def logout(response: Response):
@@ -136,7 +136,11 @@ def test_cookie_is_secure_by_default(anon, monkeypatch):
 
 
 def test_bearer_token_works_without_cookie(anon):
-    token = login(TestClient(app)).json()["token"]
+    client = TestClient(app)
+    response = login(client)
+    assert "token" not in response.json()
+    token = client.cookies.get(auth.COOKIE_NAME)
+    assert token
     r = anon.get("/api/assessments", headers={"Authorization": f"Bearer {token}"})
     assert r.status_code == 200
 
