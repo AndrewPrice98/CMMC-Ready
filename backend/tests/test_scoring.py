@@ -121,10 +121,28 @@ def test_conditional_eligibility():
     r = _fail(["3.1.20"])
     assert not r.conditional_eligible
     # not_assessed gaps count too
-    a = _answers({ones[0]: "unanswered"})
-    assert score(CAT, a, {}).conditional_eligible
     a = _answers({fives[0]: "unanswered"})
     assert not score(CAT, a, {}).conditional_eligible
+
+
+def test_unassessed_requirement_blocks_conditional_status():
+    one = _ids_of_weight(1)[0]
+    r = score(CAT, _answers({one: "unanswered"}), {})
+    assert r.score == 109 and r.provisional and r.not_assessed == 1
+    assert not r.conditional_eligible  # a provisional score is never eligible
+    # The same gap assessed as not met is eligible.
+    assert score(CAT, _answers({one: "not_met"}), {}).conditional_eligible
+
+
+def test_partial_choice_applies_only_to_not_met_requirements():
+    a = _answers({"3.13.11": "unanswered"})
+    r = score(CAT, a, {"3.13.11": "encryption_not_fips"})
+    assert r.score == 105  # full 5, not the partial 3
+    assert [d.points for d in r.deductions] == [5] and r.deductions[0].reason == "Not assessed"
+    assert "3.13.11" not in r.poam_eligible_ids
+    # Once it is assessed as not met, the partial choice counts.
+    r = score(CAT, _answers({"3.13.11": "not_met"}), {"3.13.11": "encryption_not_fips"})
+    assert r.score == 107 and "3.13.11" in r.poam_eligible_ids
 
 
 def test_top_gaps_order():

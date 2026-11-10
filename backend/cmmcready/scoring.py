@@ -98,7 +98,12 @@ def score(
             not_assessed += 1
         if status not in ("not_met", "not_assessed"):
             continue
-        points, choice = _partial_points(req, partial_choices)
+        # Partial credit is a statement about a requirement that was assessed and found
+        # not met; an unassessed requirement always costs its full weight.
+        if status == "not_met":
+            points, choice = _partial_points(req, partial_choices)
+        else:
+            points, choice = req.weight, None
         if points:
             reason = (
                 "Not assessed" if status == "not_assessed" else "Not met"
@@ -116,8 +121,10 @@ def score(
         deductions=deductions,
         provisional=ssp_missing or not_assessed > 0,
         ssp_missing=ssp_missing,
-        # A missing SSP blocks conditional status even if 3.12.4 was (wrongly) marked N/A.
-        conditional_eligible=final >= CONDITIONAL_THRESHOLD and all_gaps_eligible and not ssp_missing,
+        # A missing SSP blocks conditional status even if 3.12.4 was (wrongly) marked N/A, and
+        # so does any requirement not yet assessed: the score is then only a provisional estimate.
+        conditional_eligible=(final >= CONDITIONAL_THRESHOLD and all_gaps_eligible
+                              and not ssp_missing and not_assessed == 0),
         poam_eligible_ids=eligible_ids,
         not_assessed=not_assessed,
     )
