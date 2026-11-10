@@ -60,7 +60,7 @@ How objective answers become a score:
 - A requirement is **Met** only when every objective is Met or N/A. One Not met objective makes it **Not met**. With nothing answered it is **Not assessed**.
 - **N/A** needs a justification and scores as met, which is the methodology's rule. The SSP (3.12.4) cannot be N/A.
 - **Not assessed** requirements are deducted at full weight, and the score is labelled provisional until every requirement is answered, so an unfinished assessment never looks better than it is.
-- **Conditional Level 2 status** needs all three: a score of at least 88, every remaining gap eligible for a POA&M, and an SSP.
+- **Conditional Level 2 status** needs all of: every requirement assessed, a score of at least 88, every remaining gap eligible for a POA&M, and an SSP.
 - Collector evidence **never** changes the score directly. It informs the assessor, who decides.
 
 ## What the collectors automate, and what stays manual
