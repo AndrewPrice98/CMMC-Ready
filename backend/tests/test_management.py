@@ -50,7 +50,7 @@ def test_end_to_end_on_empty_database(empty):
     assert done.json()["completed_at"] == "2026-11-09" and done.json()["title"] == "Done"
     export = empty.get(f"/api/assessments/{aid}/exports/ssp.docx")
     assert export.status_code == 200 and export.content[:2] == b"PK"
-    assert "acme-machining-fictional-ssp-" in export.headers["content-disposition"]
+    assert "acme-machining-ssp-" in export.headers["content-disposition"]
 
 
 def test_organization_update_keeps_single_org(empty):
