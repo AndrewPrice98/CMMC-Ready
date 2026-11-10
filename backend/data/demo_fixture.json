@@ -1,0 +1,5869 @@
+{
+ "organization": {
+  "name": "Harlan Ridge Aerospace Components (fictional)",
+  "cage_codes": "DEMO1",
+  "description": "A fictional 48-person machine shop that makes brackets and housings for aerospace prime contractors. Invented for this demo; it is not a real company.",
+  "cui_boundary": "The CUI boundary covers the engineering workstations, the CUI file server FS-01, the company's Microsoft 365 GCC High tenant and the PLM vault. Identity, firewall and logging systems are security protection assets. The managed service provider's remote support tool and the badge system are contractor risk managed assets. CNC machine controllers are specialized assets. Guest Wi-Fi and back-office finance PCs are outside the boundary."
+ },
+ "assets": [
+  {
+   "name": "Engineering workstations (ENG-WS-01 to ENG-WS-12)",
+   "category": "cui",
+   "description": "Windows 11 workstations used to create and edit CUI drawings and models."
+  },
+  {
+   "name": "CUI file server FS-01",
+   "category": "cui",
+   "description": "Windows Server 2022 file server holding controlled drawings and program data."
+  },
+  {
+   "name": "Microsoft 365 GCC High tenant",
+   "category": "cui",
+   "description": "Exchange Online, SharePoint and Teams, including the CUI SharePoint site."
+  },
+  {
+   "name": "PLM vault",
+   "category": "cui",
+   "description": "Product lifecycle management application and database for released drawings."
+  },
+  {
+   "name": "Identity services (DC-01, Entra ID)",
+   "category": "spa",
+   "description": "Active Directory domain controller and Entra ID tenant that authenticate all users."
+  },
+  {
+   "name": "Perimeter firewall pair (FW-01, FW-02)",
+   "category": "spa",
+   "description": "Next-generation firewalls that separate the VLANs and terminate the VPN."
+  },
+  {
+   "name": "Log server LOG-01",
+   "category": "spa",
+   "description": "Collects Windows, firewall and Microsoft 365 audit logs and raises alerts."
+  },
+  {
+   "name": "Managed service provider remote support tool",
+   "category": "crma",
+   "description": "Remote administration tool used by the outsourced IT provider under a signed responsibility matrix."
+  },
+  {
+   "name": "Badge and door controller",
+   "category": "crma",
+   "description": "Cloud-managed physical access control for the building, engineering office and server room."
+  },
+  {
+   "name": "CNC machine controllers and CMM inspection station",
+   "category": "specialized",
+   "description": "Operational technology on an isolated shop-floor VLAN that receives program files from FS-01."
+  },
+  {
+   "name": "Guest Wi-Fi",
+   "category": "out_of_scope",
+   "description": "Landlord-provided internet for visitors on a separate line. No path to the company network."
+  },
+  {
+   "name": "Back-office finance PCs",
+   "category": "out_of_scope",
+   "description": "Accounting and payroll computers that never handle CUI and sit on their own VLAN."
+  }
+ ],
+ "assessments": [
+  {
+   "key": "previous",
+   "title": "Initial self-assessment, June 2026",
+   "started_at": "2026-06-01T13:00:00Z",
+   "completed_at": "2026-06-19T16:00:00Z",
+   "odp": {
+    "min_password_length": 12,
+    "lockout_threshold": 10,
+    "session_lock_minutes": 15,
+    "password_history": 24,
+    "audit_retention_days": 90,
+    "max_patch_age_days": 35,
+    "max_signin_frequency_hours": 12
+   },
+   "partial_choices": {},
+   "answers": [
+    {
+     "objective_id": "3.1.1[a]",
+     "answer": "met",
+     "note": "Named accounts in Active Directory, and the guest account disabled.",
+     "justification": "",
+     "answered_at": "2026-06-01T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.1[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-01T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.1[c]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-01T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.1[d]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-01T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.1[e]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-01T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.1[f]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-01T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.2[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-02T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.2[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-02T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.3[a]",
+     "answer": "not_met",
+     "note": "Not in place at the time of the assessment.",
+     "justification": "",
+     "answered_at": "2026-06-03T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.3[b]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-03T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.3[c]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-03T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.3[d]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-03T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.3[e]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-03T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.4[a]",
+     "answer": "not_met",
+     "note": "Not in place at the time of the assessment.",
+     "justification": "",
+     "answered_at": "2026-06-04T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.4[b]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-04T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.4[c]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-04T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.5[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-05T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.5[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-05T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.5[c]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-05T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.5[d]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-05T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.6[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-06T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.6[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-06T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.7[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-07T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.7[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-07T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.7[c]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-07T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.7[d]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-07T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.8[a]",
+     "answer": "not_met",
+     "note": "Not in place at the time of the assessment.",
+     "justification": "",
+     "answered_at": "2026-06-08T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.8[b]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-08T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.9[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-09T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.9[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-09T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.10[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-10T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.10[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-10T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.10[c]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-10T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.11[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-11T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.11[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-11T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.12[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-12T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.12[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-12T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.12[c]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-12T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.12[d]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-12T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.13[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-13T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.13[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-13T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.14[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-14T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.14[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-14T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.15[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-15T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.15[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-15T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.15[c]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-15T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.15[d]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-15T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.16[a]",
+     "answer": "na",
+     "note": "",
+     "justification": "No wireless access points are connected to the CUI boundary. The building guest Wi-Fi is provided by the landlord on a separate internet line and is out of scope. Wireless adapters are disabled on engineering workstations and servers, and the firewall has no wireless interface. Confirmed by the IT Manager during the quarterly walk-through.",
+     "answered_at": "2026-06-16T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.16[b]",
+     "answer": "na",
+     "note": "",
+     "justification": "No wireless access points are connected to the CUI boundary. The building guest Wi-Fi is provided by the landlord on a separate internet line and is out of scope. Wireless adapters are disabled on engineering workstations and servers, and the firewall has no wireless interface. Confirmed by the IT Manager during the quarterly walk-through.",
+     "answered_at": "2026-06-16T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.17[a]",
+     "answer": "na",
+     "note": "",
+     "justification": "Not applicable because wireless access is not used within the CUI boundary (see 3.1.16). If wireless is ever added it will be in scope and assessed again.",
+     "answered_at": "2026-06-17T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.17[b]",
+     "answer": "na",
+     "note": "",
+     "justification": "Not applicable because wireless access is not used within the CUI boundary (see 3.1.16). If wireless is ever added it will be in scope and assessed again.",
+     "answered_at": "2026-06-17T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.18[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-18T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.18[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-18T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.18[c]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-18T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.19[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-01T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.19[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-01T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.20[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-02T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.20[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-02T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.20[c]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-02T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.20[d]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-02T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.20[e]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-02T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.20[f]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-02T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.21[a]",
+     "answer": "not_met",
+     "note": "Not in place at the time of the assessment.",
+     "justification": "",
+     "answered_at": "2026-06-03T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.21[b]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-03T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.21[c]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-03T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.22[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-04T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.22[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-04T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.22[c]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-04T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.22[d]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-04T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.22[e]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-04T14:00:00Z"
+    },
+    {
+     "objective_id": "3.2.1[a]",
+     "answer": "not_met",
+     "note": "Awareness training was informal and not recorded.",
+     "justification": "",
+     "answered_at": "2026-06-05T14:00:00Z"
+    },
+    {
+     "objective_id": "3.2.1[b]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-05T14:00:00Z"
+    },
+    {
+     "objective_id": "3.2.1[c]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-05T14:00:00Z"
+    },
+    {
+     "objective_id": "3.2.1[d]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-05T14:00:00Z"
+    },
+    {
+     "objective_id": "3.2.2[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-06T14:00:00Z"
+    },
+    {
+     "objective_id": "3.2.2[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-06T14:00:00Z"
+    },
+    {
+     "objective_id": "3.2.2[c]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-06T14:00:00Z"
+    },
+    {
+     "objective_id": "3.2.3[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-07T14:00:00Z"
+    },
+    {
+     "objective_id": "3.2.3[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-07T14:00:00Z"
+    },
+    {
+     "objective_id": "3.3.1[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-08T14:00:00Z"
+    },
+    {
+     "objective_id": "3.3.1[b]",
+     "answer": "not_met",
+     "note": "Logging was on by default only. Event types, content and retention had not been defined, and logs were overwritten after a few days.",
+     "justification": "",
+     "answered_at": "2026-06-08T14:00:00Z"
+    },
+    {
+     "objective_id": "3.3.1[c]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-08T14:00:00Z"
+    },
+    {
+     "objective_id": "3.3.1[d]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-08T14:00:00Z"
+    },
+    {
+     "objective_id": "3.3.1[e]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-08T14:00:00Z"
+    },
+    {
+     "objective_id": "3.3.1[f]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-08T14:00:00Z"
+    },
+    {
+     "objective_id": "3.3.2[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-09T14:00:00Z"
+    },
+    {
+     "objective_id": "3.3.2[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-09T14:00:00Z"
+    },
+    {
+     "objective_id": "3.3.3[a]",
+     "answer": "not_met",
+     "note": "Not in place at the time of the assessment.",
+     "justification": "",
+     "answered_at": "2026-06-10T14:00:00Z"
+    },
+    {
+     "objective_id": "3.3.3[b]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-10T14:00:00Z"
+    },
+    {
+     "objective_id": "3.3.3[c]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-10T14:00:00Z"
+    },
+    {
+     "objective_id": "3.3.4[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-11T14:00:00Z"
+    },
+    {
+     "objective_id": "3.3.4[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-11T14:00:00Z"
+    },
+    {
+     "objective_id": "3.3.4[c]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-11T14:00:00Z"
+    },
+    {
+     "objective_id": "3.3.5[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-12T14:00:00Z"
+    },
+    {
+     "objective_id": "3.3.5[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-12T14:00:00Z"
+    },
+    {
+     "objective_id": "3.3.6[a]",
+     "answer": "not_met",
+     "note": "Not in place at the time of the assessment.",
+     "justification": "",
+     "answered_at": "2026-06-13T14:00:00Z"
+    },
+    {
+     "objective_id": "3.3.6[b]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-13T14:00:00Z"
+    },
+    {
+     "objective_id": "3.3.7[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-14T14:00:00Z"
+    },
+    {
+     "objective_id": "3.3.7[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-14T14:00:00Z"
+    },
+    {
+     "objective_id": "3.3.7[c]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-14T14:00:00Z"
+    },
+    {
+     "objective_id": "3.3.8[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-15T14:00:00Z"
+    },
+    {
+     "objective_id": "3.3.8[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-15T14:00:00Z"
+    },
+    {
+     "objective_id": "3.3.8[c]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-15T14:00:00Z"
+    },
+    {
+     "objective_id": "3.3.8[d]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-15T14:00:00Z"
+    },
+    {
+     "objective_id": "3.3.8[e]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-15T14:00:00Z"
+    },
+    {
+     "objective_id": "3.3.8[f]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-15T14:00:00Z"
+    },
+    {
+     "objective_id": "3.3.9[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-16T14:00:00Z"
+    },
+    {
+     "objective_id": "3.3.9[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-16T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.1[a]",
+     "answer": "not_met",
+     "note": "No baseline configuration and no inventory beyond a purchasing spreadsheet.",
+     "justification": "",
+     "answered_at": "2026-06-17T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.1[b]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-17T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.1[c]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-17T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.1[d]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-17T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.1[e]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-17T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.1[f]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-17T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.2[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-18T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.2[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-18T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.3[a]",
+     "answer": "not_met",
+     "note": "Not in place at the time of the assessment.",
+     "justification": "",
+     "answered_at": "2026-06-01T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.3[b]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-01T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.3[c]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-01T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.3[d]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-01T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.4[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-02T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.5[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-03T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.5[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-03T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.5[c]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-03T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.5[d]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-03T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.5[e]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-03T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.5[f]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-03T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.5[g]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-03T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.5[h]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-03T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.6[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-04T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.6[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-04T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.7[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-05T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.7[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-05T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.7[c]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-05T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.7[d]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-05T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.7[e]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-05T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.7[f]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-05T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.7[g]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-05T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.7[h]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-05T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.7[i]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-05T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.7[j]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-05T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.7[k]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-05T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.7[l]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-05T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.7[m]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-05T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.7[n]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-05T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.7[o]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-05T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.8[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-06T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.8[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-06T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.8[c]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-06T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.9[a]",
+     "answer": "not_met",
+     "note": "Not in place at the time of the assessment.",
+     "justification": "",
+     "answered_at": "2026-06-07T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.9[b]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-07T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.9[c]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-07T14:00:00Z"
+    },
+    {
+     "objective_id": "3.5.1[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-08T14:00:00Z"
+    },
+    {
+     "objective_id": "3.5.1[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-08T14:00:00Z"
+    },
+    {
+     "objective_id": "3.5.1[c]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-08T14:00:00Z"
+    },
+    {
+     "objective_id": "3.5.2[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-09T14:00:00Z"
+    },
+    {
+     "objective_id": "3.5.2[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-09T14:00:00Z"
+    },
+    {
+     "objective_id": "3.5.2[c]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-09T14:00:00Z"
+    },
+    {
+     "objective_id": "3.5.3[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-10T14:00:00Z"
+    },
+    {
+     "objective_id": "3.5.3[b]",
+     "answer": "not_met",
+     "note": "MFA was in place for administrators only in some systems and not enforced for any user group.",
+     "justification": "",
+     "answered_at": "2026-06-10T14:00:00Z"
+    },
+    {
+     "objective_id": "3.5.3[c]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-10T14:00:00Z"
+    },
+    {
+     "objective_id": "3.5.3[d]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-10T14:00:00Z"
+    },
+    {
+     "objective_id": "3.5.4[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-11T14:00:00Z"
+    },
+    {
+     "objective_id": "3.5.5[a]",
+     "answer": "not_met",
+     "note": "Not in place at the time of the assessment.",
+     "justification": "",
+     "answered_at": "2026-06-12T14:00:00Z"
+    },
+    {
+     "objective_id": "3.5.5[b]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-12T14:00:00Z"
+    },
+    {
+     "objective_id": "3.5.6[a]",
+     "answer": "not_met",
+     "note": "Not in place at the time of the assessment.",
+     "justification": "",
+     "answered_at": "2026-06-13T14:00:00Z"
+    },
+    {
+     "objective_id": "3.5.6[b]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-13T14:00:00Z"
+    },
+    {
+     "objective_id": "3.5.7[a]",
+     "answer": "met",
+     "note": "Password policy set to 12 characters with complexity.",
+     "justification": "",
+     "answered_at": "2026-06-14T14:00:00Z"
+    },
+    {
+     "objective_id": "3.5.7[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-14T14:00:00Z"
+    },
+    {
+     "objective_id": "3.5.7[c]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-14T14:00:00Z"
+    },
+    {
+     "objective_id": "3.5.7[d]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-14T14:00:00Z"
+    },
+    {
+     "objective_id": "3.5.8[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-15T14:00:00Z"
+    },
+    {
+     "objective_id": "3.5.8[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-15T14:00:00Z"
+    },
+    {
+     "objective_id": "3.5.9[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-16T14:00:00Z"
+    },
+    {
+     "objective_id": "3.5.10[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-17T14:00:00Z"
+    },
+    {
+     "objective_id": "3.5.10[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-17T14:00:00Z"
+    },
+    {
+     "objective_id": "3.5.11[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-18T14:00:00Z"
+    },
+    {
+     "objective_id": "3.6.1[a]",
+     "answer": "not_met",
+     "note": "No incident response plan existed.",
+     "justification": "",
+     "answered_at": "2026-06-01T14:00:00Z"
+    },
+    {
+     "objective_id": "3.6.1[b]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-01T14:00:00Z"
+    },
+    {
+     "objective_id": "3.6.1[c]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-01T14:00:00Z"
+    },
+    {
+     "objective_id": "3.6.1[d]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-01T14:00:00Z"
+    },
+    {
+     "objective_id": "3.6.1[e]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-01T14:00:00Z"
+    },
+    {
+     "objective_id": "3.6.1[f]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-01T14:00:00Z"
+    },
+    {
+     "objective_id": "3.6.1[g]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-01T14:00:00Z"
+    },
+    {
+     "objective_id": "3.6.2[a]",
+     "answer": "not_met",
+     "note": "Incidents were handled by phone, without tracking or defined reporting contacts.",
+     "justification": "",
+     "answered_at": "2026-06-02T14:00:00Z"
+    },
+    {
+     "objective_id": "3.6.2[b]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-02T14:00:00Z"
+    },
+    {
+     "objective_id": "3.6.2[c]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-02T14:00:00Z"
+    },
+    {
+     "objective_id": "3.6.2[d]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-02T14:00:00Z"
+    },
+    {
+     "objective_id": "3.6.2[e]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-02T14:00:00Z"
+    },
+    {
+     "objective_id": "3.6.2[f]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-02T14:00:00Z"
+    },
+    {
+     "objective_id": "3.6.3[a]",
+     "answer": "not_met",
+     "note": "Not in place at the time of the assessment.",
+     "justification": "",
+     "answered_at": "2026-06-03T14:00:00Z"
+    },
+    {
+     "objective_id": "3.7.1[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-04T14:00:00Z"
+    },
+    {
+     "objective_id": "3.7.2[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-05T14:00:00Z"
+    },
+    {
+     "objective_id": "3.7.2[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-05T14:00:00Z"
+    },
+    {
+     "objective_id": "3.7.2[c]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-05T14:00:00Z"
+    },
+    {
+     "objective_id": "3.7.2[d]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-05T14:00:00Z"
+    },
+    {
+     "objective_id": "3.7.3[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-06T14:00:00Z"
+    },
+    {
+     "objective_id": "3.7.4[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-07T14:00:00Z"
+    },
+    {
+     "objective_id": "3.7.5[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-08T14:00:00Z"
+    },
+    {
+     "objective_id": "3.7.5[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-08T14:00:00Z"
+    },
+    {
+     "objective_id": "3.7.6[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-09T14:00:00Z"
+    },
+    {
+     "objective_id": "3.8.1[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-10T14:00:00Z"
+    },
+    {
+     "objective_id": "3.8.1[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-10T14:00:00Z"
+    },
+    {
+     "objective_id": "3.8.1[c]",
+     "answer": "not_met",
+     "note": "Paper drawings were left on desks and backup drives were kept in an unlocked cabinet.",
+     "justification": "",
+     "answered_at": "2026-06-10T14:00:00Z"
+    },
+    {
+     "objective_id": "3.8.1[d]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-10T14:00:00Z"
+    },
+    {
+     "objective_id": "3.8.2[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-11T14:00:00Z"
+    },
+    {
+     "objective_id": "3.8.3[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-12T14:00:00Z"
+    },
+    {
+     "objective_id": "3.8.3[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-12T14:00:00Z"
+    },
+    {
+     "objective_id": "3.8.4[a]",
+     "answer": "not_met",
+     "note": "Not in place at the time of the assessment.",
+     "justification": "",
+     "answered_at": "2026-06-13T14:00:00Z"
+    },
+    {
+     "objective_id": "3.8.4[b]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-13T14:00:00Z"
+    },
+    {
+     "objective_id": "3.8.5[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-14T14:00:00Z"
+    },
+    {
+     "objective_id": "3.8.5[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-14T14:00:00Z"
+    },
+    {
+     "objective_id": "3.8.6[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-15T14:00:00Z"
+    },
+    {
+     "objective_id": "3.8.7[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-16T14:00:00Z"
+    },
+    {
+     "objective_id": "3.8.8[a]",
+     "answer": "not_met",
+     "note": "Not in place at the time of the assessment.",
+     "justification": "",
+     "answered_at": "2026-06-17T14:00:00Z"
+    },
+    {
+     "objective_id": "3.8.9[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-18T14:00:00Z"
+    },
+    {
+     "objective_id": "3.9.1[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-01T14:00:00Z"
+    },
+    {
+     "objective_id": "3.9.2[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-02T14:00:00Z"
+    },
+    {
+     "objective_id": "3.9.2[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-02T14:00:00Z"
+    },
+    {
+     "objective_id": "3.9.2[c]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-02T14:00:00Z"
+    },
+    {
+     "objective_id": "3.10.1[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-03T14:00:00Z"
+    },
+    {
+     "objective_id": "3.10.1[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-03T14:00:00Z"
+    },
+    {
+     "objective_id": "3.10.1[c]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-03T14:00:00Z"
+    },
+    {
+     "objective_id": "3.10.1[d]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-03T14:00:00Z"
+    },
+    {
+     "objective_id": "3.10.2[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-04T14:00:00Z"
+    },
+    {
+     "objective_id": "3.10.2[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-04T14:00:00Z"
+    },
+    {
+     "objective_id": "3.10.2[c]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-04T14:00:00Z"
+    },
+    {
+     "objective_id": "3.10.2[d]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-04T14:00:00Z"
+    },
+    {
+     "objective_id": "3.10.3[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-05T14:00:00Z"
+    },
+    {
+     "objective_id": "3.10.3[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-05T14:00:00Z"
+    },
+    {
+     "objective_id": "3.10.4[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-06T14:00:00Z"
+    },
+    {
+     "objective_id": "3.10.5[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-07T14:00:00Z"
+    },
+    {
+     "objective_id": "3.10.5[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-07T14:00:00Z"
+    },
+    {
+     "objective_id": "3.10.5[c]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-07T14:00:00Z"
+    },
+    {
+     "objective_id": "3.10.6[a]",
+     "answer": "not_met",
+     "note": "Not in place at the time of the assessment.",
+     "justification": "",
+     "answered_at": "2026-06-08T14:00:00Z"
+    },
+    {
+     "objective_id": "3.10.6[b]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-08T14:00:00Z"
+    },
+    {
+     "objective_id": "3.11.1[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-09T14:00:00Z"
+    },
+    {
+     "objective_id": "3.11.1[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-09T14:00:00Z"
+    },
+    {
+     "objective_id": "3.11.2[a]",
+     "answer": "not_met",
+     "note": "No vulnerability scanning was performed.",
+     "justification": "",
+     "answered_at": "2026-06-10T14:00:00Z"
+    },
+    {
+     "objective_id": "3.11.2[b]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-10T14:00:00Z"
+    },
+    {
+     "objective_id": "3.11.2[c]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-10T14:00:00Z"
+    },
+    {
+     "objective_id": "3.11.2[d]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-10T14:00:00Z"
+    },
+    {
+     "objective_id": "3.11.2[e]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-10T14:00:00Z"
+    },
+    {
+     "objective_id": "3.11.3[a]",
+     "answer": "not_met",
+     "note": "Not in place at the time of the assessment.",
+     "justification": "",
+     "answered_at": "2026-06-11T14:00:00Z"
+    },
+    {
+     "objective_id": "3.11.3[b]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-11T14:00:00Z"
+    },
+    {
+     "objective_id": "3.12.1[a]",
+     "answer": "not_met",
+     "note": "This was the first assessment, so no earlier assessments existed.",
+     "justification": "",
+     "answered_at": "2026-06-12T14:00:00Z"
+    },
+    {
+     "objective_id": "3.12.1[b]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-12T14:00:00Z"
+    },
+    {
+     "objective_id": "3.12.2[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-13T14:00:00Z"
+    },
+    {
+     "objective_id": "3.12.2[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-13T14:00:00Z"
+    },
+    {
+     "objective_id": "3.12.2[c]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-13T14:00:00Z"
+    },
+    {
+     "objective_id": "3.12.3[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-14T14:00:00Z"
+    },
+    {
+     "objective_id": "3.12.4[a]",
+     "answer": "not_met",
+     "note": "No system security plan existed at the time.",
+     "justification": "",
+     "answered_at": "2026-06-15T14:00:00Z"
+    },
+    {
+     "objective_id": "3.12.4[b]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-15T14:00:00Z"
+    },
+    {
+     "objective_id": "3.12.4[c]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-15T14:00:00Z"
+    },
+    {
+     "objective_id": "3.12.4[d]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-15T14:00:00Z"
+    },
+    {
+     "objective_id": "3.12.4[e]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-15T14:00:00Z"
+    },
+    {
+     "objective_id": "3.12.4[f]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-15T14:00:00Z"
+    },
+    {
+     "objective_id": "3.12.4[g]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-15T14:00:00Z"
+    },
+    {
+     "objective_id": "3.12.4[h]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-15T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.1[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-16T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.1[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-16T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.1[c]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-16T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.1[d]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-16T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.1[e]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-16T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.1[f]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-16T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.1[g]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-16T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.1[h]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-16T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.2[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-17T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.2[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-17T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.2[c]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-17T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.2[d]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-17T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.2[e]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-17T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.2[f]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-17T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.3[a]",
+     "answer": "not_met",
+     "note": "Not in place at the time of the assessment.",
+     "justification": "",
+     "answered_at": "2026-06-18T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.3[b]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-18T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.3[c]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-18T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.4[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-01T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.5[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-02T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.5[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-02T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.6[a]",
+     "answer": "met",
+     "note": "Firewall default policy is deny.",
+     "justification": "",
+     "answered_at": "2026-06-03T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.6[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-03T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.7[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-04T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.8[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-05T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.8[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-05T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.8[c]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-05T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.9[a]",
+     "answer": "not_met",
+     "note": "Not in place at the time of the assessment.",
+     "justification": "",
+     "answered_at": "2026-06-06T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.9[b]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-06T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.9[c]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-06T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.10[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-07T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.10[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-07T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.11[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-08T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.12[a]",
+     "answer": "not_met",
+     "note": "Not in place at the time of the assessment.",
+     "justification": "",
+     "answered_at": "2026-06-09T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.12[b]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-09T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.12[c]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-09T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.13[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-10T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.13[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-10T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.14[a]",
+     "answer": "not_met",
+     "note": "Not in place at the time of the assessment.",
+     "justification": "",
+     "answered_at": "2026-06-11T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.14[b]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-11T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.15[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-12T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.16[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-13T14:00:00Z"
+    },
+    {
+     "objective_id": "3.14.1[a]",
+     "answer": "not_met",
+     "note": "Patching was ad hoc, with no defined time frames.",
+     "justification": "",
+     "answered_at": "2026-06-14T14:00:00Z"
+    },
+    {
+     "objective_id": "3.14.1[b]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-14T14:00:00Z"
+    },
+    {
+     "objective_id": "3.14.1[c]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-14T14:00:00Z"
+    },
+    {
+     "objective_id": "3.14.1[d]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-14T14:00:00Z"
+    },
+    {
+     "objective_id": "3.14.1[e]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-14T14:00:00Z"
+    },
+    {
+     "objective_id": "3.14.1[f]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-14T14:00:00Z"
+    },
+    {
+     "objective_id": "3.14.2[a]",
+     "answer": "met",
+     "note": "Defender Antivirus on all workstations.",
+     "justification": "",
+     "answered_at": "2026-06-15T14:00:00Z"
+    },
+    {
+     "objective_id": "3.14.2[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-15T14:00:00Z"
+    },
+    {
+     "objective_id": "3.14.3[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-16T14:00:00Z"
+    },
+    {
+     "objective_id": "3.14.3[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-16T14:00:00Z"
+    },
+    {
+     "objective_id": "3.14.3[c]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-16T14:00:00Z"
+    },
+    {
+     "objective_id": "3.14.4[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-17T14:00:00Z"
+    },
+    {
+     "objective_id": "3.14.5[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-18T14:00:00Z"
+    },
+    {
+     "objective_id": "3.14.5[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-18T14:00:00Z"
+    },
+    {
+     "objective_id": "3.14.5[c]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-18T14:00:00Z"
+    },
+    {
+     "objective_id": "3.14.6[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-01T14:00:00Z"
+    },
+    {
+     "objective_id": "3.14.6[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-01T14:00:00Z"
+    },
+    {
+     "objective_id": "3.14.6[c]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-01T14:00:00Z"
+    },
+    {
+     "objective_id": "3.14.7[a]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-02T14:00:00Z"
+    },
+    {
+     "objective_id": "3.14.7[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-06-02T14:00:00Z"
+    }
+   ],
+   "evidence": [],
+   "poam": []
+  },
+  {
+   "key": "current",
+   "title": "Annual self-assessment, autumn 2026",
+   "started_at": "2026-10-12T13:00:00Z",
+   "completed_at": null,
+   "odp": {
+    "min_password_length": 12,
+    "lockout_threshold": 10,
+    "session_lock_minutes": 15,
+    "password_history": 24,
+    "audit_retention_days": 90,
+    "max_patch_age_days": 35,
+    "max_signin_frequency_hours": 12
+   },
+   "partial_choices": {
+    "3.5.3": "mfa_remote_privileged_only"
+   },
+   "answers": [
+    {
+     "objective_id": "3.1.1[a]",
+     "answer": "met",
+     "note": "Access is limited to named accounts in Active Directory and Entra ID. Accounts are created from an HR-approved onboarding ticket, the guest account is disabled by policy, and only company-managed, domain-joined devices can reach the CUI file server and the CUI SharePoint site.",
+     "justification": "",
+     "answered_at": "2026-10-12T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.1[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-12T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.1[c]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-12T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.1[d]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-12T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.1[e]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-12T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.1[f]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-12T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.2[a]",
+     "answer": "met",
+     "note": "Access to CUI is granted by security group. Engineering groups get read/write on their program folders; quality and shop-floor groups get read-only. The IT Manager reviews group membership every quarter.",
+     "justification": "",
+     "answered_at": "2026-10-13T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.2[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-13T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.3[a]",
+     "answer": "met",
+     "note": "CUI flow is limited to FS-01, the CUI SharePoint site and the approved prime contractor portals. Egress rules on the firewall block other file-sharing services from the CUI VLAN.",
+     "justification": "",
+     "answered_at": "2026-10-14T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.3[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-14T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.3[c]",
+     "answer": "not_met",
+     "note": "Sources and destinations for CUI are not yet documented in a form that an assessor can review, and authorizations are not defined per destination. The data flow diagram is half complete.",
+     "justification": "",
+     "answered_at": "2026-10-14T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.3[d]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-14T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.3[e]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-14T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.4[a]",
+     "answer": "met",
+     "note": "Duties that require separation are defined: approving access, administering systems and reviewing audit logs. Staff access requests are approved by the Program Manager and provisioned by the IT Manager, and the Quality Manager reviews the logs.",
+     "justification": "",
+     "answered_at": "2026-10-15T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.4[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-15T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.4[c]",
+     "answer": "not_met",
+     "note": "Duties are defined and assigned to different people, but the IT Manager holds both the approver and the provisioner role for contractor accounts. Contractor access requests need a second approver.",
+     "justification": "",
+     "answered_at": "2026-10-15T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.5[a]",
+     "answer": "met",
+     "note": "Least privilege is applied through role-based groups. Domain and Entra admin roles are held by three named individuals, each with a separate administrative account. Privileged roles are reviewed quarterly.",
+     "justification": "",
+     "answered_at": "2026-10-16T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.5[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-16T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.5[c]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-16T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.5[d]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-16T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.6[a]",
+     "answer": "met",
+     "note": "Administrators sign in with their standard account for email and browsing and use a separate admin account only for administrative tasks. Admin accounts have no mailbox.",
+     "justification": "",
+     "answered_at": "2026-10-17T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.6[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-17T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.7[a]",
+     "answer": "met",
+     "note": "Standard users cannot install software or change system settings. Use of administrative rights is logged on the domain controllers and forwarded to the log server.",
+     "justification": "",
+     "answered_at": "2026-10-18T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.7[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-18T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.7[c]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-18T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.7[d]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-18T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.8[a]",
+     "answer": "met",
+     "note": "A domain account lockout policy applies to all domain-joined hosts: lockout after 5 failed attempts with a 15-minute lockout duration.",
+     "justification": "",
+     "answered_at": "2026-10-19T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.8[b]",
+     "answer": "not_met",
+     "note": "Applied by Group Policy to domain-joined hosts and checked on ENG-WS-01 and FS-01. The two standalone test-bench PCs in the machine shop are not domain-joined and have no lockout policy.",
+     "justification": "",
+     "answered_at": "2026-10-19T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.9[a]",
+     "answer": "met",
+     "note": "A logon banner stating the system is for authorized use and may contain CUI is displayed on all domain-joined Windows hosts. The same notice is in the acceptable use policy that employees sign.",
+     "justification": "",
+     "answered_at": "2026-10-20T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.9[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-20T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.10[a]",
+     "answer": "met",
+     "note": "Group Policy locks the session after 15 minutes of inactivity with the screen blanked. The setting is applied to all workstations and servers through the domain baseline.",
+     "justification": "",
+     "answered_at": "2026-10-21T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.10[b]",
+     "answer": "met",
+     "note": "Set to 900 seconds by the domain baseline. The collector reading from FS-01 shows a longer timeout, which is being checked against the GPO scope.",
+     "justification": "",
+     "answered_at": "2026-10-21T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.10[c]",
+     "answer": "met",
+     "note": "Pattern-hiding is the blank screen saver with a password on resume.",
+     "justification": "",
+     "answered_at": "2026-10-21T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.11[a]",
+     "answer": "met",
+     "note": "Entra Conditional Access sign-in frequency forces reauthentication every 12 hours for web sessions. Remote desktop sessions are disconnected after 30 minutes idle.",
+     "justification": "",
+     "answered_at": "2026-10-22T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.11[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-22T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.12[a]",
+     "answer": "met",
+     "note": "Remote access is limited to the VPN and Entra-based access to Microsoft 365. VPN sessions are logged, require MFA and are reviewed in the monthly log review. Remote desktop to servers is allowed only from the management VLAN.",
+     "justification": "",
+     "answered_at": "2026-10-23T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.12[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-23T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.12[c]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-23T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.12[d]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-23T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.13[a]",
+     "answer": "met",
+     "note": "The VPN uses IPsec/IKEv2 with AES-256, and RDP is restricted to network-level authentication with TLS. Microsoft 365 traffic is protected with TLS 1.2 or later.",
+     "justification": "",
+     "answered_at": "2026-10-24T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.13[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-24T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.14[a]",
+     "answer": "met",
+     "note": "All remote access terminates on the perimeter firewall pair. There is no other inbound path to the internal network.",
+     "justification": "",
+     "answered_at": "2026-10-25T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.14[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-25T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.15[a]",
+     "answer": "met",
+     "note": "Remote privileged commands are allowed only for administrators connecting over the VPN to the management VLAN. The authorization is recorded in the access request ticket.",
+     "justification": "",
+     "answered_at": "2026-10-26T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.15[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-26T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.15[c]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-26T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.15[d]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-26T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.16[a]",
+     "answer": "na",
+     "note": "",
+     "justification": "No wireless access points are connected to the CUI boundary. The building guest Wi-Fi is provided by the landlord on a separate internet line and is out of scope. Wireless adapters are disabled on engineering workstations and servers, and the firewall has no wireless interface. Confirmed by the IT Manager during the quarterly walk-through.",
+     "answered_at": "2026-10-27T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.16[b]",
+     "answer": "na",
+     "note": "",
+     "justification": "No wireless access points are connected to the CUI boundary. The building guest Wi-Fi is provided by the landlord on a separate internet line and is out of scope. Wireless adapters are disabled on engineering workstations and servers, and the firewall has no wireless interface. Confirmed by the IT Manager during the quarterly walk-through.",
+     "answered_at": "2026-10-27T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.17[a]",
+     "answer": "na",
+     "note": "",
+     "justification": "Not applicable because wireless access is not used within the CUI boundary (see 3.1.16). If wireless is ever added it will be in scope and assessed again.",
+     "answered_at": "2026-10-28T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.17[b]",
+     "answer": "na",
+     "note": "",
+     "justification": "Not applicable because wireless access is not used within the CUI boundary (see 3.1.16). If wireless is ever added it will be in scope and assessed again.",
+     "answered_at": "2026-10-28T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.18[a]",
+     "answer": "met",
+     "note": "Mobile devices are enrolled in Intune before they can reach company email. Unenrolled devices are blocked by Conditional Access.",
+     "justification": "",
+     "answered_at": "2026-10-29T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.18[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-29T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.18[c]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-29T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.19[a]",
+     "answer": "met",
+     "note": "Enrolled phones and tablets require a device passcode and use encrypted storage. CUI is not permitted in the local mail cache; the Outlook app is configured to prevent saving attachments locally.",
+     "justification": "",
+     "answered_at": "2026-10-12T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.19[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-12T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.20[a]",
+     "answer": "met",
+     "note": "Connections to external systems are limited to prime contractor portals and the managed service provider's remote support tool. Each is recorded in the system security plan and approved by the IT Manager. Personal cloud storage is blocked at the firewall and by Defender for Cloud Apps.",
+     "justification": "",
+     "answered_at": "2026-10-13T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.20[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-13T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.20[c]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-13T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.20[d]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-13T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.20[e]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-13T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.20[f]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-13T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.21[a]",
+     "answer": "met",
+     "note": "Portable storage on external systems is addressed in the removable media policy and enforced on company laptops by device control.",
+     "justification": "",
+     "answered_at": "2026-10-14T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.21[b]",
+     "answer": "not_met",
+     "note": "The removable media policy says CUI must not be taken to customer or personal systems, but limits for specific cases (for example plugging into a customer laptop) are not defined or technically enforced.",
+     "justification": "",
+     "answered_at": "2026-10-14T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.21[c]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-14T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.22[a]",
+     "answer": "met",
+     "note": "No CUI is posted on public sites. Website content is reviewed by the Program Manager before publishing and the CUI SharePoint site is not shared externally.",
+     "justification": "",
+     "answered_at": "2026-10-15T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.22[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-15T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.22[c]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-15T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.22[d]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-15T14:00:00Z"
+    },
+    {
+     "objective_id": "3.1.22[e]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-15T14:00:00Z"
+    },
+    {
+     "objective_id": "3.2.1[a]",
+     "answer": "met",
+     "note": "All staff complete security awareness training at hire and every year. Managers and administrators also take a role-specific module covering the handling of CUI.",
+     "justification": "",
+     "answered_at": "2026-10-16T14:00:00Z"
+    },
+    {
+     "objective_id": "3.2.1[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-16T14:00:00Z"
+    },
+    {
+     "objective_id": "3.2.1[c]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-16T14:00:00Z"
+    },
+    {
+     "objective_id": "3.2.1[d]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-16T14:00:00Z"
+    },
+    {
+     "objective_id": "3.2.2[a]",
+     "answer": "met",
+     "note": "Administrators complete role-based training on Windows, Entra and firewall administration. Training records are kept by the IT Manager.",
+     "justification": "",
+     "answered_at": "2026-10-17T14:00:00Z"
+    },
+    {
+     "objective_id": "3.2.2[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-17T14:00:00Z"
+    },
+    {
+     "objective_id": "3.2.2[c]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-17T14:00:00Z"
+    },
+    {
+     "objective_id": "3.2.3[a]",
+     "answer": "met",
+     "note": "Insider threat awareness is part of the annual training, with a short module on recognizing and reporting concerning behavior. Reports go to the Quality Manager.",
+     "justification": "",
+     "answered_at": "2026-10-18T14:00:00Z"
+    },
+    {
+     "objective_id": "3.2.3[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-18T14:00:00Z"
+    },
+    {
+     "objective_id": "3.3.1[a]",
+     "answer": "met",
+     "note": "Audit logging is enabled on Windows hosts (logon, account management, process creation, policy change), the firewalls and Microsoft 365. Logs are forwarded to LOG-01 and retained for 365 days.",
+     "justification": "",
+     "answered_at": "2026-10-19T14:00:00Z"
+    },
+    {
+     "objective_id": "3.3.1[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-19T14:00:00Z"
+    },
+    {
+     "objective_id": "3.3.1[c]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-19T14:00:00Z"
+    },
+    {
+     "objective_id": "3.3.1[d]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-19T14:00:00Z"
+    },
+    {
+     "objective_id": "3.3.1[e]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-19T14:00:00Z"
+    },
+    {
+     "objective_id": "3.3.1[f]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-19T14:00:00Z"
+    },
+    {
+     "objective_id": "3.3.2[a]",
+     "answer": "met",
+     "note": "Every user has a unique named account, shared accounts are prohibited, and audit records include the account name, source and time, so actions trace to one person.",
+     "justification": "",
+     "answered_at": "2026-10-20T14:00:00Z"
+    },
+    {
+     "objective_id": "3.3.2[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-20T14:00:00Z"
+    },
+    {
+     "objective_id": "3.3.3[a]",
+     "answer": "met",
+     "note": "The log review process is defined: the IT Manager reviews audit events monthly.",
+     "justification": "",
+     "answered_at": "2026-10-21T14:00:00Z"
+    },
+    {
+     "objective_id": "3.3.3[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-21T14:00:00Z"
+    },
+    {
+     "objective_id": "3.3.3[c]",
+     "answer": "not_met",
+     "note": "Logged event types are reviewed monthly but the list has not been updated from those reviews since the first review. A yearly list update is not yet in the procedure.",
+     "justification": "",
+     "answered_at": "2026-10-21T14:00:00Z"
+    },
+    {
+     "objective_id": "3.3.4[a]",
+     "answer": "met",
+     "note": "LOG-01 raises an email alert if a source stops sending for more than 30 minutes or if a Windows event log fills. Alerts go to the IT Manager and the managed service provider.",
+     "justification": "",
+     "answered_at": "2026-10-22T14:00:00Z"
+    },
+    {
+     "objective_id": "3.3.4[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-22T14:00:00Z"
+    },
+    {
+     "objective_id": "3.3.4[c]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-22T14:00:00Z"
+    },
+    {
+     "objective_id": "3.3.5[a]",
+     "answer": "met",
+     "note": "Log review and incident handling are linked: any suspicious event found during review opens an incident ticket. Windows, firewall and Microsoft 365 events are searched together on LOG-01.",
+     "justification": "",
+     "answered_at": "2026-10-23T14:00:00Z"
+    },
+    {
+     "objective_id": "3.3.5[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-23T14:00:00Z"
+    },
+    {
+     "objective_id": "3.3.6[a]",
+     "answer": "not_met",
+     "note": "LOG-01 can search and export, but there is no saved set of reports and no reduction of raw Windows events for ad-hoc requests, so each request is done by hand.",
+     "justification": "",
+     "answered_at": "2026-10-24T14:00:00Z"
+    },
+    {
+     "objective_id": "3.3.6[b]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-24T14:00:00Z"
+    },
+    {
+     "objective_id": "3.3.7[a]",
+     "answer": "met",
+     "note": "Domain controllers synchronize with a public NTP pool via the firewall; all domain members take time from the domain hierarchy. Firewalls use the same NTP source.",
+     "justification": "",
+     "answered_at": "2026-10-25T14:00:00Z"
+    },
+    {
+     "objective_id": "3.3.7[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-25T14:00:00Z"
+    },
+    {
+     "objective_id": "3.3.7[c]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-25T14:00:00Z"
+    },
+    {
+     "objective_id": "3.3.8[a]",
+     "answer": "met",
+     "note": "LOG-01 is in the management VLAN. Only the IT Manager and two administrators have access, log files are write-once for ordinary accounts, and the volume is included in the encrypted backup.",
+     "justification": "",
+     "answered_at": "2026-10-26T14:00:00Z"
+    },
+    {
+     "objective_id": "3.3.8[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-26T14:00:00Z"
+    },
+    {
+     "objective_id": "3.3.8[c]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-26T14:00:00Z"
+    },
+    {
+     "objective_id": "3.3.8[d]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-26T14:00:00Z"
+    },
+    {
+     "objective_id": "3.3.8[e]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-26T14:00:00Z"
+    },
+    {
+     "objective_id": "3.3.8[f]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-26T14:00:00Z"
+    },
+    {
+     "objective_id": "3.3.9[a]",
+     "answer": "met",
+     "note": "Management of audit settings is limited to the Domain Admins and the Entra Security Administrator role, three people in total.",
+     "justification": "",
+     "answered_at": "2026-10-27T14:00:00Z"
+    },
+    {
+     "objective_id": "3.3.9[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-27T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.1[a]",
+     "answer": "met",
+     "note": "Hardware and software inventories are kept in the IT asset register and refreshed from Intune and the vulnerability scanner each month. Baselines are the Windows security baseline GPOs plus the company hardening checklist.",
+     "justification": "",
+     "answered_at": "2026-10-28T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.1[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-28T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.1[c]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-28T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.1[d]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-28T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.1[e]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-28T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.1[f]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-28T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.2[a]",
+     "answer": "met",
+     "note": "Security settings come from Microsoft Security Baseline GPOs, with deviations documented in the baseline exceptions list. Defender for Endpoint reports configuration drift.",
+     "justification": "",
+     "answered_at": "2026-10-29T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.2[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-29T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.3[a]",
+     "answer": "met",
+     "note": "Changes are requested, reviewed and approved in the IT change ticket queue. Emergency changes are approved after the fact within one business day.",
+     "justification": "",
+     "answered_at": "2026-10-12T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.3[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-12T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.3[c]",
+     "answer": "not_met",
+     "note": "Changes are tracked and reviewed in the ticket queue, but approval is informal for small changes and there is no complete record that ties an approval to the change that was made.",
+     "justification": "",
+     "answered_at": "2026-10-12T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.3[d]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-12T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.4[a]",
+     "answer": "met",
+     "note": "Each change ticket includes a short security impact statement. The IT Manager reviews it before approval.",
+     "justification": "",
+     "answered_at": "2026-10-13T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.5[a]",
+     "answer": "met",
+     "note": "Only administrators can change system configuration. Group Policy edit rights are limited to Domain Admins and changes to GPOs are logged. Physical access to server and network equipment is limited to the locked server room.",
+     "justification": "",
+     "answered_at": "2026-10-14T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.5[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-14T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.5[c]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-14T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.5[d]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-14T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.5[e]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-14T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.5[f]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-14T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.5[g]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-14T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.5[h]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-14T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.6[a]",
+     "answer": "met",
+     "note": "Workstations run a standard image with only the engineering and office software needed for the job. Unneeded Windows features and optional components are removed in the image.",
+     "justification": "",
+     "answered_at": "2026-10-15T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.6[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-15T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.7[a]",
+     "answer": "met",
+     "note": "Nonessential services and protocols are turned off in the server and workstation baselines (SMBv1, Telnet, legacy authentication). Unused ports are closed on the firewall.",
+     "justification": "",
+     "answered_at": "2026-10-16T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.7[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-16T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.7[c]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-16T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.7[d]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-16T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.7[e]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-16T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.7[f]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-16T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.7[g]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-16T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.7[h]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-16T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.7[i]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-16T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.7[j]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-16T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.7[k]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-16T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.7[l]",
+     "answer": "met",
+     "note": "SMBv1 is removed from the server baseline. The FS-01 collector output shows the server component still enabled, so the baseline may not have been applied after the last rebuild.",
+     "justification": "",
+     "answered_at": "2026-10-16T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.7[m]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-16T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.7[n]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-16T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.7[o]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-16T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.8[a]",
+     "answer": "met",
+     "note": "Application allow-listing is in audit mode on engineering workstations and enforced on FS-01 and the domain controllers. Software outside the approved list is blocked on enforced systems.",
+     "justification": "",
+     "answered_at": "2026-10-17T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.8[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-17T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.8[c]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-17T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.9[a]",
+     "answer": "met",
+     "note": "Standard users cannot install software; installs need an administrator account. Approved software is listed in the IT asset register.",
+     "justification": "",
+     "answered_at": "2026-10-18T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.9[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-18T14:00:00Z"
+    },
+    {
+     "objective_id": "3.4.9[c]",
+     "answer": "not_met",
+     "note": "Installs on domain-joined hosts are reported by Intune, but approved-software requests are handled by email and nothing monitors installs on the two standalone test-bench PCs.",
+     "justification": "",
+     "answered_at": "2026-10-18T14:00:00Z"
+    },
+    {
+     "objective_id": "3.5.1[a]",
+     "answer": "met",
+     "note": "Users have unique named accounts. Service accounts are documented in the IT asset register and devices are identified by their computer accounts and Intune enrollment.",
+     "justification": "",
+     "answered_at": "2026-10-19T14:00:00Z"
+    },
+    {
+     "objective_id": "3.5.1[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-19T14:00:00Z"
+    },
+    {
+     "objective_id": "3.5.1[c]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-19T14:00:00Z"
+    },
+    {
+     "objective_id": "3.5.2[a]",
+     "answer": "met",
+     "note": "Users authenticate with a password plus MFA for Microsoft 365 and the VPN. Devices authenticate with computer certificates issued by the internal CA.",
+     "justification": "",
+     "answered_at": "2026-10-20T14:00:00Z"
+    },
+    {
+     "objective_id": "3.5.2[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-20T14:00:00Z"
+    },
+    {
+     "objective_id": "3.5.2[c]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-20T14:00:00Z"
+    },
+    {
+     "objective_id": "3.5.3[a]",
+     "answer": "met",
+     "note": "MFA is enforced for all privileged accounts, local and network, using FIDO2 security keys for administrators. MFA for ordinary users is limited to remote access over the VPN. Conditional Access does not yet require MFA for non-privileged users signing in from inside the office network.",
+     "justification": "",
+     "answered_at": "2026-10-21T14:00:00Z"
+    },
+    {
+     "objective_id": "3.5.3[b]",
+     "answer": "met",
+     "note": "Local logon for privileged accounts needs a FIDO2 key on the workstation and a smart card at the domain controllers.",
+     "justification": "",
+     "answered_at": "2026-10-21T14:00:00Z"
+    },
+    {
+     "objective_id": "3.5.3[c]",
+     "answer": "met",
+     "note": "Conditional Access policy CA-ADMIN requires phishing-resistant MFA for all directory roles. The M365 collector output confirms this.",
+     "justification": "",
+     "answered_at": "2026-10-21T14:00:00Z"
+    },
+    {
+     "objective_id": "3.5.3[d]",
+     "answer": "not_met",
+     "note": "Not met. Non-privileged users are asked for MFA only when connecting over the VPN or from outside the office network. Rollout of MFA at every sign-in is planned.",
+     "justification": "",
+     "answered_at": "2026-10-21T14:00:00Z"
+    },
+    {
+     "objective_id": "3.5.4[a]",
+     "answer": "met",
+     "note": "Kerberos with time-limited tickets is used inside the domain and Entra ID uses modern authentication with signed tokens. NTLMv1 is disabled.",
+     "justification": "",
+     "answered_at": "2026-10-22T14:00:00Z"
+    },
+    {
+     "objective_id": "3.5.5[a]",
+     "answer": "not_met",
+     "note": "There is no written period during which an account name cannot be reissued, and the directory does not prevent a deleted name from being recreated.",
+     "justification": "",
+     "answered_at": "2026-10-23T14:00:00Z"
+    },
+    {
+     "objective_id": "3.5.5[b]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-23T14:00:00Z"
+    },
+    {
+     "objective_id": "3.5.6[a]",
+     "answer": "not_met",
+     "note": "Inactive accounts are found by a manual report run when someone remembers. No period is defined and no job disables accounts automatically.",
+     "justification": "",
+     "answered_at": "2026-10-24T14:00:00Z"
+    },
+    {
+     "objective_id": "3.5.6[b]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-24T14:00:00Z"
+    },
+    {
+     "objective_id": "3.5.7[a]",
+     "answer": "met",
+     "note": "The domain password policy requires at least 14 characters with complexity. Entra password protection blocks common and company-specific passwords.",
+     "justification": "",
+     "answered_at": "2026-10-25T14:00:00Z"
+    },
+    {
+     "objective_id": "3.5.7[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-25T14:00:00Z"
+    },
+    {
+     "objective_id": "3.5.7[c]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-25T14:00:00Z"
+    },
+    {
+     "objective_id": "3.5.7[d]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-25T14:00:00Z"
+    },
+    {
+     "objective_id": "3.5.8[a]",
+     "answer": "met",
+     "note": "The password history is set to remember 24 previous passwords.",
+     "justification": "",
+     "answered_at": "2026-10-26T14:00:00Z"
+    },
+    {
+     "objective_id": "3.5.8[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-26T14:00:00Z"
+    },
+    {
+     "objective_id": "3.5.9[a]",
+     "answer": "met",
+     "note": "New accounts are issued a one-time temporary password that must be changed at first logon. Password resets by the help desk are set to require a change at next logon.",
+     "justification": "",
+     "answered_at": "2026-10-27T14:00:00Z"
+    },
+    {
+     "objective_id": "3.5.10[a]",
+     "answer": "met",
+     "note": "Passwords are stored as salted hashes (NTLM and Kerberos keys in AD, hash in Entra ID) and are transmitted only over encrypted channels. Reversible encryption is disabled by policy.",
+     "justification": "",
+     "answered_at": "2026-10-28T14:00:00Z"
+    },
+    {
+     "objective_id": "3.5.10[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-28T14:00:00Z"
+    },
+    {
+     "objective_id": "3.5.11[a]",
+     "answer": "met",
+     "note": "Password fields mask input on Windows, the VPN client and Microsoft 365 sign-in pages. Failed logon messages do not reveal whether the username or the password was wrong.",
+     "justification": "",
+     "answered_at": "2026-10-29T14:00:00Z"
+    },
+    {
+     "objective_id": "3.6.1[a]",
+     "answer": "met",
+     "note": "An incident response plan covers preparation, detection, analysis, containment, recovery and user response. The plan names the IT Manager as incident lead and the managed service provider as the on-call technical resource.",
+     "justification": "",
+     "answered_at": "2026-10-12T14:00:00Z"
+    },
+    {
+     "objective_id": "3.6.1[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-12T14:00:00Z"
+    },
+    {
+     "objective_id": "3.6.1[c]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-12T14:00:00Z"
+    },
+    {
+     "objective_id": "3.6.1[d]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-12T14:00:00Z"
+    },
+    {
+     "objective_id": "3.6.1[e]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-12T14:00:00Z"
+    },
+    {
+     "objective_id": "3.6.1[f]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-12T14:00:00Z"
+    },
+    {
+     "objective_id": "3.6.1[g]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-12T14:00:00Z"
+    },
+    {
+     "objective_id": "3.6.2[a]",
+     "answer": "met",
+     "note": "Incidents are tracked in the IT ticket system with a security incident type. The plan lists DIBNet and the prime contractors' security contacts for the 72-hour report, and the Facility Security Officer as the internal escalation point.",
+     "justification": "",
+     "answered_at": "2026-10-13T14:00:00Z"
+    },
+    {
+     "objective_id": "3.6.2[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-13T14:00:00Z"
+    },
+    {
+     "objective_id": "3.6.2[c]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-13T14:00:00Z"
+    },
+    {
+     "objective_id": "3.6.2[d]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-13T14:00:00Z"
+    },
+    {
+     "objective_id": "3.6.2[e]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-13T14:00:00Z"
+    },
+    {
+     "objective_id": "3.6.2[f]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-13T14:00:00Z"
+    },
+    {
+     "objective_id": "3.6.3[a]",
+     "answer": "not_met",
+     "note": "The incident response plan has not been tested yet. A tabletop exercise is planned.",
+     "justification": "",
+     "answered_at": "2026-10-14T14:00:00Z"
+    },
+    {
+     "objective_id": "3.7.1[a]",
+     "answer": "met",
+     "note": "Maintenance on servers, network gear and workstations is scheduled and logged in the change ticket queue. Patching is on a monthly cycle with an emergency path for critical fixes.",
+     "justification": "",
+     "answered_at": "2026-10-15T14:00:00Z"
+    },
+    {
+     "objective_id": "3.7.2[a]",
+     "answer": "met",
+     "note": "Maintenance tools are limited to those approved by the IT Manager. The managed service provider's technicians use named accounts, and remote tool sessions are logged and require approval for each session.",
+     "justification": "",
+     "answered_at": "2026-10-16T14:00:00Z"
+    },
+    {
+     "objective_id": "3.7.2[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-16T14:00:00Z"
+    },
+    {
+     "objective_id": "3.7.2[c]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-16T14:00:00Z"
+    },
+    {
+     "objective_id": "3.7.2[d]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-16T14:00:00Z"
+    },
+    {
+     "objective_id": "3.7.3[a]",
+     "answer": "met",
+     "note": "Equipment is not sent off site with CUI on it. Drives are removed and sanitized, or the device is replaced under warranty without return of the storage, before leaving the facility.",
+     "justification": "",
+     "answered_at": "2026-10-17T14:00:00Z"
+    },
+    {
+     "objective_id": "3.7.4[a]",
+     "answer": "met",
+     "note": "Diagnostic media and files from vendors are scanned with Defender before use. CNC controller update media is received from the manufacturer's portal and scanned on an isolated workstation first.",
+     "justification": "",
+     "answered_at": "2026-10-18T14:00:00Z"
+    },
+    {
+     "objective_id": "3.7.5[a]",
+     "answer": "met",
+     "note": "Remote maintenance sessions require MFA through the managed service provider's remote tool and the VPN. Sessions are terminated when the work is finished.",
+     "justification": "",
+     "answered_at": "2026-10-19T14:00:00Z"
+    },
+    {
+     "objective_id": "3.7.5[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-19T14:00:00Z"
+    },
+    {
+     "objective_id": "3.7.6[a]",
+     "answer": "met",
+     "note": "Maintenance staff without authorization are escorted by an employee for the duration of the visit and the visit is recorded in the visitor log.",
+     "justification": "",
+     "answered_at": "2026-10-20T14:00:00Z"
+    },
+    {
+     "objective_id": "3.8.1[a]",
+     "answer": "met",
+     "note": "CUI drawings on paper are kept in locked cabinets in the engineering office. Digital media with CUI are limited to encrypted backup drives held in the locked server room.",
+     "justification": "",
+     "answered_at": "2026-10-21T14:00:00Z"
+    },
+    {
+     "objective_id": "3.8.1[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-21T14:00:00Z"
+    },
+    {
+     "objective_id": "3.8.1[c]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-21T14:00:00Z"
+    },
+    {
+     "objective_id": "3.8.1[d]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-21T14:00:00Z"
+    },
+    {
+     "objective_id": "3.8.2[a]",
+     "answer": "met",
+     "note": "Access to CUI on media is limited by the same group-based permissions as the file server. Paper and backup media are held in cabinets and a safe to which only authorized staff hold keys.",
+     "justification": "",
+     "answered_at": "2026-10-22T14:00:00Z"
+    },
+    {
+     "objective_id": "3.8.3[a]",
+     "answer": "met",
+     "note": "Drives are wiped with a NIST SP 800-88 Clear or Purge method depending on the device type, or physically destroyed by a certified vendor. A sanitization record is kept for each device.",
+     "justification": "",
+     "answered_at": "2026-10-23T14:00:00Z"
+    },
+    {
+     "objective_id": "3.8.3[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-23T14:00:00Z"
+    },
+    {
+     "objective_id": "3.8.4[a]",
+     "answer": "met",
+     "note": "CUI markings are applied to documents and drawings at creation. Media markings are being rolled out.",
+     "justification": "",
+     "answered_at": "2026-10-24T14:00:00Z"
+    },
+    {
+     "objective_id": "3.8.4[b]",
+     "answer": "not_met",
+     "note": "CUI markings are applied to documents and drawings, and to the labels on backup drives. Distribution limitation statements are not yet on backup media labels.",
+     "justification": "",
+     "answered_at": "2026-10-24T14:00:00Z"
+    },
+    {
+     "objective_id": "3.8.5[a]",
+     "answer": "met",
+     "note": "Media leaving the facility is signed out by the IT Manager and carried by an employee. Backup rotation to the off-site location is logged.",
+     "justification": "",
+     "answered_at": "2026-10-25T14:00:00Z"
+    },
+    {
+     "objective_id": "3.8.5[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-25T14:00:00Z"
+    },
+    {
+     "objective_id": "3.8.6[a]",
+     "answer": "met",
+     "note": "Backup drives and laptops are encrypted with BitLocker, using FIPS-validated cryptographic modules, before they leave the server room or the facility.",
+     "justification": "",
+     "answered_at": "2026-10-26T14:00:00Z"
+    },
+    {
+     "objective_id": "3.8.7[a]",
+     "answer": "met",
+     "note": "Removable media use is limited to company-issued encrypted drives. Defender device control blocks other USB storage on workstations and servers, and Autoplay is disabled. The registry reading from FS-01 shows the USB storage driver still enabled, but device control rules apply on top of it.",
+     "justification": "",
+     "answered_at": "2026-10-27T14:00:00Z"
+    },
+    {
+     "objective_id": "3.8.8[a]",
+     "answer": "not_met",
+     "note": "Use of portable storage with no identifiable owner is prohibited in the removable media policy but is not enforced technically: Defender device control blocks unknown devices on workstations, while FS-01 and the bench PCs rely on the policy alone.",
+     "justification": "",
+     "answered_at": "2026-10-28T14:00:00Z"
+    },
+    {
+     "objective_id": "3.8.9[a]",
+     "answer": "met",
+     "note": "Backups of FS-01 and the CUI SharePoint data are encrypted at rest with AES-256. Off-site copies are held in Azure Government storage under company-managed keys.",
+     "justification": "",
+     "answered_at": "2026-10-29T14:00:00Z"
+    },
+    {
+     "objective_id": "3.9.1[a]",
+     "answer": "met",
+     "note": "Background checks are completed before an employee is given access to systems that hold CUI. Results are kept by HR.",
+     "justification": "",
+     "answered_at": "2026-10-12T14:00:00Z"
+    },
+    {
+     "objective_id": "3.9.2[a]",
+     "answer": "met",
+     "note": "On termination, HR notifies the IT Manager, who disables accounts the same day and collects the laptop, badge and keys. Transfers trigger a group membership review.",
+     "justification": "",
+     "answered_at": "2026-10-13T14:00:00Z"
+    },
+    {
+     "objective_id": "3.9.2[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-13T14:00:00Z"
+    },
+    {
+     "objective_id": "3.9.2[c]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-13T14:00:00Z"
+    },
+    {
+     "objective_id": "3.10.1[a]",
+     "answer": "met",
+     "note": "Physical access is by badge to the building, the engineering office and the server room. Access lists are maintained by the Facility Security Officer.",
+     "justification": "",
+     "answered_at": "2026-10-14T14:00:00Z"
+    },
+    {
+     "objective_id": "3.10.1[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-14T14:00:00Z"
+    },
+    {
+     "objective_id": "3.10.1[c]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-14T14:00:00Z"
+    },
+    {
+     "objective_id": "3.10.1[d]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-14T14:00:00Z"
+    },
+    {
+     "objective_id": "3.10.2[a]",
+     "answer": "met",
+     "note": "The facility has an alarm system monitored around the clock, door contacts and cameras on entrances. The server room has climate monitoring and a UPS.",
+     "justification": "",
+     "answered_at": "2026-10-15T14:00:00Z"
+    },
+    {
+     "objective_id": "3.10.2[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-15T14:00:00Z"
+    },
+    {
+     "objective_id": "3.10.2[c]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-15T14:00:00Z"
+    },
+    {
+     "objective_id": "3.10.2[d]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-15T14:00:00Z"
+    },
+    {
+     "objective_id": "3.10.3[a]",
+     "answer": "met",
+     "note": "Visitors sign in at reception, wear a visitor badge and are escorted at all times in areas with CUI. The sign-in sheet is kept for one year.",
+     "justification": "",
+     "answered_at": "2026-10-16T14:00:00Z"
+    },
+    {
+     "objective_id": "3.10.3[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-16T14:00:00Z"
+    },
+    {
+     "objective_id": "3.10.4[a]",
+     "answer": "met",
+     "note": "Badge system events and the visitor log are retained for one year and reviewed quarterly by the Facility Security Officer.",
+     "justification": "",
+     "answered_at": "2026-10-17T14:00:00Z"
+    },
+    {
+     "objective_id": "3.10.5[a]",
+     "answer": "met",
+     "note": "Badges and keys are issued, recovered and deactivated by the Facility Security Officer. Lost badges are disabled the same day. Door codes for the server room are changed when staff leave.",
+     "justification": "",
+     "answered_at": "2026-10-18T14:00:00Z"
+    },
+    {
+     "objective_id": "3.10.5[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-18T14:00:00Z"
+    },
+    {
+     "objective_id": "3.10.5[c]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-18T14:00:00Z"
+    },
+    {
+     "objective_id": "3.10.6[a]",
+     "answer": "met",
+     "note": "Remote work with CUI is allowed only on company laptops that are encrypted and connect over the VPN. Printing of CUI at home is not permitted.",
+     "justification": "",
+     "answered_at": "2026-10-19T14:00:00Z"
+    },
+    {
+     "objective_id": "3.10.6[b]",
+     "answer": "not_met",
+     "note": "Safeguards for remote work are written in the remote work policy but there is no regular check that staff follow them (for example, home printing).",
+     "justification": "",
+     "answered_at": "2026-10-19T14:00:00Z"
+    },
+    {
+     "objective_id": "3.11.1[a]",
+     "answer": "met",
+     "note": "A risk assessment is done once a year and after major changes. The latest was completed by the IT Manager and reviewed by the owner in the spring.",
+     "justification": "",
+     "answered_at": "2026-10-20T14:00:00Z"
+    },
+    {
+     "objective_id": "3.11.1[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-20T14:00:00Z"
+    },
+    {
+     "objective_id": "3.11.2[a]",
+     "answer": "met",
+     "note": "Authenticated vulnerability scans of servers and workstations run weekly, and the firewalls and web applications are scanned monthly. An out-of-cycle scan is run when a critical advisory is issued.",
+     "justification": "",
+     "answered_at": "2026-10-21T14:00:00Z"
+    },
+    {
+     "objective_id": "3.11.2[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-21T14:00:00Z"
+    },
+    {
+     "objective_id": "3.11.2[c]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-21T14:00:00Z"
+    },
+    {
+     "objective_id": "3.11.2[d]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-21T14:00:00Z"
+    },
+    {
+     "objective_id": "3.11.2[e]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-21T14:00:00Z"
+    },
+    {
+     "objective_id": "3.11.3[a]",
+     "answer": "met",
+     "note": "Vulnerabilities found by the weekly scans are ranked by risk and tracked to closure in the ticket queue.",
+     "justification": "",
+     "answered_at": "2026-10-22T14:00:00Z"
+    },
+    {
+     "objective_id": "3.11.3[b]",
+     "answer": "not_met",
+     "note": "High-risk findings are fixed within 14 days, but medium and low findings are not tracked to a due date and a backlog has built up.",
+     "justification": "",
+     "answered_at": "2026-10-22T14:00:00Z"
+    },
+    {
+     "objective_id": "3.12.1[a]",
+     "answer": "met",
+     "note": "Security controls are assessed once a year, using this self-assessment, and again after major changes.",
+     "justification": "",
+     "answered_at": "2026-10-23T14:00:00Z"
+    },
+    {
+     "objective_id": "3.12.1[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-23T14:00:00Z"
+    },
+    {
+     "objective_id": "3.12.2[a]",
+     "answer": "met",
+     "note": "Deficiencies found in assessments are recorded in the POA&M with an owner, milestones and a due date. The POA&M is reviewed monthly.",
+     "justification": "",
+     "answered_at": "2026-10-24T14:00:00Z"
+    },
+    {
+     "objective_id": "3.12.2[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-24T14:00:00Z"
+    },
+    {
+     "objective_id": "3.12.2[c]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-24T14:00:00Z"
+    },
+    {
+     "objective_id": "3.12.3[a]",
+     "answer": "met",
+     "note": "Controls are monitored continuously through Defender for Endpoint, the weekly vulnerability scans, log alerts and the monthly security review meeting.",
+     "justification": "",
+     "answered_at": "2026-10-25T14:00:00Z"
+    },
+    {
+     "objective_id": "3.12.4[a]",
+     "answer": "met",
+     "note": "The system security plan was written for the CUI boundary and approved by the owner. It is reviewed every year and after significant changes.",
+     "justification": "",
+     "answered_at": "2026-10-26T14:00:00Z"
+    },
+    {
+     "objective_id": "3.12.4[b]",
+     "answer": "met",
+     "note": "The CUI boundary, with the asset inventory, is in section 2 of the SSP and on the network diagram.",
+     "justification": "",
+     "answered_at": "2026-10-26T14:00:00Z"
+    },
+    {
+     "objective_id": "3.12.4[c]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-26T14:00:00Z"
+    },
+    {
+     "objective_id": "3.12.4[d]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-26T14:00:00Z"
+    },
+    {
+     "objective_id": "3.12.4[e]",
+     "answer": "met",
+     "note": "Each of the 110 requirements has an implementation statement in the SSP, written from these notes.",
+     "justification": "",
+     "answered_at": "2026-10-26T14:00:00Z"
+    },
+    {
+     "objective_id": "3.12.4[f]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-26T14:00:00Z"
+    },
+    {
+     "objective_id": "3.12.4[g]",
+     "answer": "met",
+     "note": "The SSP is reviewed every 12 months and after any significant change to the boundary.",
+     "justification": "",
+     "answered_at": "2026-10-26T14:00:00Z"
+    },
+    {
+     "objective_id": "3.12.4[h]",
+     "answer": "met",
+     "note": "The last update was completed in September 2026 after the move to GCC High.",
+     "justification": "",
+     "answered_at": "2026-10-26T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.1[a]",
+     "answer": "met",
+     "note": "The perimeter firewalls control traffic at the external boundary and between the CUI VLAN and other VLANs. Traffic is logged and the rule base is reviewed every quarter.",
+     "justification": "",
+     "answered_at": "2026-10-27T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.1[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-27T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.1[c]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-27T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.1[d]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-27T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.1[e]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-27T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.1[f]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-27T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.1[g]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-27T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.1[h]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-27T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.2[a]",
+     "answer": "met",
+     "note": "The network is divided into VLANs for CUI, servers, management, guests and shop-floor machines. Security is part of design reviews for new systems.",
+     "justification": "",
+     "answered_at": "2026-10-28T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.2[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-28T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.2[c]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-28T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.2[d]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-28T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.2[e]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-28T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.2[f]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-28T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.3[a]",
+     "answer": "met",
+     "note": "User functionality (standard accounts on workstations) and management functionality (administrator accounts, consoles and the management VLAN) are identified in the SSP.",
+     "justification": "",
+     "answered_at": "2026-10-29T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.3[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-29T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.3[c]",
+     "answer": "not_met",
+     "note": "Domain admin accounts are separate from user accounts, but several administrative consoles are still reachable from the user VLAN. Management access is being moved to the management VLAN.",
+     "justification": "",
+     "answered_at": "2026-10-29T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.4[a]",
+     "answer": "met",
+     "note": "Workstations and servers use BitLocker and Windows memory protection, and virtual machine hosts do not share storage across security boundaries. Temporary files are cleared at logoff on shared kiosks.",
+     "justification": "",
+     "answered_at": "2026-10-12T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.5[a]",
+     "answer": "met",
+     "note": "Public-facing services (the company website, mail gateway) sit in a DMZ separate from the internal network. There are no inbound connections from the DMZ to the CUI VLAN.",
+     "justification": "",
+     "answered_at": "2026-10-13T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.5[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-13T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.6[a]",
+     "answer": "met",
+     "note": "The firewall default policy is deny. Inbound and outbound traffic is allowed only by explicit rule, and Windows Firewall defaults to block inbound on all profiles.",
+     "justification": "",
+     "answered_at": "2026-10-14T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.6[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-14T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.7[a]",
+     "answer": "met",
+     "note": "Split tunneling is disabled on the VPN client. A remote device cannot reach the internet and the internal network at the same time.",
+     "justification": "",
+     "answered_at": "2026-10-15T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.8[a]",
+     "answer": "met",
+     "note": "CUI in transit is protected with TLS 1.2 or later (SharePoint, email, VPN) and SMB signing and encryption between workstations and FS-01.",
+     "justification": "",
+     "answered_at": "2026-10-16T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.8[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-16T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.8[c]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-16T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.9[a]",
+     "answer": "met",
+     "note": "Sessions end at logoff, VPN sessions drop after 60 minutes of inactivity, and idle sessions on the firewall time out after 15 minutes. Remaining checks cover the other session types.",
+     "justification": "",
+     "answered_at": "2026-10-17T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.9[b]",
+     "answer": "not_met",
+     "note": "VPN and firewall sessions time out, but the web proxy and the machine-shop remote desktop gateway do not terminate idle sessions.",
+     "justification": "",
+     "answered_at": "2026-10-17T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.9[c]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-17T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.10[a]",
+     "answer": "met",
+     "note": "Keys are generated and stored by the Windows certificate authority and Azure Key Vault. BitLocker recovery keys are escrowed in Active Directory. Key custody belongs to the IT Manager.",
+     "justification": "",
+     "answered_at": "2026-10-18T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.10[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-18T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.11[a]",
+     "answer": "met",
+     "note": "FIPS mode for cryptography is turned on in Group Policy for Windows hosts, and the VPN and Microsoft 365 GCC High use FIPS-validated modules. Certificate numbers are in the SSP appendix.",
+     "justification": "",
+     "answered_at": "2026-10-19T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.12[a]",
+     "answer": "met",
+     "note": "The conference room camera and microphone units, and the webcams on laptops, are identified in the asset register.",
+     "justification": "",
+     "answered_at": "2026-10-20T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.12[b]",
+     "answer": "not_met",
+     "note": "The conference room camera has no indicator light, and the remote-control feature of the conferencing app has not been disabled in policy.",
+     "justification": "",
+     "answered_at": "2026-10-20T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.12[c]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-20T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.13[a]",
+     "answer": "met",
+     "note": "Office macros from the internet are blocked by policy, and browsers run with the mobile code settings from the security baseline. Defender SmartScreen is on.",
+     "justification": "",
+     "answered_at": "2026-10-21T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.13[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-21T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.14[a]",
+     "answer": "not_met",
+     "note": "The hosted phone service is not covered by a VoIP policy, and call-detail records are not reviewed.",
+     "justification": "",
+     "answered_at": "2026-10-22T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.14[b]",
+     "answer": "not_met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-22T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.15[a]",
+     "answer": "met",
+     "note": "Sessions are protected with TLS and SMB signing is required on servers and workstations. Kerberos protects authentication inside the domain.",
+     "justification": "",
+     "answered_at": "2026-10-23T14:00:00Z"
+    },
+    {
+     "objective_id": "3.13.16[a]",
+     "answer": "met",
+     "note": "CUI at rest is protected by BitLocker on all laptops, workstations and servers. SharePoint and backup storage are encrypted at rest by the service.",
+     "justification": "",
+     "answered_at": "2026-10-24T14:00:00Z"
+    },
+    {
+     "objective_id": "3.14.1[a]",
+     "answer": "met",
+     "note": "Windows and third-party patches are tested and deployed monthly through Intune and WSUS. Critical fixes are deployed within 14 days of release. Flaw reports from vendors are tracked in the change queue.",
+     "justification": "",
+     "answered_at": "2026-10-25T14:00:00Z"
+    },
+    {
+     "objective_id": "3.14.1[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-25T14:00:00Z"
+    },
+    {
+     "objective_id": "3.14.1[c]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-25T14:00:00Z"
+    },
+    {
+     "objective_id": "3.14.1[d]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-25T14:00:00Z"
+    },
+    {
+     "objective_id": "3.14.1[e]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-25T14:00:00Z"
+    },
+    {
+     "objective_id": "3.14.1[f]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-25T14:00:00Z"
+    },
+    {
+     "objective_id": "3.14.2[a]",
+     "answer": "met",
+     "note": "Defender Antivirus and Defender for Endpoint run on every workstation and server, and email attachments are scanned in Exchange Online.",
+     "justification": "",
+     "answered_at": "2026-10-26T14:00:00Z"
+    },
+    {
+     "objective_id": "3.14.2[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-26T14:00:00Z"
+    },
+    {
+     "objective_id": "3.14.3[a]",
+     "answer": "met",
+     "note": "The IT Manager subscribes to CISA, Microsoft and vendor security advisories and reviews them weekly. Relevant ones are opened as tickets.",
+     "justification": "",
+     "answered_at": "2026-10-27T14:00:00Z"
+    },
+    {
+     "objective_id": "3.14.3[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-27T14:00:00Z"
+    },
+    {
+     "objective_id": "3.14.3[c]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-27T14:00:00Z"
+    },
+    {
+     "objective_id": "3.14.4[a]",
+     "answer": "met",
+     "note": "Defender signatures update automatically several times a day. The device status report in Intune shows any host with signatures older than 3 days.",
+     "justification": "",
+     "answered_at": "2026-10-28T14:00:00Z"
+    },
+    {
+     "objective_id": "3.14.5[a]",
+     "answer": "met",
+     "note": "Defender runs a quick scan daily and a full scan weekly. Real-time protection is on, and files from USB drives and email downloads are scanned when they are opened.",
+     "justification": "",
+     "answered_at": "2026-10-29T14:00:00Z"
+    },
+    {
+     "objective_id": "3.14.5[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-29T14:00:00Z"
+    },
+    {
+     "objective_id": "3.14.5[c]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-29T14:00:00Z"
+    },
+    {
+     "objective_id": "3.14.6[a]",
+     "answer": "met",
+     "note": "Defender for Endpoint, the firewall logs and Microsoft 365 alerts are monitored by the IT Manager and the managed service provider for inbound and outbound anomalies.",
+     "justification": "",
+     "answered_at": "2026-10-12T14:00:00Z"
+    },
+    {
+     "objective_id": "3.14.6[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-12T14:00:00Z"
+    },
+    {
+     "objective_id": "3.14.6[c]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-12T14:00:00Z"
+    },
+    {
+     "objective_id": "3.14.7[a]",
+     "answer": "met",
+     "note": "Unauthorized use is identified through log alerts for failed logons, new admin accounts and logons outside normal hours. Alerts are reviewed on the next business day.",
+     "justification": "",
+     "answered_at": "2026-10-13T14:00:00Z"
+    },
+    {
+     "objective_id": "3.14.7[b]",
+     "answer": "met",
+     "note": "",
+     "justification": "",
+     "answered_at": "2026-10-13T14:00:00Z"
+    }
+   ],
+   "evidence": [
+    {
+     "collector": "windows",
+     "collected_at": "2026-11-01T14:00:00Z",
+     "host": "ENG-WS-01",
+     "uploaded_at": "2026-11-03T15:00:00Z",
+     "raw": {
+      "collector": "windows",
+      "version": 1,
+      "collected_at": "2026-11-01T14:00:00Z",
+      "host": {
+       "name": "ENG-WS-01",
+       "os": "Microsoft Windows 11 Pro",
+       "build": "26100",
+       "domain_joined": true,
+       "elevated": true
+      },
+      "checks": {
+       "password_policy": {
+        "status": "ok",
+        "value": {
+         "MinimumPasswordAge": 1,
+         "MaximumPasswordAge": 60,
+         "MinimumPasswordLength": 14,
+         "PasswordComplexity": 1,
+         "PasswordHistorySize": 24,
+         "ClearTextPassword": 0
+        },
+        "reason": null,
+        "command": "secedit /export /cfg \"$env:TEMP\\cmmcready-<guid>.inf\" /areas SECURITYPOLICY"
+       },
+       "lockout_policy": {
+        "status": "ok",
+        "value": {
+         "LockoutBadCount": 5,
+         "ResetLockoutCount": 15,
+         "LockoutDuration": 15
+        },
+        "reason": null,
+        "command": "secedit /export /cfg \"$env:TEMP\\cmmcready-<guid>.inf\" /areas SECURITYPOLICY"
+       },
+       "audit_policy": {
+        "status": "ok",
+        "value": {
+         "subcategories": {
+          "{0CCE9215-69AE-11D9-BED3-505054503030}": {
+           "name": "Logon",
+           "setting": "Success and Failure"
+          },
+          "{0CCE9216-69AE-11D9-BED3-505054503030}": {
+           "name": "Logoff",
+           "setting": "Success"
+          },
+          "{0CCE9217-69AE-11D9-BED3-505054503030}": {
+           "name": "Account Lockout",
+           "setting": "Failure"
+          },
+          "{0CCE921B-69AE-11D9-BED3-505054503030}": {
+           "name": "Special Logon",
+           "setting": "Success"
+          },
+          "{0CCE922B-69AE-11D9-BED3-505054503030}": {
+           "name": "Process Creation",
+           "setting": "Success"
+          },
+          "{0CCE922F-69AE-11D9-BED3-505054503030}": {
+           "name": "Audit Policy Change",
+           "setting": "Success"
+          },
+          "{0CCE9235-69AE-11D9-BED3-505054503030}": {
+           "name": "User Account Management",
+           "setting": "Success and Failure"
+          },
+          "{0CCE9237-69AE-11D9-BED3-505054503030}": {
+           "name": "Security Group Management",
+           "setting": "Success"
+          },
+          "{0CCE923F-69AE-11D9-BED3-505054503030}": {
+           "name": "Credential Validation",
+           "setting": "Success and Failure"
+          }
+         }
+        },
+        "reason": null,
+        "command": "auditpol /get /category:* /r"
+       },
+       "event_log_retention": {
+        "status": "ok",
+        "value": {
+         "log_name": "Security",
+         "enabled": true,
+         "log_mode": "Circular",
+         "max_size_kb": 1048576,
+         "record_count": 812345,
+         "oldest_record_number": 1,
+         "oldest_event_age_days": 120
+        },
+        "reason": null,
+        "command": "Get-WinEvent -ListLog Security; Get-WinEvent -LogName Security -Oldest -MaxEvents 1"
+       },
+       "bitlocker": {
+        "status": "ok",
+        "value": {
+         "volumes": [
+          {
+           "mount_point": "C:",
+           "volume_type": "OperatingSystem",
+           "protection_status": "On",
+           "encryption_percentage": 100
+          },
+          {
+           "mount_point": "D:",
+           "volume_type": "Data",
+           "protection_status": "On",
+           "encryption_percentage": 100
+          }
+         ]
+        },
+        "reason": null,
+        "command": "Get-BitLockerVolume"
+       },
+       "firewall_profiles": {
+        "status": "ok",
+        "value": {
+         "profiles": [
+          {
+           "name": "Domain",
+           "enabled": true,
+           "default_inbound_action": "Block"
+          },
+          {
+           "name": "Private",
+           "enabled": true,
+           "default_inbound_action": "Block"
+          },
+          {
+           "name": "Public",
+           "enabled": true,
+           "default_inbound_action": "Block"
+          }
+         ]
+        },
+        "reason": null,
+        "command": "Get-NetFirewallProfile"
+       },
+       "screen_lock": {
+        "status": "ok",
+        "value": {
+         "inactivity_timeout_secs": 900,
+         "screensaver_active": null,
+         "screensaver_timeout_secs": null,
+         "screensaver_secure": null
+        },
+        "reason": null,
+        "command": "Get-ItemProperty HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System; Get-ItemProperty HKCU:\\Software\\Policies\\Microsoft\\Windows\\Control Panel\\Desktop"
+       },
+       "smb_signing": {
+        "status": "ok",
+        "value": {
+         "require_security_signature": true,
+         "enable_security_signature": true
+        },
+        "reason": null,
+        "command": "Get-SmbServerConfiguration"
+       },
+       "smb1": {
+        "status": "ok",
+        "value": {
+         "server_enabled": false
+        },
+        "reason": null,
+        "command": "Get-SmbServerConfiguration"
+       },
+       "local_admins": {
+        "status": "ok",
+        "value": {
+         "count": 2,
+         "members": [
+          {
+           "name": "WS-DEMO-01\\Administrator",
+           "object_class": "User",
+           "principal_source": "Local"
+          },
+          {
+           "name": "DEMO\\Domain Admins",
+           "object_class": "Group",
+           "principal_source": "ActiveDirectory"
+          }
+         ]
+        },
+        "reason": null,
+        "command": "Get-LocalGroupMember -SID S-1-5-32-544"
+       },
+       "rdp": {
+        "status": "ok",
+        "value": {
+         "deny_connections": false,
+         "nla_required": true,
+         "security_layer": 2,
+         "min_encryption_level": 3
+        },
+        "reason": null,
+        "command": "Get-ItemProperty HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Terminal Server; Get-CimInstance Win32_TSGeneralSetting"
+       },
+       "defender": {
+        "status": "ok",
+        "value": {
+         "antivirus_enabled": true,
+         "realtime_protection_enabled": true,
+         "on_access_protection_enabled": true,
+         "antivirus_signature_age_days": 1,
+         "running_mode": "Normal"
+        },
+        "reason": null,
+        "command": "Get-MpComputerStatus"
+       },
+       "autoplay": {
+        "status": "ok",
+        "value": {
+         "no_drive_type_auto_run": 255
+        },
+        "reason": null,
+        "command": "Get-ItemProperty HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer"
+       },
+       "usb_storage": {
+        "status": "ok",
+        "value": {
+         "usbstor_start": 4
+        },
+        "reason": null,
+        "command": "Get-ItemProperty HKLM:\\SYSTEM\\CurrentControlSet\\Services\\USBSTOR"
+       },
+       "patch_level": {
+        "status": "ok",
+        "value": {
+         "latest_installed_on": "2026-10-20",
+         "hotfix_count": 31
+        },
+        "reason": null,
+        "command": "Get-HotFix"
+       },
+       "fips_mode": {
+        "status": "ok",
+        "value": {
+         "enabled": true
+        },
+        "reason": null,
+        "command": "Get-ItemProperty HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Lsa\\FipsAlgorithmPolicy"
+       },
+       "logon_banner": {
+        "status": "ok",
+        "value": {
+         "caption": "Authorized use only",
+         "text": "This system is for authorized use only. Activity may be monitored and recorded."
+        },
+        "reason": null,
+        "command": "Get-ItemProperty HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System"
+       },
+       "guest_account": {
+        "status": "ok",
+        "value": {
+         "enabled": false
+        },
+        "reason": null,
+        "command": "Get-CimInstance Win32_UserAccount (SID ending -501)"
+       }
+      }
+     }
+    },
+    {
+     "collector": "windows",
+     "collected_at": "2026-11-01T14:20:00Z",
+     "host": "FS-01",
+     "uploaded_at": "2026-11-03T15:05:00Z",
+     "raw": {
+      "collector": "windows",
+      "version": 1,
+      "collected_at": "2026-11-01T14:20:00Z",
+      "host": {
+       "name": "FS-01",
+       "os": "Microsoft Windows Server 2022 Standard",
+       "build": "20348",
+       "domain_joined": true,
+       "elevated": true
+      },
+      "checks": {
+       "password_policy": {
+        "status": "ok",
+        "value": {
+         "MinimumPasswordAge": 1,
+         "MaximumPasswordAge": 60,
+         "MinimumPasswordLength": 14,
+         "PasswordComplexity": 1,
+         "PasswordHistorySize": 24,
+         "ClearTextPassword": 0
+        },
+        "reason": null,
+        "command": "secedit /export /cfg \"$env:TEMP\\cmmcready-<guid>.inf\" /areas SECURITYPOLICY"
+       },
+       "lockout_policy": {
+        "status": "ok",
+        "value": {
+         "LockoutBadCount": 5,
+         "ResetLockoutCount": 15,
+         "LockoutDuration": 15
+        },
+        "reason": null,
+        "command": "secedit /export /cfg \"$env:TEMP\\cmmcready-<guid>.inf\" /areas SECURITYPOLICY"
+       },
+       "audit_policy": {
+        "status": "ok",
+        "value": {
+         "subcategories": {
+          "{0CCE9215-69AE-11D9-BED3-505054503030}": {
+           "name": "Logon",
+           "setting": "Success and Failure"
+          },
+          "{0CCE9216-69AE-11D9-BED3-505054503030}": {
+           "name": "Logoff",
+           "setting": "Success"
+          },
+          "{0CCE9217-69AE-11D9-BED3-505054503030}": {
+           "name": "Account Lockout",
+           "setting": "Failure"
+          },
+          "{0CCE921B-69AE-11D9-BED3-505054503030}": {
+           "name": "Special Logon",
+           "setting": "Success"
+          },
+          "{0CCE922B-69AE-11D9-BED3-505054503030}": {
+           "name": "Process Creation",
+           "setting": "Success"
+          },
+          "{0CCE922F-69AE-11D9-BED3-505054503030}": {
+           "name": "Audit Policy Change",
+           "setting": "Success"
+          },
+          "{0CCE9235-69AE-11D9-BED3-505054503030}": {
+           "name": "User Account Management",
+           "setting": "Success and Failure"
+          },
+          "{0CCE9237-69AE-11D9-BED3-505054503030}": {
+           "name": "Security Group Management",
+           "setting": "Success"
+          },
+          "{0CCE923F-69AE-11D9-BED3-505054503030}": {
+           "name": "Credential Validation",
+           "setting": "Success and Failure"
+          }
+         }
+        },
+        "reason": null,
+        "command": "auditpol /get /category:* /r"
+       },
+       "event_log_retention": {
+        "status": "ok",
+        "value": {
+         "log_name": "Security",
+         "enabled": true,
+         "log_mode": "Circular",
+         "max_size_kb": 1048576,
+         "record_count": 812345,
+         "oldest_record_number": 1,
+         "oldest_event_age_days": 120
+        },
+        "reason": null,
+        "command": "Get-WinEvent -ListLog Security; Get-WinEvent -LogName Security -Oldest -MaxEvents 1"
+       },
+       "bitlocker": {
+        "status": "ok",
+        "value": {
+         "volumes": [
+          {
+           "mount_point": "C:",
+           "volume_type": "OperatingSystem",
+           "protection_status": "On",
+           "encryption_percentage": 100
+          },
+          {
+           "mount_point": "D:",
+           "volume_type": "Data",
+           "protection_status": "On",
+           "encryption_percentage": 100
+          }
+         ]
+        },
+        "reason": null,
+        "command": "Get-BitLockerVolume"
+       },
+       "firewall_profiles": {
+        "status": "ok",
+        "value": {
+         "profiles": [
+          {
+           "name": "Domain",
+           "enabled": true,
+           "default_inbound_action": "Block"
+          },
+          {
+           "name": "Private",
+           "enabled": true,
+           "default_inbound_action": "Block"
+          },
+          {
+           "name": "Public",
+           "enabled": true,
+           "default_inbound_action": "Block"
+          }
+         ]
+        },
+        "reason": null,
+        "command": "Get-NetFirewallProfile"
+       },
+       "screen_lock": {
+        "status": "ok",
+        "value": {
+         "inactivity_timeout_secs": 3600,
+         "screensaver_active": null,
+         "screensaver_timeout_secs": null,
+         "screensaver_secure": null
+        },
+        "reason": null,
+        "command": "Get-ItemProperty HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System; Get-ItemProperty HKCU:\\Software\\Policies\\Microsoft\\Windows\\Control Panel\\Desktop"
+       },
+       "smb_signing": {
+        "status": "ok",
+        "value": {
+         "require_security_signature": true,
+         "enable_security_signature": true
+        },
+        "reason": null,
+        "command": "Get-SmbServerConfiguration"
+       },
+       "smb1": {
+        "status": "ok",
+        "value": {
+         "server_enabled": true
+        },
+        "reason": null,
+        "command": "Get-SmbServerConfiguration"
+       },
+       "local_admins": {
+        "status": "ok",
+        "value": {
+         "count": 2,
+         "members": [
+          {
+           "name": "WS-DEMO-01\\Administrator",
+           "object_class": "User",
+           "principal_source": "Local"
+          },
+          {
+           "name": "DEMO\\Domain Admins",
+           "object_class": "Group",
+           "principal_source": "ActiveDirectory"
+          }
+         ]
+        },
+        "reason": null,
+        "command": "Get-LocalGroupMember -SID S-1-5-32-544"
+       },
+       "rdp": {
+        "status": "ok",
+        "value": {
+         "deny_connections": false,
+         "nla_required": true,
+         "security_layer": 2,
+         "min_encryption_level": 3
+        },
+        "reason": null,
+        "command": "Get-ItemProperty HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Terminal Server; Get-CimInstance Win32_TSGeneralSetting"
+       },
+       "defender": {
+        "status": "ok",
+        "value": {
+         "antivirus_enabled": true,
+         "realtime_protection_enabled": true,
+         "on_access_protection_enabled": true,
+         "antivirus_signature_age_days": 1,
+         "running_mode": "Normal"
+        },
+        "reason": null,
+        "command": "Get-MpComputerStatus"
+       },
+       "autoplay": {
+        "status": "ok",
+        "value": {
+         "no_drive_type_auto_run": 255
+        },
+        "reason": null,
+        "command": "Get-ItemProperty HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer"
+       },
+       "usb_storage": {
+        "status": "ok",
+        "value": {
+         "usbstor_start": 3
+        },
+        "reason": null,
+        "command": "Get-ItemProperty HKLM:\\SYSTEM\\CurrentControlSet\\Services\\USBSTOR"
+       },
+       "patch_level": {
+        "status": "ok",
+        "value": {
+         "latest_installed_on": "2026-10-20",
+         "hotfix_count": 31
+        },
+        "reason": null,
+        "command": "Get-HotFix"
+       },
+       "fips_mode": {
+        "status": "ok",
+        "value": {
+         "enabled": true
+        },
+        "reason": null,
+        "command": "Get-ItemProperty HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Lsa\\FipsAlgorithmPolicy"
+       },
+       "logon_banner": {
+        "status": "ok",
+        "value": {
+         "caption": "Authorized use only",
+         "text": "This system is for authorized use only. Activity may be monitored and recorded."
+        },
+        "reason": null,
+        "command": "Get-ItemProperty HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System"
+       },
+       "guest_account": {
+        "status": "ok",
+        "value": {
+         "enabled": false
+        },
+        "reason": null,
+        "command": "Get-CimInstance Win32_UserAccount (SID ending -501)"
+       }
+      }
+     }
+    },
+    {
+     "collector": "m365",
+     "collected_at": "2026-11-02T14:00:00Z",
+     "host": "00000000-0000-0000-0000-00000000d3a0",
+     "uploaded_at": "2026-11-03T15:10:00Z",
+     "raw": {
+      "collector": "m365",
+      "version": 1,
+      "collected_at": "2026-11-02T14:00:00Z",
+      "tenant": {
+       "id": "00000000-0000-0000-0000-00000000d3a0",
+       "names_redacted": false
+      },
+      "checks": {
+       "security_defaults": {
+        "status": "ok",
+        "value": {
+         "@odata.context": "https://graph.microsoft.com/v1.0/$metadata#policies/identitySecurityDefaultsEnforcementPolicy/$entity",
+         "id": "00000000-0000-0000-0000-000000000005",
+         "displayName": "Security Defaults",
+         "description": "Security defaults is a set of basic identity security mechanisms recommended by Microsoft.",
+         "isEnabled": false
+        },
+        "reason": null,
+        "command": "GET /v1.0/policies/identitySecurityDefaultsEnforcementPolicy"
+       },
+       "conditional_access": {
+        "status": "ok",
+        "value": {
+         "policies": [
+          {
+           "id": "00000000-0000-0000-0000-0000000c0002",
+           "displayName": "CA002 Require MFA for administrators",
+           "state": "enabled",
+           "createdDateTime": "2025-03-04T15:20:11Z",
+           "modifiedDateTime": "2026-02-10T09:41:05Z",
+           "conditions": {
+            "users": {
+             "includeUsers": [
+              "None"
+             ],
+             "excludeUsers": [
+              "00000000-0000-0000-0000-0000000b0001"
+             ],
+             "includeGroups": [],
+             "excludeGroups": [],
+             "includeRoles": [
+              "62e90394-69f5-4237-9190-012177145e10",
+              "194ae4cb-b126-40b2-bd5b-6091b380977d",
+              "729827e3-9c14-49f7-bb1b-9608f156bbb8"
+             ],
+             "excludeRoles": [],
+             "includeGuestsOrExternalUsers": null,
+             "excludeGuestsOrExternalUsers": null
+            },
+            "applications": {
+             "includeApplications": [
+              "All"
+             ],
+             "excludeApplications": [],
+             "includeUserActions": [],
+             "includeAuthenticationContextClassReferences": []
+            },
+            "clientAppTypes": [
+             "all"
+            ],
+            "platforms": null,
+            "locations": null,
+            "devices": null,
+            "userRiskLevels": [],
+            "signInRiskLevels": [],
+            "servicePrincipalRiskLevels": []
+           },
+           "grantControls": {
+            "operator": "OR",
+            "builtInControls": [
+             "mfa"
+            ],
+            "customAuthenticationFactors": [],
+            "termsOfUse": [],
+            "authenticationStrength": null
+           },
+           "sessionControls": null
+          },
+          {
+           "id": "00000000-0000-0000-0000-0000000c0004",
+           "displayName": "CA004 Block legacy authentication",
+           "state": "enabled",
+           "createdDateTime": "2025-03-04T15:20:11Z",
+           "modifiedDateTime": "2026-02-10T09:41:05Z",
+           "conditions": {
+            "users": {
+             "includeUsers": [
+              "All"
+             ],
+             "excludeUsers": [
+              "00000000-0000-0000-0000-0000000b0001"
+             ],
+             "includeGroups": [],
+             "excludeGroups": [],
+             "includeRoles": [],
+             "excludeRoles": [],
+             "includeGuestsOrExternalUsers": null,
+             "excludeGuestsOrExternalUsers": null
+            },
+            "applications": {
+             "includeApplications": [
+              "All"
+             ],
+             "excludeApplications": [],
+             "includeUserActions": [],
+             "includeAuthenticationContextClassReferences": []
+            },
+            "clientAppTypes": [
+             "exchangeActiveSync",
+             "other"
+            ],
+            "platforms": null,
+            "locations": null,
+            "devices": null,
+            "userRiskLevels": [],
+            "signInRiskLevels": [],
+            "servicePrincipalRiskLevels": []
+           },
+           "grantControls": {
+            "operator": "OR",
+            "builtInControls": [
+             "block"
+            ],
+            "customAuthenticationFactors": [],
+            "termsOfUse": [],
+            "authenticationStrength": null
+           },
+           "sessionControls": null
+          },
+          {
+           "id": "00000000-0000-0000-0000-0000000c0005",
+           "displayName": "CA005 Sign-in frequency 8 hours",
+           "state": "enabled",
+           "createdDateTime": "2025-03-04T15:20:11Z",
+           "modifiedDateTime": "2026-02-10T09:41:05Z",
+           "conditions": {
+            "users": {
+             "includeUsers": [
+              "All"
+             ],
+             "excludeUsers": [
+              "00000000-0000-0000-0000-0000000b0001"
+             ],
+             "includeGroups": [],
+             "excludeGroups": [],
+             "includeRoles": [],
+             "excludeRoles": [],
+             "includeGuestsOrExternalUsers": null,
+             "excludeGuestsOrExternalUsers": null
+            },
+            "applications": {
+             "includeApplications": [
+              "All"
+             ],
+             "excludeApplications": [],
+             "includeUserActions": [],
+             "includeAuthenticationContextClassReferences": []
+            },
+            "clientAppTypes": [
+             "all"
+            ],
+            "platforms": null,
+            "locations": null,
+            "devices": null,
+            "userRiskLevels": [],
+            "signInRiskLevels": [],
+            "servicePrincipalRiskLevels": []
+           },
+           "grantControls": null,
+           "sessionControls": {
+            "signInFrequency": {
+             "value": 8,
+             "type": "hours",
+             "authenticationType": "primaryAndSecondaryAuthentication",
+             "frequencyInterval": "timeBased",
+             "isEnabled": true
+            },
+            "persistentBrowser": {
+             "mode": "never",
+             "isEnabled": true
+            },
+            "applicationEnforcedRestrictions": null,
+            "cloudAppSecurity": null,
+            "continuousAccessEvaluation": null,
+            "disableResilienceDefaults": null
+           }
+          }
+         ]
+        },
+        "reason": null,
+        "command": "GET /v1.0/identity/conditionalAccess/policies"
+       },
+       "auth_methods": {
+        "status": "ok",
+        "value": {
+         "@odata.context": "https://graph.microsoft.com/v1.0/$metadata#authenticationMethodsPolicy",
+         "id": "authenticationMethodsPolicy",
+         "displayName": "Authentication Methods Policy",
+         "policyVersion": "1.5",
+         "registrationEnforcement": {
+          "authenticationMethodsRegistrationCampaign": {
+           "state": "enabled"
+          }
+         },
+         "authenticationMethodConfigurations": [
+          {
+           "id": "MicrosoftAuthenticator",
+           "state": "enabled"
+          },
+          {
+           "id": "Fido2",
+           "state": "enabled"
+          },
+          {
+           "id": "Sms",
+           "state": "disabled"
+          },
+          {
+           "id": "Voice",
+           "state": "disabled"
+          },
+          {
+           "id": "Email",
+           "state": "disabled"
+          },
+          {
+           "id": "TemporaryAccessPass",
+           "state": "enabled"
+          },
+          {
+           "id": "SoftwareOath",
+           "state": "enabled"
+          },
+          {
+           "id": "X509Certificate",
+           "state": "disabled"
+          }
+         ]
+        },
+        "reason": null,
+        "command": "GET /v1.0/policies/authenticationMethodsPolicy"
+       },
+       "role_assignments": {
+        "status": "ok",
+        "value": {
+         "role_definitions": [
+          {
+           "id": "00000000-0000-0000-0000-0000000000a1",
+           "templateId": "62e90394-69f5-4237-9190-012177145e10",
+           "displayName": "Global Administrator"
+          },
+          {
+           "id": "00000000-0000-0000-0000-0000000000a2",
+           "templateId": "fe930be7-5e62-47db-91af-98c3a49a38b1",
+           "displayName": "User Administrator"
+          },
+          {
+           "id": "00000000-0000-0000-0000-0000000000a3",
+           "templateId": "729827e3-9c14-49f7-bb1b-9608f156bbb8",
+           "displayName": "Helpdesk Administrator"
+          }
+         ],
+         "assignments": [
+          {
+           "id": "00000000-0000-0000-0000-0000000f0001",
+           "roleDefinitionId": "00000000-0000-0000-0000-0000000000a1",
+           "principalId": "00000000-0000-0000-0000-0000000e0001",
+           "directoryScopeId": "/",
+           "appScopeId": null,
+           "principal": {
+            "@odata.type": "#microsoft.graph.user",
+            "id": "00000000-0000-0000-0000-0000000e0001",
+            "displayName": "Demo Admin 1"
+           }
+          },
+          {
+           "id": "00000000-0000-0000-0000-0000000f0002",
+           "roleDefinitionId": "00000000-0000-0000-0000-0000000000a1",
+           "principalId": "00000000-0000-0000-0000-0000000e0002",
+           "directoryScopeId": "/",
+           "appScopeId": null,
+           "principal": {
+            "@odata.type": "#microsoft.graph.user",
+            "id": "00000000-0000-0000-0000-0000000e0002",
+            "displayName": "Demo Admin 2"
+           }
+          },
+          {
+           "id": "00000000-0000-0000-0000-0000000f0003",
+           "roleDefinitionId": "00000000-0000-0000-0000-0000000000a1",
+           "principalId": "00000000-0000-0000-0000-0000000e0003",
+           "directoryScopeId": "/",
+           "appScopeId": null,
+           "principal": {
+            "@odata.type": "#microsoft.graph.user",
+            "id": "00000000-0000-0000-0000-0000000e0003",
+            "displayName": "Demo Breakglass"
+           }
+          }
+         ]
+        },
+        "reason": null,
+        "command": "GET /v1.0/roleManagement/directory/roleAssignments?$expand=principal"
+       },
+       "session_controls": {
+        "status": "ok",
+        "value": {
+         "policies": [
+          {
+           "id": "00000000-0000-0000-0000-0000000c0002",
+           "displayName": "CA002 Require MFA for administrators",
+           "state": "enabled",
+           "conditions": {
+            "users": {
+             "includeUsers": [
+              "None"
+             ],
+             "excludeUsers": [
+              "00000000-0000-0000-0000-0000000b0001"
+             ],
+             "includeGroups": [],
+             "excludeGroups": [],
+             "includeRoles": [
+              "62e90394-69f5-4237-9190-012177145e10",
+              "194ae4cb-b126-40b2-bd5b-6091b380977d",
+              "729827e3-9c14-49f7-bb1b-9608f156bbb8"
+             ],
+             "excludeRoles": [],
+             "includeGuestsOrExternalUsers": null,
+             "excludeGuestsOrExternalUsers": null
+            },
+            "applications": {
+             "includeApplications": [
+              "All"
+             ],
+             "excludeApplications": [],
+             "includeUserActions": [],
+             "includeAuthenticationContextClassReferences": []
+            }
+           },
+           "sessionControls": null
+          },
+          {
+           "id": "00000000-0000-0000-0000-0000000c0004",
+           "displayName": "CA004 Block legacy authentication",
+           "state": "enabled",
+           "conditions": {
+            "users": {
+             "includeUsers": [
+              "All"
+             ],
+             "excludeUsers": [
+              "00000000-0000-0000-0000-0000000b0001"
+             ],
+             "includeGroups": [],
+             "excludeGroups": [],
+             "includeRoles": [],
+             "excludeRoles": [],
+             "includeGuestsOrExternalUsers": null,
+             "excludeGuestsOrExternalUsers": null
+            },
+            "applications": {
+             "includeApplications": [
+              "All"
+             ],
+             "excludeApplications": [],
+             "includeUserActions": [],
+             "includeAuthenticationContextClassReferences": []
+            }
+           },
+           "sessionControls": null
+          },
+          {
+           "id": "00000000-0000-0000-0000-0000000c0005",
+           "displayName": "CA005 Sign-in frequency 8 hours",
+           "state": "enabled",
+           "conditions": {
+            "users": {
+             "includeUsers": [
+              "All"
+             ],
+             "excludeUsers": [
+              "00000000-0000-0000-0000-0000000b0001"
+             ],
+             "includeGroups": [],
+             "excludeGroups": [],
+             "includeRoles": [],
+             "excludeRoles": [],
+             "includeGuestsOrExternalUsers": null,
+             "excludeGuestsOrExternalUsers": null
+            },
+            "applications": {
+             "includeApplications": [
+              "All"
+             ],
+             "excludeApplications": [],
+             "includeUserActions": [],
+             "includeAuthenticationContextClassReferences": []
+            }
+           },
+           "sessionControls": {
+            "signInFrequency": {
+             "value": 8,
+             "type": "hours",
+             "authenticationType": "primaryAndSecondaryAuthentication",
+             "frequencyInterval": "timeBased",
+             "isEnabled": true
+            },
+            "persistentBrowser": {
+             "mode": "never",
+             "isEnabled": true
+            },
+            "applicationEnforcedRestrictions": null,
+            "cloudAppSecurity": null,
+            "continuousAccessEvaluation": null,
+            "disableResilienceDefaults": null
+           }
+          }
+         ]
+        },
+        "reason": null,
+        "command": "GET /v1.0/identity/conditionalAccess/policies (sessionControls)"
+       },
+       "audit_log": {
+        "status": "ok",
+        "value": {
+         "window_days": 7,
+         "entries_found": true,
+         "latest_activity": "2026-11-01T11:58:42Z"
+        },
+        "reason": null,
+        "command": "GET /v1.0/auditLogs/directoryAudits?$top=1&$filter=activityDateTime ge ..."
+       }
+      }
+     }
+    }
+   ],
+   "poam": [
+    {
+     "req_id": "3.1.3",
+     "weakness": "Sources, destinations and authorizations for CUI flows are not fully documented.",
+     "remediation": "Finish the CUI data flow diagram, list approved destinations and add them to the SSP and the firewall rule comments.",
+     "owner": "Dana Whitfield, IT Manager",
+     "due_date": "2027-01-29",
+     "status": "in_progress",
+     "milestones": [
+      {
+       "description": "Draft data flow diagram",
+       "due": "2026-12-04",
+       "done": true
+      },
+      {
+       "description": "Approve destinations list with Program Manager",
+       "due": "2027-01-08",
+       "done": false
+      },
+      {
+       "description": "Add flows to SSP and firewall rule comments",
+       "due": "2027-01-29",
+       "done": false
+      }
+     ]
+    },
+    {
+     "req_id": "3.1.4",
+     "weakness": "One person both approves and provisions contractor accounts.",
+     "remediation": "Require Program Manager approval in the ticket before the IT Manager provisions contractor access.",
+     "owner": "Dana Whitfield, IT Manager",
+     "due_date": "2027-01-15",
+     "status": "open",
+     "milestones": [
+      {
+       "description": "Update the access request form",
+       "due": "2026-12-11",
+       "done": false
+      },
+      {
+       "description": "Review the last 12 months of contractor accounts",
+       "due": "2027-01-15",
+       "done": false
+      }
+     ]
+    },
+    {
+     "req_id": "3.1.8",
+     "weakness": "Two standalone test-bench PCs have no account lockout policy.",
+     "remediation": "Apply a local lockout policy to the bench PCs, or join them to the domain.",
+     "owner": "Marcus Bell, Systems Administrator",
+     "due_date": "2026-12-18",
+     "status": "in_progress",
+     "milestones": [
+      {
+       "description": "Apply local security policy to both PCs",
+       "due": "2026-12-04",
+       "done": true
+      },
+      {
+       "description": "Verify with the Windows collector",
+       "due": "2026-12-18",
+       "done": false
+      }
+     ]
+    },
+    {
+     "req_id": "3.1.21",
+     "weakness": "Limits on using portable storage with CUI on external systems are not defined or enforced.",
+     "remediation": "Define the allowed cases in the removable media policy and enforce encrypted-only writes with device control.",
+     "owner": "Dana Whitfield, IT Manager",
+     "due_date": "2027-02-26",
+     "status": "open",
+     "milestones": [
+      {
+       "description": "Revise removable media policy",
+       "due": "2027-01-22",
+       "done": false
+      },
+      {
+       "description": "Enable BitLocker To Go enforcement",
+       "due": "2027-02-26",
+       "done": false
+      }
+     ]
+    },
+    {
+     "req_id": "3.3.3",
+     "weakness": "The list of logged event types is not updated from the monthly reviews.",
+     "remediation": "Add an annual event type review to the log review procedure and update the list after each review.",
+     "owner": "Priya Raman, Quality Manager",
+     "due_date": "2027-01-29",
+     "status": "open",
+     "milestones": [
+      {
+       "description": "Revise log review procedure",
+       "due": "2027-01-08",
+       "done": false
+      },
+      {
+       "description": "First annual list update",
+       "due": "2027-01-29",
+       "done": false
+      }
+     ]
+    },
+    {
+     "req_id": "3.3.6",
+     "weakness": "No saved reports or reduced views for on-demand log analysis.",
+     "remediation": "Build saved searches and a weekly summary report on LOG-01 for logons, account changes and privileged use.",
+     "owner": "Marcus Bell, Systems Administrator",
+     "due_date": "2027-02-12",
+     "status": "in_progress",
+     "milestones": [
+      {
+       "description": "Define the five standard reports",
+       "due": "2026-12-18",
+       "done": true
+      },
+      {
+       "description": "Build and test saved searches",
+       "due": "2027-02-12",
+       "done": false
+      }
+     ]
+    },
+    {
+     "req_id": "3.4.3",
+     "weakness": "Approval of small changes is informal and not linked to the change record.",
+     "remediation": "Make an approval field mandatory in the ticket template and link each GPO or firewall change to its ticket.",
+     "owner": "Dana Whitfield, IT Manager",
+     "due_date": "2027-02-12",
+     "status": "open",
+     "milestones": [
+      {
+       "description": "Update the ticket template",
+       "due": "2026-12-18",
+       "done": false
+      },
+      {
+       "description": "Audit ten recent changes",
+       "due": "2027-02-12",
+       "done": false
+      }
+     ]
+    },
+    {
+     "req_id": "3.4.9",
+     "weakness": "Software requests are handled by email, and installs on the test-bench PCs are not monitored.",
+     "remediation": "Move software requests to the ticket queue and add the bench PCs to Intune inventory.",
+     "owner": "Marcus Bell, Systems Administrator",
+     "due_date": "2027-02-26",
+     "status": "open",
+     "milestones": [
+      {
+       "description": "Add software request type to tickets",
+       "due": "2027-01-15",
+       "done": false
+      },
+      {
+       "description": "Enroll bench PCs in Intune",
+       "due": "2027-02-26",
+       "done": false
+      }
+     ]
+    },
+    {
+     "req_id": "3.5.5",
+     "weakness": "No defined period before a user name can be reissued.",
+     "remediation": "Define a two-year no-reuse period and add the check to the onboarding procedure.",
+     "owner": "Marcus Bell, Systems Administrator",
+     "due_date": "2027-01-29",
+     "status": "open",
+     "milestones": [
+      {
+       "description": "Document the period",
+       "due": "2027-01-08",
+       "done": false
+      },
+      {
+       "description": "Add the onboarding check",
+       "due": "2027-01-29",
+       "done": false
+      }
+     ]
+    },
+    {
+     "req_id": "3.5.6",
+     "weakness": "Inactive accounts are not disabled automatically.",
+     "remediation": "Set a 90-day inactivity period and run a scheduled job that disables stale accounts and reports them to the IT Manager.",
+     "owner": "Marcus Bell, Systems Administrator",
+     "due_date": "2027-01-29",
+     "status": "in_progress",
+     "milestones": [
+      {
+       "description": "Test the job in a lab OU",
+       "due": "2026-12-18",
+       "done": true
+      },
+      {
+       "description": "Enable in production",
+       "due": "2027-01-29",
+       "done": false
+      }
+     ]
+    },
+    {
+     "req_id": "3.6.3",
+     "weakness": "The incident response plan has not been tested.",
+     "remediation": "Run a tabletop exercise with management and the managed service provider and record the lessons learned.",
+     "owner": "Dana Whitfield, IT Manager",
+     "due_date": "2027-03-12",
+     "status": "open",
+     "milestones": [
+      {
+       "description": "Pick scenario and date",
+       "due": "2027-01-22",
+       "done": false
+      },
+      {
+       "description": "Run the exercise",
+       "due": "2027-02-26",
+       "done": false
+      },
+      {
+       "description": "Write the after-action report",
+       "due": "2027-03-12",
+       "done": false
+      }
+     ]
+    },
+    {
+     "req_id": "3.11.3",
+     "weakness": "Medium and low risk findings have no due date and a backlog has built up.",
+     "remediation": "Set remediation time frames by rating (30 days medium, 90 days low) and clear the existing backlog.",
+     "owner": "Marcus Bell, Systems Administrator",
+     "due_date": "2027-03-12",
+     "status": "in_progress",
+     "milestones": [
+      {
+       "description": "Approve time frames",
+       "due": "2026-12-11",
+       "done": true
+      },
+      {
+       "description": "Clear medium backlog",
+       "due": "2027-01-29",
+       "done": false
+      },
+      {
+       "description": "Clear low backlog",
+       "due": "2027-03-12",
+       "done": false
+      }
+     ]
+    },
+    {
+     "req_id": "3.13.3",
+     "weakness": "Some administrative consoles are reachable from the user VLAN.",
+     "remediation": "Move the remaining consoles to the management VLAN and block access from user VLANs on the firewall.",
+     "owner": "Marcus Bell, Systems Administrator",
+     "due_date": "2027-02-26",
+     "status": "in_progress",
+     "milestones": [
+      {
+       "description": "Inventory reachable consoles",
+       "due": "2026-12-18",
+       "done": true
+      },
+      {
+       "description": "Move consoles and update firewall rules",
+       "due": "2027-02-26",
+       "done": false
+      }
+     ]
+    },
+    {
+     "req_id": "3.13.9",
+     "weakness": "The web proxy and the remote desktop gateway do not end idle sessions.",
+     "remediation": "Configure a 15-minute idle timeout on both and test.",
+     "owner": "Marcus Bell, Systems Administrator",
+     "due_date": "2027-03-12",
+     "status": "open",
+     "milestones": [
+      {
+       "description": "Set idle timeout on remote desktop gateway",
+       "due": "2027-02-12",
+       "done": false
+      },
+      {
+       "description": "Set idle timeout on web proxy",
+       "due": "2027-03-12",
+       "done": false
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

@@ -18,3 +18,5 @@ dev = ["pytest>=8", "httpx>=0.27"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]
+# starlette 1.x warns that its TestClient will move to httpx2; the dependency set is fixed for now.
+filterwarnings = ["ignore:Using .httpx. with .starlette.testclient. is deprecated"]
