@@ -850,8 +850,18 @@ def patch_poam_item(_w: Annotated[str, Writer], assessment: Assessment, item_id:
 
 # -- exports ----------------------------------------------------------------------------------
 
+SLUG_MAX = 40
+
+
 def _slug(text: str) -> str:
-    return re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")[:40] or "org"
+    """A filename-safe organization name: a trailing parenthetical such as "(fictional)" is
+    dropped and a long name is cut at a word boundary, never mid-word."""
+    text = re.sub(r"(\s*\([^()]*\))+\s*$", "", text)
+    slug = re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")
+    if len(slug) > SLUG_MAX:
+        cut = slug[:SLUG_MAX + 1]
+        slug = cut[:cut.rfind("-")] if "-" in cut else slug[:SLUG_MAX]
+    return slug.strip("-") or "org"
 
 
 def _download(content: bytes | str, media_type: str, ext: str, conn: sqlite3.Connection,

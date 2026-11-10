@@ -388,3 +388,15 @@ def test_history_diff(db_file):
     assert change["became_met"] == ["3.1.2"]
     assert change["no_longer_na"] == ["3.1.3"]
     assert change["became_na"] == ["3.1.4"]
+
+
+def test_export_filename_slug_drops_parenthetical_and_cuts_at_a_word():
+    from cmmcready.api import _slug
+
+    assert _slug("Harlan Ridge Aerospace Components (fictional)") == "harlan-ridge-aerospace-components"
+    assert _slug("Acme Corp (demo) (fictional)") == "acme-corp"
+    assert _slug("(fictional)") == "org"
+    long = _slug("International Precision Machining and Fabrication Services Incorporated")
+    assert long == "international-precision-machining-and" and len(long) <= 40
+    assert _slug("Short Name LLC") == "short-name-llc"
+    assert len(_slug("x" * 100)) == 40  # a single long word is cut hard
