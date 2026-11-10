@@ -120,3 +120,47 @@ def test_committed_fixture_matches_fresh_build():
         committed = json.load(handle)
     assert committed == json.loads(module.render())
     assert module.render() == module.render()  # deterministic
+
+
+def test_failed_seed_leaves_database_empty_and_retry_succeeds(db_file, monkeypatch):
+    real = db.add_evidence
+    calls = []
+
+    def flaky(*args, **kwargs):
+        calls.append(1)
+        if len(calls) == 2:
+            raise RuntimeError("simulated failure partway through seeding")
+        return real(*args, **kwargs)
+
+    monkeypatch.setattr(db, "add_evidence", flaky)
+    with pytest.raises(RuntimeError):
+        demo.ensure_seeded()
+    conn = db.connect(db_file)
+    try:
+        for table in ("organization", "assets", "assessments", "answers", "evidence",
+                      "findings", "poam_items"):
+            assert conn.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0] == 0, table
+    finally:
+        conn.close()
+
+    monkeypatch.setattr(db, "add_evidence", real)
+    demo.ensure_seeded()
+    conn = db.connect(db_file)
+    try:
+        assert conn.execute("SELECT COUNT(*) FROM organization").fetchone()[0] == 1
+        assert conn.execute("SELECT COUNT(*) FROM assessments").fetchone()[0] == 2
+        assert conn.execute("SELECT COUNT(*) FROM answers").fetchone()[0] == 640
+        assert conn.execute("SELECT COUNT(*) FROM evidence").fetchone()[0] == 3
+    finally:
+        conn.close()
+
+
+def test_seed_rechecks_under_write_lock(conn, db_file):
+    other = db.connect(db_file)
+    try:
+        other.execute("INSERT INTO organization (name) VALUES ('Already here (fictional)')")
+        other.commit()
+        assert demo.seed(conn) is False
+    finally:
+        other.close()
+    assert conn.execute("SELECT COUNT(*) FROM organization").fetchone()[0] == 1

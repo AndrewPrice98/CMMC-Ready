@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import sqlite3
+from contextlib import nullcontext
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -102,6 +103,12 @@ def now_utc() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
+def _tx(conn: sqlite3.Connection, commit: bool):
+    """Commit on success when ``commit`` is true; otherwise leave the surrounding
+    transaction (opened by the caller) alone."""
+    return conn if commit else nullcontext()
+
+
 def connect(path: Path | None = None) -> sqlite3.Connection:
     """Open the database, creating it and its schema if needed."""
     path = Path(path or config.db_path())
@@ -126,8 +133,9 @@ def get_organization(conn: sqlite3.Connection) -> dict | None:
 def create_assessment(
     conn: sqlite3.Connection, org_id: int, title: str, *, started_at: str | None = None,
     odp: dict | None = None, partial_choices: dict | None = None,
+    commit: bool = True,
 ) -> int:
-    with conn:
+    with _tx(conn, commit):
         cur = conn.execute(
             "INSERT INTO assessments (org_id, title, started_at, odp_json, partial_choices_json) "
             "VALUES (?, ?, ?, ?, ?)",
@@ -252,14 +260,15 @@ def _replace_findings(conn: sqlite3.Connection, evidence_id: int,
 
 
 def add_evidence(conn: sqlite3.Connection, assessment_id: int, collector_json: dict,
-                 uploaded_at: str | None = None) -> int:
+                 uploaded_at: str | None = None, commit: bool = True) -> int:
     """Store a collector file and the findings it produces. Raises ValueError when the
-    file is not recognised collector output; nothing is stored in that case."""
+    file is not recognised collector output; nothing is stored in that case.
+    ``commit=False`` leaves the commit to the caller's transaction."""
     assessment = get_assessment(conn, assessment_id)
     if assessment is None:
         raise ValueError("unknown assessment")
     findings = evaluate(collector_json, assessment["odp"])
-    with conn:
+    with _tx(conn, commit):
         cur = conn.execute(
             "INSERT INTO evidence (assessment_id, collector, collected_at, host, raw_json, uploaded_at) "
             "VALUES (?, ?, ?, ?, ?, ?)",
