@@ -69,15 +69,74 @@ async def security_headers(request: Request, call_next):
 MULTIPART_OVERHEAD = 64 * 1024
 
 
-@app.middleware("http")
-async def reject_oversize(request: Request, call_next):
-    """Refuse an announced body over the upload cap before reading any of it."""
-    declared = request.headers.get("content-length", "")
-    if declared.isdigit() and int(declared) > config.max_upload_bytes() + MULTIPART_OVERHEAD:
-        return JSONResponse(
-            {"detail": f"Request too large (max {config.max_upload_bytes() // (1024 * 1024)} MB)"},
-            status_code=413)
-    return await call_next(request)
+class _TooLarge(Exception):
+    pass
+
+
+class BodyLimitMiddleware:
+    """Refuse request bodies over the upload cap (plus multipart overhead) with 413.
+
+    An announced Content-Length is checked before any of the body is read. Bytes are
+    also counted as they arrive, so a chunked request with no Content-Length cannot
+    stream past the cap either.
+    """
+
+    def __init__(self, app):
+        self.app = app
+
+    @staticmethod
+    def _limit() -> int:
+        return config.max_upload_bytes() + MULTIPART_OVERHEAD
+
+    @staticmethod
+    async def _reject(send) -> None:
+        message = f"Request too large (max {config.max_upload_bytes() // (1024 * 1024)} MB)"
+        await JSONResponse({"detail": message}, status_code=413)({"type": "http"}, _noop_receive, send)
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] != "http" or scope["method"] not in ("POST", "PUT", "PATCH"):
+            await self.app(scope, receive, send)
+            return
+        limit = self._limit()
+        declared = dict(scope["headers"]).get(b"content-length", b"")
+        if declared.isdigit() and int(declared) > limit:
+            await self._reject(send)
+            return
+
+        received = 0
+        exceeded = False
+        sent_any = False
+
+        async def counting_receive():
+            nonlocal received, exceeded
+            message = await receive()
+            if message["type"] == "http.request":
+                received += len(message.get("body", b""))
+                if received > limit:
+                    exceeded = True
+                    raise _TooLarge
+            return message
+
+        async def guarded_send(message):
+            nonlocal sent_any
+            if exceeded and not sent_any:
+                return  # the framework's own "bad body" answer is replaced by the 413 below
+            sent_any = True
+            await send(message)
+
+        try:
+            await self.app(scope, counting_receive, guarded_send)
+        except _TooLarge:
+            pass
+        if exceeded and not sent_any:
+            await self._reject(send)
+
+
+async def _noop_receive():
+    return {"type": "http.disconnect"}
+
+
+app.add_middleware(BodyLimitMiddleware)
 
 
 def get_conn() -> Iterator[sqlite3.Connection]:

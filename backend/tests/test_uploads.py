@@ -104,3 +104,28 @@ def test_declared_content_length_over_cap_is_413_before_reading(client, monkeypa
     big = b"x" * (1024 * 1024 + 70_000)
     r = client.post("/api/assessments/2/evidence", files={"file": ("e.json", big)})
     assert r.status_code == 413 and "too large" in r.text.lower()
+
+
+def test_chunked_body_over_cap_is_413_without_content_length(client, monkeypatch):
+    monkeypatch.setenv("CMMCREADY_MAX_UPLOAD_MB", "1")
+
+    def chunks():
+        yield (b'--zz\r\nContent-Disposition: form-data; name="file"; filename="e.json"\r\n'
+               b"Content-Type: application/json\r\n\r\n")
+        for _ in range(40):
+            yield b"x" * 65536  # 2.5 MB in total, no Content-Length
+
+    r = client.post("/api/assessments/2/evidence", content=chunks(),
+                    headers={"Content-Type": "multipart/form-data; boundary=zz"})
+    assert r.status_code == 413 and "too large" in r.text.lower()
+    assert "content-length" not in r.request.headers
+
+
+def test_chunked_body_under_cap_still_works(client):
+    def chunks():
+        yield b'{"a": '
+        yield b"1}"
+
+    r = client.post("/api/assessments/2/organization", content=chunks(),
+                    headers={"Content-Type": "application/json"})
+    assert r.status_code != 413
