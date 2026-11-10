@@ -36,7 +36,20 @@ Source: https://www.acq.osd.mil/asda/dpc/cp/cyber/docs/safeguarding/NIST-SP-800-
 
 - Source: https://csrc.nist.gov/pubs/sp/800/171/r2/upd1/final (February 2020, includes updates as of January 28, 2021). The PDF is the authoritative text. The page notes Rev 2 was withdrawn May 14, 2024 and superseded by Rev 3; CMMC Level 2 is defined against Rev 2 (per the project plan; not separately re-verified here), which is why Rev 3 is out of scope.
 - Requirement counts per family, confirmed against the numbering in the DoD methodology Annex A: AC 22, AT 3, AU 9, CM 9, IA 11, IR 3, MA 6, MP 9, PS 2, PE 6, RA 3, CA 4, SC 16, SI 7 = 110.
-- The 320 objective count (SP 800-171A) is not asserted here; Task 2 builds and pins it from the NIST text.
+- SP 800-171A (June 2018, https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-171a.pdf) has 320 assessment objectives: 297 lettered objectives plus 23 requirements with a single, unlettered objective. NIST's CPRT JSON export and the 800-171A CSV also contain 320 (verified 2026-11-09).
+- The Basic requirements in the Rev 2 CSV (31) are exactly the 30 Basic requirements in the methodology's 5-point and 3-point lists (Section 5(d)) plus 3.12.4.
+
+### Control catalog (Task 2)
+
+Built by `backend/scripts/build_catalog.py` into `backend/data/nist_800_171r2.json`; source files were retrieved 2026-11-09 and the URLs are recorded in the JSON `source` field.
+
+- Requirement text, discussion and footnotes come from NIST's Rev 2 CSV (https://csrc.nist.gov/files/pubs/sp/800/171/r2/upd1/final/docs/sp800-171r2-security-reqs.csv). Compared word by word with the Rev 2 PDF, it differs only in closing periods in 19 places (10 requirement statements, 9 discussions) and one word (3.1.16 discussion: the PDF says "[SP 800-97] provide guidance"). The PDF wording is used; the script asserts each correction.
+- Objectives come from the SP 800-171A PDF, not from NIST's 800-171A CSV or the CPRT export. Both machine-readable files carry a different wording for 33 of the 320 objectives (for example 3.1.4[b] and [c] are different statements, 3.1.17[a] and [b] are swapped, and 3.11.2[a] to [e] use the pre-publication scope). The PDF is the published text.
+- An unlettered single objective (for example 3.14.4) is given the ID `[a]` so that every objective ID has the form `<requirement>[<letter>]`. The leading "Determine if" is not stored.
+- Rev 2 footnotes are kept in a `footnotes` list on the requirement that references them (3.1.19, 3.5.3, 3.7.1, 3.8.4, 3.12.4, 3.13.12), because the CSV attaches some of them to the wrong row (the 3.12.4 SSP footnote sits in the 3.13.1 row).
+- Weights are transcribed from Annex A and match the Section 5(d) lists for all 110 requirements: 44 at 5 (including 3.5.3 and 3.13.11 at their maximum), 14 at 3, 51 at 1, and 3.12.4 at 0 ("NA"). Partial values: 3.5.3 `mfa_remote_privileged_only` 3, 3.13.11 `encryption_not_fips` 3.
+- `poam_allowed` is true for weight-1 requirements except the six in D1, and true for 3.13.11 meaning "may be eligible": scoring must still require it to be at the 3-point partial.
+- D3: NIST's CPRT export and the 800-171A CSV are not reliable sources for objective wording (see above). They were used only as a cross-check.
 
 ### Facts not independently verified
 
@@ -50,4 +63,4 @@ Source: https://www.acq.osd.mil/asda/dpc/cp/cyber/docs/safeguarding/NIST-SP-800-
 
 ## Licence position
 
-NIST and DoD publications are works of the U.S. Government and the text may be included with attribution. NIST SP 800-171 Rev 2, SP 800-171A and the DoD Assessment Methodology are cited by title, version and URL in `backend/data/` and in the README. No third-party commentary is copied.
+NIST and DoD publications are works of the U.S. Government and the text may be included with attribution. NIST SP 800-171 Rev 2, SP 800-171A and the DoD Assessment Methodology are cited by title, version, URL and retrieval date in the `source` field of `backend/data/nist_800_171r2.json`. No third-party commentary is copied.
