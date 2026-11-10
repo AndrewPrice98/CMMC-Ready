@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api } from '../api.js'
 import {
-  Chip, Empty, ErrorState, FormMessage, Icon, Loading, Modal, POAM_CITATION, POAM_STATUS, StatusChip, cmmcId,
+  Chip, Empty, ErrorState, FormMessage, Icon, Loading, Modal, POAM_CITATION, POAM_STATUS, Status, cmmcId,
   formatDate, plural, useAsync, usePageTitle, useSession,
 } from '../components/ui.jsx'
 import {
@@ -20,13 +20,13 @@ function DueCell({ item, deadline, today }) {
   return (
     <span className="due">
       <span className="nowrap">{item.due_date ? formatDate(item.due_date) : 'No due date'}</span>
-      {flags.overdue && <Chip tone="bad" glyph="!">Overdue</Chip>}
+      {flags.overdue && <Chip tone="bad">Overdue</Chip>}
       {!flags.overdue && flags.beyondCloseout && (
-        <Chip tone="warn" glyph="!" title={`Due after the closeout deadline of ${formatDate(deadline)}`}>
+        <Chip tone="warn" title={`Due after the closeout deadline of ${formatDate(deadline)}`}>
           After 180-day closeout
         </Chip>
       )}
-      {flags.noDueDate && <Chip tone="warn" glyph="!">Needs a date</Chip>}
+      {flags.noDueDate && <Chip tone="warn">Needs a date</Chip>}
       {!flags.overdue && flags.daysLeft !== null && flags.daysLeft <= 30 && (
         <span className="small muted">{flags.daysLeft === 0 ? 'Due today' : `In ${plural(flags.daysLeft, 'day')}`}</span>
       )}
@@ -43,7 +43,7 @@ function Milestones({ milestones }) {
       <ul>
         {milestones.map((m, i) => (
           <li key={i} className={m.done ? 'done' : ''}>
-            <span className="ms-glyph" aria-hidden="true">{m.done ? '✓' : '○'}</span>
+            <span className="ms-glyph" aria-hidden="true"><Icon name={m.done ? 'circle-check' : 'circle'} size={14} /></span>
             <span>
               {m.description}
               <span className="sr-only">{m.done ? ' (done)' : ' (not done)'}</span>
@@ -158,13 +158,13 @@ function PoamEditor({ target, deadline, assessmentId, onClose, onSaved }) {
             </label>
             <button type="button" className="btn ghost small icon-only"
               onClick={() => set({ milestones: form.milestones.filter((_, j) => j !== i) })}>
-              <Icon name="trash" size={15} /><span className="sr-only">Remove milestone {i + 1}</span>
+              <Icon name="trash" size={14} /><span className="sr-only">Remove milestone {i + 1}</span>
             </button>
           </div>
         ))}
         <button type="button" className="btn ghost small" disabled={form.milestones.length >= 50}
           onClick={() => set({ milestones: [...form.milestones, { description: '', due: '', done: false }] })}>
-          <Icon name="plus" size={15} /> Add milestone
+          <Icon name="plus" size={14} /> Add milestone
         </button>
       </fieldset>
       {error && <div className="state error" role="alert">{error}</div>}
@@ -180,7 +180,7 @@ function PoamEditor({ target, deadline, assessmentId, onClose, onSaved }) {
 
 function ItemsTable({ items, deadline, today, guest, onEdit }) {
   return (
-    <div className="table-wrap card flush">
+    <div className="table-wrap panel flush">
       <table className="table poam-table">
         <caption className="sr-only">
           POA&amp;M items with weakness, owner, milestones, due date and status.
@@ -212,11 +212,11 @@ function ItemsTable({ items, deadline, today, guest, onEdit }) {
               <td className="owner-cell" data-label="Owner">{item.owner || <span className="muted">Unassigned</span>}</td>
               <td className="ms-cell" data-label="Milestones"><Milestones milestones={item.milestones} /></td>
               <td className="due-cell" data-label="Due"><DueCell item={item} deadline={deadline} today={today} /></td>
-              <td className="status-cell"><StatusChip status={item.status} map={POAM_STATUS} /></td>
+              <td className="status-cell"><Status status={item.status} map={POAM_STATUS} /></td>
               {!guest && (
                 <td className="action-cell">
                   <button type="button" className="btn ghost small" onClick={() => onEdit(item)}>
-                    <Icon name="edit" size={15} /> Edit<span className="sr-only"> POA&amp;M item for {item.req_id}</span>
+                    <Icon name="edit" size={14} /> Edit<span className="sr-only"> POA&amp;M item for {item.req_id}</span>
                   </button>
                 </td>
               )}
@@ -245,7 +245,7 @@ function GapRow({ draft, children }) {
 
 function Stat({ label, value, tone }) {
   return (
-    <div className={`stat ${tone || ''}`}>
+    <div className={`kpi ${tone || ''}`}>
       <dt>{label}</dt>
       <dd className="num">{value}</dd>
     </div>
@@ -275,10 +275,10 @@ export default function Poam() {
     <div className="page">
       <header className="page-head">
         <div>
-          <p className="eyebrow">Plan of action and milestones · {POAM_CITATION}</p>
           <h1 tabIndex={-1}>POA&amp;M</h1>
-          <p className="muted">
-            {assessment?.title}. Assessment date {formatDate(assessmentDate(assessment))}; every item must close out by{' '}
+          <p className="page-sub">
+            Plan of action and milestones, {POAM_CITATION}. {assessment?.title}. Assessment date{' '}
+            {formatDate(assessmentDate(assessment))}; every item must close out by{' '}
             <strong className="nowrap">{formatDate(deadline)}</strong> ({CLOSEOUT_DAYS} days).
           </p>
         </div>
@@ -288,7 +288,7 @@ export default function Poam() {
       {loading && !data && <Loading />}
       {data && (
         <>
-          <dl className="stats card">
+          <dl className="kpis auto panel">
             <Stat label="Items" value={summary.total} />
             <Stat label="Open" value={summary.open} />
             <Stat label="In progress" value={summary.in_progress} />
@@ -311,11 +311,12 @@ export default function Poam() {
           </section>
 
           <div className="gaps-grid">
-            <section className="card" aria-labelledby="eligible-title">
-              <div className="card-head">
+            <section className="panel" aria-labelledby="eligible-title">
+              <div className="panel-head">
                 <h2 id="eligible-title">Eligible gaps without an item</h2>
-                <Chip tone="neutral">{gaps.eligible.length}</Chip>
+                <span className="count-tag num">{gaps.eligible.length}</span>
               </div>
+              <div className="panel-body flush-top">
               <p className="muted small">
                 Not-met requirements that {POAM_CITATION} allows on a POA&amp;M: weight 1, or 3.13.11 at the partial
                 (not FIPS-validated) deduction.
@@ -327,22 +328,24 @@ export default function Poam() {
                   {gaps.eligible.map((d) => (
                     <GapRow key={d.req_id} draft={d}>
                       {guest ? (
-                        <Chip tone="warn" glyph="○">Eligible, no item yet</Chip>
+                        <span className="muted small">Eligible, no item yet</span>
                       ) : (
                         <button type="button" className="btn secondary small" onClick={() => setEditing({ draft: d })}>
-                          <Icon name="plus" size={15} /> Add to POA&amp;M<span className="sr-only"> {d.req_id}</span>
+                          <Icon name="plus" size={14} /> Add to POA&amp;M<span className="sr-only"> {d.req_id}</span>
                         </button>
                       )}
                     </GapRow>
                   ))}
                 </ul>
               )}
-            </section>
-            <section className="card" aria-labelledby="blocked-title">
-              <div className="card-head">
-                <h2 id="blocked-title">Not allowed on a POA&amp;M</h2>
-                <Chip tone={gaps.notAllowed.length ? 'bad' : 'neutral'}>{gaps.notAllowed.length}</Chip>
               </div>
+            </section>
+            <section className="panel" aria-labelledby="blocked-title">
+              <div className="panel-head">
+                <h2 id="blocked-title">Not allowed on a POA&amp;M</h2>
+                <span className="count-tag num">{gaps.notAllowed.length}</span>
+              </div>
+              <div className="panel-body flush-top">
               <p className="muted small">
                 These have to be met before conditional Level 2 status is possible.
               </p>
@@ -352,14 +355,12 @@ export default function Poam() {
                 <ul className="gap-items">
                   {gaps.notAllowed.map((d) => (
                     <GapRow key={d.req_id} draft={d}>
-                      <span className="not-allowed">
-                        <Chip tone="bad" glyph="✕">Not allowed</Chip>
-                        <span className="small">{d.reason}</span>
-                      </span>
+                      <span className="not-allowed small">{d.reason}</span>
                     </GapRow>
                   ))}
                 </ul>
               )}
+              </div>
             </section>
           </div>
           <p className="muted small">

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { api } from '../api.js'
 import {
-  COLLECTORS, Chip, CommandBlock, ErrorState, FINDING_RESULTS, Icon, Loading, Observed, StatusChip, formatDate,
+  COLLECTORS, Chip, CommandBlock, ErrorState, FINDING_RESULTS, Icon, Loading, Observed, Status, formatDate,
   plural, useAsync, usePageTitle, useSession,
 } from '../components/ui.jsx'
 
@@ -46,23 +46,23 @@ function SourceFacts({ run }) {
 }
 
 function CheckStatus({ check }) {
-  if (check.status === 'ok') return <Chip tone="neutral" glyph="✓">Read</Chip>
-  return <Chip tone="warn" glyph="!">Unavailable</Chip>
+  if (check.status === 'ok') return <span className="status neutral"><i className="dot" aria-hidden="true" />Read</span>
+  return <span className="status warn"><i className="dot" aria-hidden="true" />Unavailable</span>
 }
 
 function CheckCard({ check }) {
   const reqOf = (objectiveId) => objectiveId.split('[')[0]
   const objectives = [...new Set(check.findings.map((f) => f.objective_id))]
   return (
-    <li className={`card check-card ${check.result || 'none'}`}>
+    <li className={`check-card ${check.result || 'none'}`}>
       <article aria-labelledby={`check-${check.id}`}>
         <header className="check-head">
           <h3 id={`check-${check.id}`}><code>{check.id}</code></h3>
-          <div className="chip-row tight">
+          <div className="meta-row">
             <CheckStatus check={check} />
             {check.result
-              ? <StatusChip status={check.result} map={FINDING_RESULTS} />
-              : <Chip tone="outline">No mapped objectives</Chip>}
+              ? <Status status={check.result} map={FINDING_RESULTS} />
+              : <span className="muted small">No mapped objectives</span>}
           </div>
         </header>
         {check.status !== 'ok' && (
@@ -84,7 +84,7 @@ function CheckCard({ check }) {
                 <li key={`${f.objective_id}-${f.rule_id}-${i}`} className={f.result}>
                   <div className="obj-finding-head">
                     <Link to={`/requirements/${reqOf(f.objective_id)}`} className="mono obj-link">{f.objective_id}</Link>
-                    <StatusChip status={f.result} map={FINDING_RESULTS} />
+                    <Status status={f.result} map={FINDING_RESULTS} />
                     <span className="muted small">rule {f.rule_id}</span>
                   </div>
                   <dl className="finding-kv">
@@ -117,7 +117,7 @@ export default function EvidenceDetail() {
     () => api.evidenceRun(assessmentId, evidenceId), [assessmentId, evidenceId])
   usePageTitle(data ? `Evidence: ${data.host}` : 'Evidence')
 
-  const back = <Link className="back-link" to="/evidence"><Icon name="back" size={16} /> All evidence</Link>
+  const back = <Link className="back-link" to="/evidence"><Icon name="back" size={14} /> All evidence</Link>
   if (loading && !data) return <div className="page">{back}<Loading /></div>
   if (error) {
     return (
@@ -142,21 +142,21 @@ export default function EvidenceDetail() {
       {back}
       <header className="page-head detail-head">
         <div>
-          <p className="eyebrow">{collector} collector · format version {data.version}</p>
           <h1 tabIndex={-1} className="break">{data.collector === 'm365' ? `Tenant ${data.host}` : data.host}</h1>
-          <div className="chip-row">
-            <Chip tone="good" glyph="✓">{data.findings.met} met</Chip>
-            <Chip tone="bad" glyph="✕">{data.findings.not_met} not met</Chip>
-            <Chip tone="neutral" glyph="–">{data.findings.not_assessed} not assessed by collector</Chip>
-            {unavailable > 0 && <Chip tone="warn" glyph="!">{plural(unavailable, 'check')} unavailable</Chip>}
+          <p className="page-sub">{collector} collector · format version {data.version}</p>
+          <div className="meta-row">
+            <span className="status good"><i className="dot" aria-hidden="true" />{data.findings.met} met</span>
+            <span className="status bad"><i className="dot" aria-hidden="true" />{data.findings.not_met} not met</span>
+            <span className="status neutral"><i className="dot" aria-hidden="true" />{data.findings.not_assessed} not assessed by collector</span>
+            {unavailable > 0 && <Chip tone="warn">{plural(unavailable, 'check')} unavailable</Chip>}
           </div>
         </div>
       </header>
 
       {data.collector === 'windows' && data.source?.elevated === false && (
-        <div className="banner warn" role="note">
-          <Icon name="conflict" size={18} />
-          <div><strong>Run without administrator rights.</strong> Checks that need elevation were unavailable and decide nothing.</div>
+        <div className="notice warn" role="note">
+          <Icon name="conflict" size={16} />
+          <p><strong>Run without administrator rights.</strong> Checks that need elevation were unavailable and decide nothing.</p>
         </div>
       )}
 
@@ -164,22 +164,23 @@ export default function EvidenceDetail() {
         <section className="detail-main" aria-labelledby="checks-title">
           <div className="section-head">
             <h2 id="checks-title">Checks</h2>
-            <label className="field inline-field">
-              <span>Show</span>
-              <select value={filter} onChange={(e) => setFilter(e.target.value)}>
-                {FILTERS.map(([v, label]) => <option key={v} value={v}>{label}</option>)}
-              </select>
-            </label>
+            <div className="tabs" role="group" aria-label="Show checks">
+              {FILTERS.map(([v, label]) => (
+                <button key={v} type="button" className="tab" aria-pressed={filter === v} onClick={() => setFilter(v)}>
+                  {label}
+                </button>
+              ))}
+            </div>
           </div>
           <p className="result-count" role="status">
             {plural(shown.length, 'check')} shown of {data.checks.length} · gaps first
           </p>
           {shown.length === 0
             ? <div className="state">No checks match.</div>
-            : <ul className="check-list">{shown.map((c) => <CheckCard key={c.id} check={c} />)}</ul>}
+            : <ul className="check-list panel">{shown.map((c) => <CheckCard key={c.id} check={c} />)}</ul>}
         </section>
-        <aside className="detail-side" aria-label="About this run">
-          <section className="card" aria-labelledby="run-title">
+        <aside className="detail-side panel" aria-label="About this run">
+          <section className="side-section" aria-labelledby="run-title">
             <h2 id="run-title">This run</h2>
             <dl className="kv compact">
               <div><dt>Collector</dt><dd>{collector}</dd></div>
@@ -188,11 +189,11 @@ export default function EvidenceDetail() {
               <div><dt>Checks</dt><dd className="num">{data.checks.length}</dd></div>
             </dl>
           </section>
-          <section className="card" aria-labelledby="source-title">
+          <section className="side-section" aria-labelledby="source-title">
             <h2 id="source-title">{data.collector === 'windows' ? 'Computer' : 'Tenant'}</h2>
             <SourceFacts run={data} />
           </section>
-          <section className="card small" aria-labelledby="rule-title">
+          <section className="side-section small" aria-labelledby="rule-title">
             <h2 id="rule-title">How findings are used</h2>
             <p className="muted">
               A finding is met or not met only when the check was read and the value understood. Anything else is

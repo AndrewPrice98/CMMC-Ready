@@ -2,21 +2,21 @@ import { Link, useNavigate } from 'react-router-dom'
 import { api } from '../api.js'
 import { ScoreHistoryChart } from '../components/charts.jsx'
 import {
-  Chip, Empty, ErrorState, Loading, THRESHOLD, cmmcId, formatDate, plural, useAsync, usePageTitle, useSession,
+  Chip, Empty, ErrorState, Icon, Loading, THRESHOLD, cmmcId, formatDate, plural, useAsync, usePageTitle, useSession,
 } from '../components/ui.jsx'
 import { CHANGE_KINDS, changeRows, signed } from '../history.js'
 
 function standing(a) {
-  if (a.provisional) return <Chip tone="warn" glyph="!">Provisional</Chip>
-  if (a.score >= THRESHOLD) return <Chip tone="good" glyph="✓">{THRESHOLD} or more</Chip>
-  return <Chip tone="bad" glyph="✕">Below {THRESHOLD}</Chip>
+  if (a.provisional) return <Chip tone="warn">Provisional</Chip>
+  if (a.score >= THRESHOLD) return <span className="status good"><i className="dot" aria-hidden="true" />{THRESHOLD} or more</span>
+  return <span className="status bad"><i className="dot" aria-hidden="true" />Below {THRESHOLD}</span>
 }
 
 function ScoresTable({ assessments }) {
   const { assessmentId, setAssessmentId } = useSession()
   const navigate = useNavigate()
   return (
-    <div className="table-wrap card flush">
+    <div className="table-wrap panel flush">
       <table className="table history-table">
         <caption className="sr-only">SPRS score for each assessment, oldest first, with the change from the one before.</caption>
         <thead>
@@ -68,11 +68,11 @@ function ReqLinks({ ids, tone }) {
 
 function ChangeCard({ row }) {
   return (
-    <li className="card change-card">
+    <li className="change-card">
       <article aria-labelledby={`change-${row.from_id}-${row.to_id}`}>
-        <header className="card-head">
+        <header className="change-head">
           <h3 id={`change-${row.from_id}-${row.to_id}`}>
-            {row.from?.title} <span className="muted" aria-hidden="true">→</span>
+            {row.from?.title} <span className="muted arrow" aria-hidden="true"><Icon name="arrow" size={14} /></span>
             <span className="sr-only"> to </span> {row.to?.title}
           </h3>
           {row.delta !== null && (
@@ -111,9 +111,8 @@ export default function History() {
     <div className="page">
       <header className="page-head">
         <div>
-          <p className="eyebrow">Score over time</p>
           <h1 tabIndex={-1}>History</h1>
-          <p className="muted">Every assessment for this organization, oldest first, and what changed between them.</p>
+          <p className="page-sub">Every assessment for this organization, oldest first, and what changed between them.</p>
         </div>
       </header>
       {error && <ErrorState error={error} onRetry={reload} />}
@@ -126,26 +125,30 @@ export default function History() {
       )}
       {data && data.assessments.length > 0 && (
         <>
-          <section className="card section" aria-labelledby="chart-title">
-            <div className="card-head">
+          <div className="stack">
+          <section className="panel" aria-labelledby="chart-title">
+            <div className="panel-head">
               <h2 id="chart-title">SPRS score</h2>
               <span className="muted small">{plural(data.assessments.length, 'assessment')}</span>
             </div>
-            <ScoreHistoryChart assessments={data.assessments} formatDate={formatDate} />
+            <div className="panel-body">
+              <ScoreHistoryChart assessments={data.assessments} formatDate={formatDate} />
+            </div>
           </section>
-          <section className="section" aria-labelledby="scores-title">
+          <section aria-labelledby="scores-title">
             <div className="section-head"><h2 id="scores-title">Assessments</h2></div>
             <ScoresTable assessments={data.assessments} />
           </section>
-          <section className="section" aria-labelledby="changes-title">
-            <div className="section-head">
+          <section className="panel" aria-labelledby="changes-title">
+            <div className="panel-head">
               <h2 id="changes-title">What changed</h2>
               <p className="muted small">Requirement status, compared with the assessment before.</p>
             </div>
             {rows.length === 0
-              ? <Empty>Changes appear once there are two assessments.</Empty>
+              ? <p className="panel-body muted">Changes appear once there are two assessments.</p>
               : <ol className="change-list">{rows.map((r) => <ChangeCard key={`${r.from_id}-${r.to_id}`} row={r} />)}</ol>}
           </section>
+          </div>
         </>
       )}
     </div>

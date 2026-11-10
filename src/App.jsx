@@ -12,17 +12,14 @@ import History from './pages/History.jsx'
 import Scope from './pages/Scope.jsx'
 import Login from './pages/Login.jsx'
 import {
-  DISCLAIMER, Empty, ErrorState, GITHUB_URL, Icon, Loading, SessionContext, usePageTitle, useSession,
+  DISCLAIMER, Empty, ErrorState, GITHUB_URL, Icon, Loading, LogoMark, SessionContext, usePageTitle, useSession,
 } from './components/ui.jsx'
 
-const NAV = [
-  ['/', 'Overview'],
-  ['/requirements', 'Requirements'],
-  ['/evidence', 'Evidence'],
-  ['/poam', 'POA&M'],
-  ['/documents', 'Documents'],
-  ['/history', 'History'],
-  ['/scope', 'Scope'],
+const NAV_GROUPS = [
+  { label: 'Assess', items: [['/', 'Overview', 'overview'], ['/requirements', 'Requirements', 'requirements'],
+    ['/evidence', 'Evidence', 'evidence'], ['/poam', 'POA&M', 'poam']] },
+  { label: 'Report', items: [['/documents', 'Documents', 'documents'], ['/history', 'History', 'history']] },
+  { label: 'Set up', items: [['/scope', 'Scope', 'scope']] },
 ]
 
 const STORE_KEY = 'cmmcready.assessment'
@@ -45,50 +42,51 @@ function defaultAssessment(list) {
 function Brand() {
   return (
     <NavLink to="/" className="brand" aria-label="CMMC Ready, overview">
-      <span className="brand-mark" aria-hidden="true"><Icon name="shield" size={20} /></span>
-      <span className="brand-text">
-        <span className="brand-name">CMMC Ready</span>
-        <span className="brand-sub">Level 2 self-assessment</span>
-      </span>
+      <LogoMark size={26} />
+      <span className="brand-name">CMMC Ready</span>
     </NavLink>
   )
 }
 
-function AccountArea({ onLogout, onSignIn }) {
-  const { user, guest, demo, authConfigured } = useSession()
-  if (guest) {
-    return (
-      <div className="account">
-        <span className="badge demo" title="Hosted demo with a fictional company. Browsing is read-only.">
-          <Icon name="lock" size={14} /> Demo · read-only
-        </span>
-        {authConfigured && (
-          <button type="button" className="btn ghost small" onClick={onSignIn}>Sign in</button>
-        )}
-      </div>
-    )
-  }
+/** Bottom of the sidebar: version, and who is looking at the data. */
+function SidebarStatus({ onLogout, onSignIn }) {
+  const { user, guest, demo, authConfigured, version } = useSession()
   return (
-    <div className="account">
-      {demo && <span className="badge demo" title="Hosted demo with a fictional company.">Demo</span>}
-      <span className="account-user">{user}</span>
-      <button type="button" className="btn ghost small" onClick={onLogout}>Sign out</button>
+    <div className="side-foot">
+      {guest ? (
+        <>
+          <p className="side-status"><Icon name="lock" size={14} /> {demo ? 'Demo, read-only' : 'Read-only'}</p>
+          {authConfigured && (
+            <button type="button" className="side-link" onClick={onSignIn}>Sign in as admin to edit</button>
+          )}
+        </>
+      ) : (
+        <>
+          <p className="side-status">{demo ? 'Demo · ' : ''}Signed in as <strong>{user}</strong></p>
+          <button type="button" className="side-link" onClick={onLogout}>Sign out</button>
+        </>
+      )}
+      <p className="side-version">v{version}</p>
     </div>
   )
 }
 
-function ContextBar({ onSignIn }) {
-  const { org, assessments, assessmentId, setAssessmentId, guest, authConfigured } = useSession()
+function ContextBar({ onMenu, menuOpen }) {
+  const { org, assessments, assessmentId, setAssessmentId } = useSession()
   return (
-    <div className="contextbar">
-      <div className="contextbar-inner">
-        <div className="org">
-          <span className="org-label">Organization</span>
-          <span className="org-name">{org?.name || 'No organization yet'}</span>
-        </div>
+    <div className="topbar">
+      <button type="button" className="icon-btn menu-btn" onClick={onMenu} aria-expanded={menuOpen}
+        aria-controls="sidebar">
+        <Icon name="menu" size={18} /><span className="sr-only">Menu</span>
+      </button>
+      <NavLink to="/" className="brand brand-compact" aria-label="CMMC Ready, overview">
+        <LogoMark size={24} />
+      </NavLink>
+      <p className="org-name" title={org?.name}>{org?.name || 'No organization yet'}</p>
+      <div className="topbar-right">
         {assessments.length > 0 && (
           <label className="assessment-picker">
-            <span>Assessment</span>
+            <span className="sr-only">Assessment</span>
             <select value={assessmentId ?? ''} onChange={(e) => setAssessmentId(Number(e.target.value))}>
               {assessments.map((a) => (
                 <option key={a.id} value={a.id}>
@@ -98,12 +96,10 @@ function ContextBar({ onSignIn }) {
             </select>
           </label>
         )}
-        {guest && authConfigured && (
-          <p className="edit-hint">
-            <Icon name="lock" size={14} /> Read-only.{' '}
-            <button type="button" className="link" onClick={onSignIn}>Sign in as admin to edit</button>
-          </p>
-        )}
+        <a className="btn ghost small" href={GITHUB_URL} target="_blank" rel="noreferrer">
+          GitHub <Icon name="external" size={14} />
+          <span className="sr-only"> (opens in a new tab)</span>
+        </a>
       </div>
     </div>
   )
@@ -146,11 +142,11 @@ function SetupPrompt({ title }) {
     <div className="page">
       <header className="page-head">
         <div>
-          <p className="eyebrow">Getting started</p>
           <h1 tabIndex={-1}>{title}</h1>
+          <p className="page-sub">Getting started</p>
         </div>
       </header>
-      <section className="card setup-card" aria-labelledby="setup-title">
+      <section className="panel setup-card" aria-labelledby="setup-title">
         {guest ? (
           <>
             <h2 id="setup-title">No assessment yet</h2>
@@ -158,7 +154,7 @@ function SetupPrompt({ title }) {
               This instance has {org ? 'an organization but no assessment' : 'no organization or assessment'} yet.
               An administrator sets them up on the Scope page; until then there is nothing to score.
             </p>
-            <Link className="btn secondary" to="/scope">View scope <Icon name="arrow" size={16} /></Link>
+            <Link className="btn secondary" to="/scope">View scope <Icon name="arrow" size={14} /></Link>
           </>
         ) : (
           <>
@@ -180,7 +176,7 @@ function SetupPrompt({ title }) {
               ))}
             </ol>
             <Link className="btn primary" to={org ? '/scope#new-assessment' : '/scope'}>
-              {org ? 'Start an assessment' : 'Set up the organization'} <Icon name="arrow" size={16} />
+              {org ? 'Start an assessment' : 'Set up the organization'} <Icon name="arrow" size={14} />
             </Link>
           </>
         )}
@@ -196,57 +192,65 @@ function NeedsAssessment({ title, children }) {
 }
 
 function Shell({ onLogout, onSignIn }) {
-  const { version } = useSession()
   const mainRef = useRef(null)
+  const [menuOpen, setMenuOpen] = useState(false)
+  const { pathname } = useLocation()
   useFocusOnNavigate(mainRef)
+  useEffect(() => { setMenuOpen(false) }, [pathname])
+  useEffect(() => {
+    if (!menuOpen) return undefined
+    const onKey = (e) => { if (e.key === 'Escape') setMenuOpen(false) }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [menuOpen])
   return (
-    <div className="app">
+    <div className={`app ${menuOpen ? 'menu-open' : ''}`}>
       <a className="skip-link" href="#main">Skip to content</a>
-      <header className="topbar">
-        <div className="topbar-inner">
-          <Brand />
-          <nav className="nav" aria-label="Main">
-            <ul>
-              {NAV.map(([to, label]) => (
-                <li key={to}><NavLink to={to} end={to === '/'}>{label}</NavLink></li>
-              ))}
-            </ul>
-          </nav>
-          <div className="topbar-right">
-            <a className="gh-link" href={GITHUB_URL} target="_blank" rel="noreferrer">
-              <Icon name="github" size={18} /><span>GitHub</span>
-              <span className="sr-only"> (opens in a new tab)</span>
-            </a>
-            <AccountArea onLogout={onLogout} onSignIn={onSignIn} />
-          </div>
-        </div>
-      </header>
-      <ContextBar onSignIn={onSignIn} />
-      <main id="main" className="main" ref={mainRef}>
-        <Routes>
-          <Route path="/" element={<NeedsAssessment title="Overview"><Overview /></NeedsAssessment>} />
-          <Route path="/requirements" element={<NeedsAssessment title="Requirements"><Requirements /></NeedsAssessment>} />
-          <Route path="/requirements/:reqId"
-            element={<NeedsAssessment title="Requirement"><RequirementDetail /></NeedsAssessment>} />
-          <Route path="/evidence" element={<NeedsAssessment title="Evidence"><Evidence /></NeedsAssessment>} />
-          <Route path="/evidence/:evidenceId"
-            element={<NeedsAssessment title="Evidence"><EvidenceDetail /></NeedsAssessment>} />
-          <Route path="/poam" element={<NeedsAssessment title="POA&M"><Poam /></NeedsAssessment>} />
-          <Route path="/documents" element={<NeedsAssessment title="Documents"><Documents /></NeedsAssessment>} />
-          <Route path="/history" element={<History />} />
-          <Route path="/scope" element={<Scope />} />
-          <Route path="*" element={<Empty><h1 tabIndex={-1} className="h-inline">Page not found.</h1></Empty>} />
-        </Routes>
-      </main>
-      <footer className="footer">
-        <div className="footer-inner">
+      <aside className="sidebar" id="sidebar">
+        <Brand />
+        <nav className="nav" aria-label="Main">
+          {NAV_GROUPS.map((group) => (
+            <div key={group.label} className="nav-group">
+              <p className="nav-label">{group.label}</p>
+              <ul>
+                {group.items.map(([to, label, icon]) => (
+                  <li key={to}>
+                    <NavLink to={to} end={to === '/'}><Icon name={icon} size={16} />{label}</NavLink>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </nav>
+        <SidebarStatus onLogout={onLogout} onSignIn={onSignIn} />
+      </aside>
+      <div className="scrim" onClick={() => setMenuOpen(false)} aria-hidden="true" />
+      <div className="column">
+        <ContextBar onMenu={() => setMenuOpen((o) => !o)} menuOpen={menuOpen} />
+        <main id="main" className="main" ref={mainRef}>
+          <Routes>
+            <Route path="/" element={<NeedsAssessment title="Overview"><Overview /></NeedsAssessment>} />
+            <Route path="/requirements" element={<NeedsAssessment title="Requirements"><Requirements /></NeedsAssessment>} />
+            <Route path="/requirements/:reqId"
+              element={<NeedsAssessment title="Requirement"><RequirementDetail /></NeedsAssessment>} />
+            <Route path="/evidence" element={<NeedsAssessment title="Evidence"><Evidence /></NeedsAssessment>} />
+            <Route path="/evidence/:evidenceId"
+              element={<NeedsAssessment title="Evidence"><EvidenceDetail /></NeedsAssessment>} />
+            <Route path="/poam" element={<NeedsAssessment title="POA&M"><Poam /></NeedsAssessment>} />
+            <Route path="/documents" element={<NeedsAssessment title="Documents"><Documents /></NeedsAssessment>} />
+            <Route path="/history" element={<History />} />
+            <Route path="/scope" element={<Scope />} />
+            <Route path="*" element={<Empty><h1 tabIndex={-1} className="h-inline">Page not found.</h1></Empty>} />
+          </Routes>
+        </main>
+        <footer className="footer">
           <p className="disclaimer">{DISCLAIMER}</p>
           <p className="footer-meta">
-            CMMC Ready v{version} · NIST SP 800-171 Rev 2 · DoD Assessment Methodology v1.2.1 ·{' '}
+            NIST SP 800-171 Rev 2 · DoD Assessment Methodology v1.2.1 ·{' '}
             <a href={GITHUB_URL} target="_blank" rel="noreferrer">Source on GitHub<span className="sr-only"> (opens in a new tab)</span></a>
           </p>
-        </div>
-      </footer>
+        </footer>
+      </div>
     </div>
   )
 }

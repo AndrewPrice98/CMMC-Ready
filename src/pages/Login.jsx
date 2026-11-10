@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { api } from '../api.js'
-import { DISCLAIMER, Icon, usePageTitle } from '../components/ui.jsx'
+import { DISCLAIMER, LogoMark, usePageTitle } from '../components/ui.jsx'
 
 export default function Login({ onLogin, notice, onCancel }) {
   usePageTitle('Sign in')
@@ -25,9 +25,9 @@ export default function Login({ onLogin, notice, onCancel }) {
 
   return (
     <main className="login-wrap">
-      <form className="card login" onSubmit={submit} aria-labelledby="login-title">
+      <form className="panel login" onSubmit={submit} aria-labelledby="login-title">
         <div className="login-brand">
-          <span className="brand-mark" aria-hidden="true"><Icon name="shield" size={22} /></span>
+          <LogoMark size={26} />
           <span className="brand-name">CMMC Ready</span>
         </div>
         <h1 id="login-title">Sign in</h1>

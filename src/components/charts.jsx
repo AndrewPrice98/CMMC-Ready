@@ -7,66 +7,45 @@ import { scoreTone } from '../verdict.js'
 // Hand-drawn SVG charts. No chart library: the shapes are simple and this keeps the
 // bundle small and the CSP strict.
 
-const GAUGE = { w: 360, h: 206, cx: 180, cy: 170, r: 132, stroke: 20 }
-
-function gaugePoint(value, radius = GAUGE.r) {
-  const t = (Math.min(MAX_SCORE, Math.max(MIN_SCORE, value)) - MIN_SCORE) / (MAX_SCORE - MIN_SCORE)
-  const angle = Math.PI * (1 - t)
-  return [GAUGE.cx + radius * Math.cos(angle), GAUGE.cy - radius * Math.sin(angle)]
-}
-
-function arcPath(from, to) {
-  const [x1, y1] = gaugePoint(from)
-  const [x2, y2] = gaugePoint(to)
-  return `M${x1.toFixed(2)},${y1.toFixed(2)} A${GAUGE.r},${GAUGE.r} 0 0 1 ${x2.toFixed(2)},${y2.toFixed(2)}`
-}
-
-function Tick({ value, label, emphasis }) {
-  const [xi, yi] = gaugePoint(value, GAUGE.r - GAUGE.stroke / 2 - 5)
-  const [xo, yo] = gaugePoint(value, GAUGE.r + GAUGE.stroke / 2 + 5)
-  const [xl, yl] = gaugePoint(value, GAUGE.r + GAUGE.stroke / 2 + 17)
-  return (
-    <g className={emphasis ? 'gauge-tick strong' : 'gauge-tick'}>
-      <line x1={xi} y1={yi} x2={xo} y2={yo} />
-      <text x={xl} y={yl + 4} textAnchor={value > 40 ? 'start' : value < -40 ? 'end' : 'middle'}>{label}</text>
-    </g>
-  )
-}
+/** Position of a score on the true scale, -203 to 110, as a percentage of the meter. */
+const pct = (value) => ((Math.min(MAX_SCORE, Math.max(MIN_SCORE, value)) - MIN_SCORE) / (MAX_SCORE - MIN_SCORE)) * 100
 
 /**
- * SPRS score gauge on the true scale, -203 to 110, with the 88-point conditional
- * threshold marked. The scale is linear, so most of the arc is below zero.
+ * SPRS score as a large numeral over a thin linear meter on the true scale, -203 to 110, with
+ * the 88-point conditional threshold marked by a tick. The scale is linear, so most of it is
+ * below zero.
  */
 export function ScoreGauge({ score, provisional }) {
   const tone = scoreTone(score)
-  const { w, h, cx, cy } = GAUGE
+  const label = `SPRS score ${score} on a scale from ${MIN_SCORE} to ${MAX_SCORE}. `
+    + `Conditional Level 2 status needs at least ${THRESHOLD}.${provisional ? ' The score is provisional.' : ''}`
   return (
-    <figure className="gauge">
-      <svg viewBox={`0 0 ${w} ${h}`} role="img"
-        aria-label={`SPRS score ${score} on a scale from ${MIN_SCORE} to ${MAX_SCORE}. `
-          + `Conditional Level 2 status needs at least ${THRESHOLD}.${provisional ? ' The score is provisional.' : ''}`}>
-        <path className="gauge-track" d={arcPath(MIN_SCORE, MAX_SCORE)} strokeWidth={GAUGE.stroke} />
-        <path className="gauge-zone" d={arcPath(THRESHOLD, MAX_SCORE)} strokeWidth={GAUGE.stroke} />
-        <path className={`gauge-value ${tone}`} d={arcPath(MIN_SCORE, score)} strokeWidth={GAUGE.stroke}
-          pathLength="1" />
-        <Tick value={0} label="0" />
-        <Tick value={THRESHOLD} label="88" emphasis />
-        <text className="gauge-end" x={gaugePoint(MIN_SCORE)[0]} y={cy + 26} textAnchor="middle">−203</text>
-        <text className="gauge-end" x={gaugePoint(MAX_SCORE)[0]} y={cy + 26} textAnchor="middle">110</text>
-        <text className={`gauge-score ${tone}`} x={cx} y={cy - 22} textAnchor="middle">
-          {score < 0 ? `−${Math.abs(score)}` : score}
-        </text>
-        <text className="gauge-caption" x={cx} y={cy + 4} textAnchor="middle">SPRS score of {MAX_SCORE}</text>
-      </svg>
-      <figcaption className="gauge-legend">
-        <span><i className={`swatch ${tone}`} aria-hidden="true" /> Current score</span>
-        <span><i className="swatch zone" aria-hidden="true" /> {THRESHOLD}–{MAX_SCORE}: conditional status range</span>
+    <figure className="score-meter">
+      <p className="score-value num">
+        <span>{score < 0 ? `−${Math.abs(score)}` : score}</span>
+        <span className="score-of">of {MAX_SCORE}</span>
+      </p>
+      <div className="meter" role="img" aria-label={label}>
+        <div className="meter-track">
+          <div className="meter-zone" style={{ left: `${pct(THRESHOLD)}%`, width: `${100 - pct(THRESHOLD)}%` }} />
+          <div className={`meter-fill ${tone}`} style={{ width: `${pct(score)}%` }} />
+          <div className="meter-tick" style={{ left: `${pct(0)}%` }} />
+          <div className="meter-tick strong" style={{ left: `${pct(THRESHOLD)}%` }} />
+        </div>
+        <div className="meter-scale" aria-hidden="true">
+          <span style={{ left: '0%' }}>{'−'}203</span>
+          <span style={{ left: `${pct(0)}%` }}>0</span>
+          <span className="strong" style={{ left: `${pct(THRESHOLD)}%` }}>{THRESHOLD}</span>
+        </div>
+      </div>
+      <figcaption className="meter-note">
+        Tick at {THRESHOLD}: the threshold for conditional Level 2 status. {THRESHOLD}–{MAX_SCORE} is shaded.
       </figcaption>
     </figure>
   )
 }
 
-const CELL = 11
+const CELL = 10
 const GAP = 3
 const ORDER = ['not_met', 'not_assessed', 'met', 'na']
 
@@ -76,20 +55,20 @@ function Cell({ status, x }) {
   if (status === 'not_met') {
     return (
       <g className="cell not_met">
-        <rect x={x + 0.5} y={y} width={s} height={s} rx="2.5" />
-        <path d={`M${x + 3.5},${y + 3} l4,4 M${x + 7.5},${y + 3} l-4,4`} />
+        <rect x={x + 0.5} y={y} width={s} height={s} rx="2" />
+        <path d={`M${x + 3},${y + 3} l3,3 M${x + 6},${y + 3} l-3,3`} />
       </g>
     )
   }
   if (status === 'na') {
     return (
       <g className="cell na">
-        <rect x={x + 0.5} y={y} width={s} height={s} rx="2.5" />
-        <path d={`M${x + 3},${y + 5} h5`} />
+        <rect x={x + 0.5} y={y} width={s} height={s} rx="2" />
+        <path d={`M${x + 2.5},${y + 4.5} h4`} />
       </g>
     )
   }
-  return <rect className={`cell ${status}`} x={x + 0.5} y={y} width={s} height={s} rx="2.5" />
+  return <rect className={`cell ${status}`} x={x + 0.5} y={y} width={s} height={s} rx="2" />
 }
 
 function FamilyCells({ row }) {
@@ -173,7 +152,7 @@ export function ScoreHistoryChart({ assessments, formatDate }) {
   const wrap = useRef(null)
   const width = useWidth(wrap)
   const narrow = width < 480
-  const height = narrow ? 240 : 280
+  const height = narrow ? 220 : 240
   const box = { left: narrow ? 40 : 48, right: width - (narrow ? 28 : 44), top: 28, bottom: height - 48 }
   const { range, y, points } = chartPoints(assessments, box)
   const ticks = scoreTicks(range)
@@ -201,22 +180,19 @@ export function ScoreHistoryChart({ assessments, formatDate }) {
           <polyline className="hc-line" pathLength="1" points={points.map((p) => `${p.x},${p.y}`).join(' ')} />
         )}
         {points.map((p, i) => {
-          const tone = scoreTone(p.score)
           const anchor = points.length > 1 && i === 0 ? 'start' : points.length > 1 && i === points.length - 1 ? 'end' : 'middle'
           const dx = anchor === 'start' ? -6 : anchor === 'end' ? 6 : 0
           return (
             <g key={p.id} className="hc-point">
-              <circle cx={p.x} cy={p.y} r="6" className={`${tone} ${p.provisional ? 'hollow' : ''}`} />
-              <text className={`hc-value ${tone}`} x={p.x + dx} y={p.y - 13} textAnchor={anchor}>{fmtScore(p.score)}</text>
+              <circle cx={p.x} cy={p.y} r="4" className={p.provisional ? 'hollow' : ''} />
+              <text className="hc-value" x={p.x + dx} y={p.y - 12} textAnchor={anchor}>{fmtScore(p.score)}</text>
               <text className="hc-date" x={p.x + dx} y={box.bottom + 22} textAnchor={anchor}>{formatDate(p.date)}</text>
             </g>
           )
         })}
       </svg>
-      <figcaption className="gauge-legend">
-        <span><i className="swatch line" aria-hidden="true" /> SPRS score</span>
-        <span><i className="swatch zone" aria-hidden="true" /> {THRESHOLD}–{MAX_SCORE}: conditional status range</span>
-        <span><i className="swatch hollow" aria-hidden="true" /> Hollow point: provisional</span>
+      <figcaption className="chart-note">
+        Shaded band: {THRESHOLD}–{MAX_SCORE}, the conditional status range. Hollow point: provisional score.
       </figcaption>
     </figure>
   )

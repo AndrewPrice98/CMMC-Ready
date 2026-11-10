@@ -3,7 +3,7 @@ import { Link, useLocation, useParams } from 'react-router-dom'
 import { api } from '../api.js'
 import {
   ANSWERS, COLLECTORS, Chip, ErrorState, FINDING_RESULTS, Icon, Loading, Observed, POAM_CITATION, POAM_STATUS,
-  StatusChip, cmmcId, formatDate, partialLabel, plural, useAsync, usePageTitle, useSession,
+  Status, cmmcId, formatDate, partialLabel, plural, useAsync, usePageTitle, useSession,
 } from '../components/ui.jsx'
 const ANSWER_ORDER = ['met', 'not_met', 'na', 'unanswered']
 // A System Security Plan can never be not applicable; the server refuses N/A on 3.12.4.
@@ -13,7 +13,7 @@ function Finding({ f, reqId }) {
   return (
     <li className={`finding ${f.result}`}>
       <div className="finding-head">
-        <StatusChip status={f.result} map={FINDING_RESULTS} />
+        <Status status={f.result} map={FINDING_RESULTS} />
         <span className="finding-check">
           <span className="sr-only">Check </span><code>{f.check_id}</code>
           <span className="muted"> · rule {f.rule_id}</span>
@@ -43,20 +43,20 @@ function ConflictFlag({ objective }) {
   const sources = [...new Set(disagreeing.map((f) => `${f.check_id} on ${f.host}`))]
   return (
     <div className="conflict-flag" role="note">
-      <p className="conflict-title"><Icon name="conflict" size={18} /> Conflicts with evidence</p>
+      <p className="conflict-title"><Icon name="conflict" size={16} /> Conflicts with evidence</p>
       <div className="conflict-values">
         <div>
           <span className="conflict-label">Assessor answer</span>
-          <StatusChip status={objective.answer} map={ANSWERS} />
+          <Status status={objective.answer} map={ANSWERS} />
         </div>
         <span className="conflict-vs" aria-hidden="true">vs</span>
         <div>
           <span className="conflict-label">Collected evidence</span>
-          <StatusChip status={evidenceResult} map={ANSWERS} />
+          <Status status={evidenceResult} map={ANSWERS} />
           <span className="small conflict-source">from {sources.join('; ')}</span>
         </div>
       </div>
-      <p className="small">The assessor&apos;s answer stands and is what the score uses. Review the evidence and update one or the other.</p>
+      <p className="small">Review the evidence and update one or the other.</p>
     </div>
   )
 }
@@ -117,7 +117,7 @@ function AnswerEditor({ objective, assessmentId, onSaved }) {
           <label key={value} className={`seg ${ANSWERS[value].tone} ${answer === value ? 'on' : ''}`}>
             <input type="radio" name={`${uid}-answer`} value={value} checked={answer === value}
               onChange={() => setAnswer(value)} />
-            <span aria-hidden="true" className="chip-glyph">{ANSWERS[value].glyph}</span>
+            <i className={`dot ${ANSWERS[value].tone}`} aria-hidden="true" />
             {ANSWERS[value].label}
           </label>
         ))}
@@ -148,7 +148,7 @@ function Objective({ objective, guest, assessmentId, onSaved }) {
   const letter = objective.id.slice(objective.id.indexOf('['))
   const headingId = useId()
   return (
-    <li className={`card objective ${objective.conflict ? 'has-conflict' : ''}`}>
+    <li className={`objective ${objective.conflict ? 'has-conflict' : ''}`}>
       <article aria-labelledby={headingId}>
         <header className="objective-head">
           <h3 id={headingId}>
@@ -156,7 +156,7 @@ function Objective({ objective, guest, assessmentId, onSaved }) {
             <span className="sr-only"> ({objective.id})</span>
             <span className="obj-text">Determine if {objective.text}</span>
           </h3>
-          {guest && <StatusChip status={objective.answer} map={ANSWERS} />}
+          {guest && <Status status={objective.answer} map={ANSWERS} />}
         </header>
 
         {objective.conflict && <ConflictFlag objective={objective} />}
@@ -231,7 +231,7 @@ function PartialCredit({ data, guest, assessmentId, onSaved }) {
             <li key={String(c)} className={data.partial_choice === c ? 'on' : ''}>
               <span>{partialLabel(req.id, c)}</span>
               <span className="num">−{points(c)}</span>
-              {data.partial_choice === c && <Chip tone="info" glyph="●">Selected</Chip>}
+              {data.partial_choice === c && <Chip tone="info">Selected</Chip>}
             </li>
           ))}
         </ul>
@@ -265,7 +265,7 @@ function PoamPanel({ data }) {
     const s = POAM_STATUS[item.status] || { label: item.status, tone: 'neutral' }
     return (
       <>
-        <p><Chip tone={s.tone} glyph={s.glyph}>POA&amp;M: {s.label}</Chip></p>
+        <p><Chip tone={s.tone}>POA&amp;M: {s.label}</Chip></p>
         <dl className="kv compact">
           <div><dt>Due</dt><dd>{formatDate(item.due_date)}</dd></div>
           <div><dt>Owner</dt><dd>{item.owner || '—'}</dd></div>
@@ -282,7 +282,7 @@ function PoamPanel({ data }) {
   if (data.poam_rule_reason) {
     return (
       <>
-        <p><Chip tone="bad" glyph="✕">Not allowed on POA&amp;M</Chip></p>
+        <p><Chip tone="bad">Not allowed on POA&amp;M</Chip></p>
         <p className="small">{data.poam_rule_reason}</p>
         {data.status !== 'met' && data.status !== 'na' && (
           <p className="small strong-text">It has to be met before conditional Level 2 status is possible.</p>
@@ -303,7 +303,7 @@ function PoamPanel({ data }) {
   }
   return (
     <>
-      <p><Chip tone="warn" glyph="○">Eligible, no item yet</Chip></p>
+      <p><Chip tone="warn">Eligible, no item yet</Chip></p>
       <p className="small muted">This gap may go on a POA&amp;M under {POAM_CITATION}, with closeout within 180 days.</p>
     </>
   )
@@ -330,7 +330,7 @@ export default function RequirementDetail() {
 
   const back = (
     <Link className="back-link" to={backTo}>
-      <Icon name="back" size={16} /> {from ? 'Back to filtered requirements' : 'All requirements'}
+      <Icon name="back" size={14} /> {from ? 'Back to filtered requirements' : 'All requirements'}
     </Link>
   )
 
@@ -357,25 +357,30 @@ export default function RequirementDetail() {
       {back}
       <header className="page-head detail-head">
         <div>
-          <p className="eyebrow">{req.family_name} · {req.family}</p>
           <h1 tabIndex={-1}>
             <span className="id-text">{cmmcId(req.id)}</span>
           </h1>
-          <div className="chip-row">
-            <StatusChip status={data.status} />
-            <Chip tone="neutral">{req.basic ? 'Basic requirement' : 'Derived requirement'}</Chip>
-            <Chip tone="neutral">Weight {req.weight}</Chip>
-            {data.points_lost > 0 && <Chip tone="bad">−{data.points_lost} points</Chip>}
-            {conflicts > 0 && <Chip tone="warn" glyph="!">{plural(conflicts, 'conflict')} with evidence</Chip>}
+          <p className="page-sub">{req.family_name} · {req.family}</p>
+          <div className="meta-row">
+            <Status status={data.status} />
+            <span>{req.basic ? 'Basic requirement' : 'Derived requirement'}</span>
+            <span>Weight {req.weight}</span>
+            {data.points_lost > 0 && <span className="bad-text">−{data.points_lost} points</span>}
+            {conflicts > 0 && <Chip tone="warn">{plural(conflicts, 'conflict')} with evidence</Chip>}
           </div>
         </div>
       </header>
 
       <div className="detail-grid">
         <div className="detail-main">
-          <section className="card" aria-labelledby="text-title">
-            <h2 id="text-title" className="eyebrow">Requirement {req.id} · NIST SP 800-171 Rev 2 (verbatim)</h2>
-            <blockquote className="req-text">{req.text}</blockquote>
+          <section className="panel" aria-labelledby="text-title">
+            <div className="panel-head">
+              <h2 id="text-title">Requirement {req.id}</h2>
+              <span className="muted small">NIST SP 800-171 Rev 2, verbatim</span>
+            </div>
+            <div className="panel-body">
+              <p className="req-text">{req.text}</p>
+            </div>
             {req.discussion && (
               <details className="disclosure">
                 <summary>Discussion</summary>
@@ -392,18 +397,18 @@ export default function RequirementDetail() {
             )}
           </section>
 
-          <section aria-labelledby="obj-title">
-            <div className="section-head">
+          <section className="panel" aria-labelledby="obj-title">
+            <div className="panel-head">
               <h2 id="obj-title">Assessment objectives</h2>
               <p className="muted small">NIST SP 800-171A · {plural(objectives.length, 'objective')} · {objectiveSummary}</p>
             </div>
             {conflicts > 0 && (
-              <div className="banner warn" role="note">
-                <Icon name="conflict" size={18} />
-                <div>
+              <div className="notice warn flat" role="note">
+                <Icon name="conflict" size={16} />
+                <p>
                   <strong>{plural(conflicts, 'objective conflicts', 'objectives conflict')} with collected evidence.</strong>{' '}
                   Both values are shown below. The assessor&apos;s answer stands and is what the score uses.
-                </div>
+                </p>
               </div>
             )}
             <ol className="objective-list">
@@ -414,8 +419,8 @@ export default function RequirementDetail() {
           </section>
         </div>
 
-        <aside className="detail-side" aria-label="Scoring and POA&M">
-          <section className="card" aria-labelledby="scoring-title">
+        <aside className="detail-side panel" aria-label="Scoring and POA&M">
+          <section aria-labelledby="scoring-title" className="side-section">
             <h2 id="scoring-title">Scoring</h2>
             <dl className="kv compact">
               <div>
@@ -432,7 +437,7 @@ export default function RequirementDetail() {
               <PartialCredit data={data} guest={guest} assessmentId={assessmentId} onSaved={refresh} />
             )}
           </section>
-          <section className="card" aria-labelledby="poam-title">
+          <section aria-labelledby="poam-title" className="side-section">
             <h2 id="poam-title">POA&amp;M</h2>
             <PoamPanel data={data} />
           </section>

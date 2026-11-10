@@ -1,36 +1,41 @@
 import { createContext, useCallback, useContext, useEffect, useId, useRef, useState } from 'react'
+import {
+  ArrowLeft, ArrowRight, Calendar, Check, ChevronDown, CircleDashed, CirclePlus, Cloud, Copy, Download, ExternalLink,
+  FileCheck, FileText, Info, Layers, LayoutDashboard, ListChecks, Lock, Menu, Pencil, Plus, ScrollText, Search,
+  Terminal, Trash2, TriangleAlert, Upload, X, ClipboardList, History as HistoryIcon, Circle, CircleCheck, Monitor,
+} from 'lucide-react'
 
 export {
   ASSET_CATEGORIES, COLLECTORS, DISCLAIMER, FAMILIES, GITHUB_URL, MAX_SCORE, MIN_SCORE, POAM_CITATION, THRESHOLD,
   cmmcId, listWords, plural,
 } from '../lib.js'
 
-// -- status vocabulary: every status has a text label, a tone and a glyph -------------------
+// -- status vocabulary: every status has a text label and a tone -------------------
 
 export const REQ_STATUS = {
-  met: { label: 'Met', tone: 'good', glyph: '✓' },
-  not_met: { label: 'Not met', tone: 'bad', glyph: '✕' },
-  na: { label: 'Not applicable', tone: 'neutral', glyph: '–' },
-  not_assessed: { label: 'Not assessed', tone: 'warn', glyph: '?' },
+  met: { label: 'Met', tone: 'good' },
+  not_met: { label: 'Not met', tone: 'bad' },
+  na: { label: 'Not applicable', tone: 'neutral' },
+  not_assessed: { label: 'Not assessed', tone: 'warn' },
 }
 
 export const ANSWERS = {
-  met: { label: 'Met', tone: 'good', glyph: '✓' },
-  not_met: { label: 'Not met', tone: 'bad', glyph: '✕' },
-  na: { label: 'Not applicable', tone: 'neutral', glyph: '–' },
-  unanswered: { label: 'Unanswered', tone: 'outline', glyph: '○' },
+  met: { label: 'Met', tone: 'good' },
+  not_met: { label: 'Not met', tone: 'bad' },
+  na: { label: 'Not applicable', tone: 'neutral' },
+  unanswered: { label: 'Unanswered', tone: 'outline' },
 }
 
 export const FINDING_RESULTS = {
-  met: { label: 'Evidence: met', tone: 'good', glyph: '✓' },
-  not_met: { label: 'Evidence: not met', tone: 'bad', glyph: '✕' },
-  not_assessed: { label: 'Not assessed by collector', tone: 'neutral', glyph: '–' },
+  met: { label: 'Evidence: met', tone: 'good' },
+  not_met: { label: 'Evidence: not met', tone: 'bad' },
+  not_assessed: { label: 'Not assessed by collector', tone: 'neutral' },
 }
 
 export const POAM_STATUS = {
-  open: { label: 'Open', tone: 'warn', glyph: '○' },
-  in_progress: { label: 'In progress', tone: 'info', glyph: '◐' },
-  closed: { label: 'Closed', tone: 'good', glyph: '✓' },
+  open: { label: 'Open', tone: 'warn' },
+  in_progress: { label: 'In progress', tone: 'info' },
+  closed: { label: 'Closed', tone: 'good' },
 }
 
 export const STATUS_OPTIONS = [
@@ -59,19 +64,32 @@ export function partialLabel(reqId, choice) {
 
 // -- small presentational pieces ------------------------------------------------------------
 
-/** Status chip: glyph + text label + tone, so it never relies on color alone. */
-export function Chip({ tone = 'neutral', glyph, children, title }) {
+/**
+ * The CMMC Ready mark: a ring of 14 arc segments, one per control family. Eleven are filled and
+ * three are open. It takes the accent colour from the theme.
+ */
+const RING_FILLED = 'M16.52 1.01A15 15 0 0 1 22.03 2.27L19.62 7.76A9 9 0 0 0 16.31 7.01ZM22.98 2.72A15 15 0 0 1 27.39 6.24L22.84 10.15A9 9 0 0 0 20.19 8.03ZM28.05 7.06A15 15 0 0 1 30.50 12.15L24.70 13.69A9 9 0 0 0 23.23 10.64ZM30.50 19.85A15 15 0 0 1 28.05 24.94L23.23 21.36A9 9 0 0 0 24.70 18.31ZM27.39 25.76A15 15 0 0 1 22.98 29.28L20.19 23.97A9 9 0 0 0 22.84 21.85ZM22.03 29.73A15 15 0 0 1 16.52 30.99L16.31 24.99A9 9 0 0 0 19.62 24.24ZM15.48 30.99A15 15 0 0 1 9.97 29.73L12.38 24.24A9 9 0 0 0 15.69 24.99ZM3.95 24.94A15 15 0 0 1 1.50 19.85L7.30 18.31A9 9 0 0 0 8.77 21.36ZM1.27 18.83A15 15 0 0 1 1.27 13.17L7.16 14.30A9 9 0 0 0 7.16 17.70ZM4.61 6.24A15 15 0 0 1 9.02 2.72L11.81 8.03A9 9 0 0 0 9.16 10.15ZM9.97 2.27A15 15 0 0 1 15.48 1.01L15.69 7.01A9 9 0 0 0 12.38 7.76Z'
+const RING_OPEN = 'M30.73 13.17A15 15 0 0 1 30.73 18.83L24.84 17.70A9 9 0 0 0 24.84 14.30ZM9.02 29.28A15 15 0 0 1 4.61 25.76L9.16 21.85A9 9 0 0 0 11.81 23.97ZM1.50 12.15A15 15 0 0 1 3.95 7.06L8.77 10.64A9 9 0 0 0 7.30 13.69Z'
+
+export function LogoMark({ size = 28 }) {
   return (
-    <span className={`chip ${tone}`} title={title}>
-      {glyph && <span className="chip-glyph" aria-hidden="true">{glyph}</span>}
-      {children}
-    </span>
+    <svg className="logo-mark" width={size} height={size} viewBox="0 0 32 32"
+      aria-hidden="true" focusable="false">
+      <path fill="currentColor" d={RING_FILLED} />
+      <path fill="currentColor" fillOpacity="0.22" d={RING_OPEN} />
+    </svg>
   )
 }
 
-export function StatusChip({ status, map = REQ_STATUS }) {
+/** Compact tag: tinted background, no icon, no border. Meaning is always in the text. */
+export function Chip({ tone = 'neutral', children, title }) {
+  return <span className={`tag ${tone}`} title={title}>{children}</span>
+}
+
+/** Status as a dot plus text, so it never relies on colour alone. */
+export function Status({ status, map = REQ_STATUS }) {
   const s = map[status] || { label: status, tone: 'neutral' }
-  return <Chip tone={s.tone} glyph={s.glyph}>{s.label}</Chip>
+  return <span className={`status ${s.tone}`}><i className="dot" aria-hidden="true" />{s.label}</span>
 }
 
 export function Loading({ label = 'Loading…' }) {
@@ -95,35 +113,22 @@ export function Empty({ children }) {
   return <div className="state">{children}</div>
 }
 
+const ICONS = {
+  evidence: FileCheck, conflict: TriangleAlert, back: ArrowLeft, arrow: ArrowRight, lock: Lock, external: ExternalLink,
+  copy: Copy, check: Check, download: Download, upload: Upload, plus: Plus, edit: Pencil, trash: Trash2,
+  terminal: Terminal, file: FileText, close: X, calendar: Calendar, info: Info, cloud: Cloud, monitor: Monitor,
+  menu: Menu, search: Search, chevron: ChevronDown, circle: Circle, 'circle-check': CircleCheck,
+  overview: LayoutDashboard, requirements: ListChecks, poam: ClipboardList, documents: FileText, history: HistoryIcon,
+  scope: Layers, log: ScrollText, 'circle-dashed': CircleDashed, 'circle-plus': CirclePlus,
+}
+
+/** Line icon from lucide-react: 16 px, 1.5 stroke, takes the text colour. */
 export function Icon({ name, size = 16, label }) {
-  const paths = {
-    evidence: <><path d="M4 3h6l4 4v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z" /><path d="M10 3v4h4" /><path d="m6 12 2 2 3.5-4" /></>,
-    conflict: <><path d="M9.1 2.6 1.7 15.2A1.2 1.2 0 0 0 2.7 17h14.6a1.2 1.2 0 0 0 1-1.8L10.9 2.6a1 1 0 0 0-1.8 0Z" /><path d="M10 7.5v4" /><path d="M10 14.2v.1" /></>,
-    github: <path d="M10 1.5a8.5 8.5 0 0 0-2.7 16.6c.4 0 .6-.2.6-.4v-1.5c-2.4.5-2.9-1-2.9-1-.4-1-1-1.3-1-1.3-.8-.5 0-.5 0-.5.9 0 1.3.9 1.3.9.8 1.3 2 1 2.5.7 0-.6.3-1 .6-1.2-1.9-.2-3.9-1-3.9-4.2 0-.9.3-1.7.9-2.3-.1-.2-.4-1.1.1-2.3 0 0 .7-.2 2.3.9a8 8 0 0 1 4.2 0c1.6-1.1 2.3-.9 2.3-.9.5 1.2.2 2 .1 2.3.5.6.9 1.4.9 2.3 0 3.3-2 4-3.9 4.2.3.3.6.8.6 1.6v2.4c0 .2.2.5.6.4A8.5 8.5 0 0 0 10 1.5Z" fill="currentColor" stroke="none" />,
-    back: <path d="M12.5 4.5 7 10l5.5 5.5" />,
-    arrow: <><path d="M4 10h11" /><path d="m11 5.5 4.5 4.5-4.5 4.5" /></>,
-    lock: <><rect x="4" y="9" width="12" height="8.5" rx="1.5" /><path d="M7 9V6.5a3 3 0 0 1 6 0V9" /></>,
-    external: <><path d="M11 3.5h5.5V9" /><path d="M16.5 3.5 9 11" /><path d="M14 12v4a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h4" /></>,
-    shield: <><path d="M10 1.8 3 4.6v5c0 4.4 3 8 7 8.9 4-.9 7-4.5 7-8.9v-5L10 1.8Z" /><path d="m7 10 2.2 2.2L13.3 8" /></>,
-    copy: <><rect x="7" y="7" width="10" height="10" rx="1.5" /><path d="M13 7V4.5A1.5 1.5 0 0 0 11.5 3h-7A1.5 1.5 0 0 0 3 4.5v7A1.5 1.5 0 0 0 4.5 13H7" /></>,
-    check: <path d="m4.5 10.5 3.5 3.5 7.5-8" />,
-    download: <><path d="M10 3v10" /><path d="m5.5 8.5 4.5 4.5 4.5-4.5" /><path d="M3.5 16.5h13" /></>,
-    upload: <><path d="M10 13V3" /><path d="M5.5 7.5 10 3l4.5 4.5" /><path d="M3.5 16.5h13" /></>,
-    plus: <><path d="M10 4v12" /><path d="M4 10h12" /></>,
-    edit: <><path d="m12.5 4 3.5 3.5L7.5 16H4v-3.5L12.5 4Z" /></>,
-    trash: <><path d="M3.5 5.5h13" /><path d="M8 5.5V3.8h4v1.7" /><path d="M5.5 5.5 6.3 16a1 1 0 0 0 1 .9h5.4a1 1 0 0 0 1-.9l.8-10.5" /></>,
-    terminal: <><rect x="2.5" y="3.5" width="15" height="13" rx="1.5" /><path d="m6 8 2.5 2L6 12" /><path d="M10.5 12.5H14" /></>,
-    file: <><path d="M5 2.5h6.5L15.5 6.5V17a.5.5 0 0 1-.5.5H5a.5.5 0 0 1-.5-.5V3a.5.5 0 0 1 .5-.5Z" /><path d="M11.5 2.5v4h4" /></>,
-    close: <><path d="m5 5 10 10" /><path d="M15 5 5 15" /></>,
-    calendar: <><rect x="3" y="4.5" width="14" height="12.5" rx="1.5" /><path d="M3 8.5h14" /><path d="M7 3v3M13 3v3" /></>,
-  }
+  const Glyph = ICONS[name]
+  if (!Glyph) return null
   return (
-    <svg className="icon" width={size} height={size} viewBox="0 0 20 20" fill="none" stroke="currentColor"
-      strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"
-      aria-hidden={label ? undefined : 'true'} role={label ? 'img' : undefined} aria-label={label}
-      focusable="false">
-      {paths[name]}
-    </svg>
+    <Glyph className="icon" size={size} strokeWidth={1.5} absoluteStrokeWidth aria-hidden={label ? undefined : 'true'}
+      role={label ? 'img' : undefined} aria-label={label} focusable="false" />
   )
 }
 

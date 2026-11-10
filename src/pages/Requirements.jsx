@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link, useLocation, useSearchParams } from 'react-router-dom'
 import { api } from '../api.js'
 import {
-  Empty, ErrorState, FAMILIES, Icon, Loading, STATUS_OPTIONS, StatusChip, cmmcId, plural, useAsync,
+  Empty, ErrorState, FAMILIES, Icon, Loading, STATUS_OPTIONS, Status, cmmcId, plural, useAsync,
   usePageTitle, useSession,
 } from '../components/ui.jsx'
 
@@ -45,13 +45,13 @@ function EvidenceCell({ item }) {
   return (
     <span className="evidence-cell">
       <span className="ev" title={`Automated evidence for ${plural(item.evidence, 'objective')}`}>
-        <Icon name="evidence" size={16} />
+        <Icon name="evidence" size={14} />
         <span className="num">{item.evidence}</span>
         <span className="sr-only"> {item.evidence === 1 ? 'objective has' : 'objectives have'} automated evidence</span>
       </span>
       {item.conflicts > 0 && (
         <span className="ev conflict" title={`${plural(item.conflicts, 'objective')} conflict with evidence`}>
-          <Icon name="conflict" size={16} />
+          <Icon name="conflict" size={14} />
           <span className="num">{item.conflicts}</span>
           <span className="sr-only"> {item.conflicts === 1 ? 'conflict' : 'conflicts'} with evidence</span>
         </span>
@@ -105,27 +105,27 @@ export default function Requirements() {
     <div className="page">
       <header className="page-head">
         <div>
-          <p className="eyebrow">NIST SP 800-171 Rev 2</p>
           <h1 tabIndex={-1}>Requirements</h1>
-          <p className="muted">110 requirements in 14 families, assessed through 320 objectives.</p>
+          <p className="page-sub">110 requirements in 14 families, assessed through 320 objectives. NIST SP 800-171 Rev 2.</p>
         </div>
       </header>
 
-      <form className="filters card" role="search" onSubmit={(e) => { e.preventDefault(); update({ q: search.trim() }) }}>
-        <label className="field grow">
-          <span>Search</span>
-          <input type="search" value={search} maxLength={200} placeholder="ID or requirement text"
+      <form className="toolbar" role="search" onSubmit={(e) => { e.preventDefault(); update({ q: search.trim() }) }}>
+        <label className="field grow search-field">
+          <span className="sr-only">Search</span>
+          <Icon name="search" size={14} />
+          <input type="search" value={search} maxLength={200} placeholder="Search by ID or requirement text"
             onChange={(e) => setSearch(e.target.value)} />
         </label>
         <label className="field">
-          <span>Family</span>
+          <span className="sr-only">Family</span>
           <select value={filters.family} onChange={(e) => update({ family: e.target.value })}>
             <option value="">All families</option>
             {FAMILIES.map((f) => <option key={f.code} value={f.code}>{f.code} · {f.name}</option>)}
           </select>
         </label>
         <label className="field">
-          <span>Status</span>
+          <span className="sr-only">Status</span>
           <select value={filters.status} onChange={(e) => update({ status: e.target.value })}>
             <option value="">All statuses</option>
             {STATUS_OPTIONS.map(([v, label]) => <option key={v} value={v}>{label}</option>)}
@@ -151,31 +151,32 @@ export default function Requirements() {
       {loading && !data && <Loading />}
       {data && items.length === 0 && <Empty>No requirements match these filters.</Empty>}
       {data && items.length > 0 && (
-        <div className="table-wrap card flush" aria-busy={loading}>
+        <div className="table-wrap panel flush" aria-busy={loading}>
           <table className="table req-table">
             <caption className="sr-only">
               Requirements with status, points and automated evidence. Points show the deduction applied, or the weight when nothing is lost.
             </caption>
             <thead>
               <tr>
-                <th scope="col">ID</th>
+                <th scope="col" className="col-id">ID</th>
+                <th scope="col" className="col-cmmc">CMMC ID</th>
                 <th scope="col">Requirement</th>
-                <th scope="col">Status</th>
-                <th scope="col" className="right" title="Points lost (−) or the requirement's weight">Points</th>
-                <th scope="col">Evidence</th>
+                <th scope="col" className="col-status">Status</th>
+                <th scope="col" className="right col-points" title="Points lost (−) or the requirement's weight">Points</th>
+                <th scope="col" className="col-evidence">Evidence</th>
               </tr>
             </thead>
             <tbody>
               {items.map((item) => (
                 <tr key={item.id}>
                   <td className="id-cell">
-                    <Link to={`/requirements/${item.id}`} state={{ from: location.search }} className="req-link">
-                      <span className="id-text strong">{item.id}</span>
-                      <span className="cmmc-id">{cmmcId(item.id)}</span>
+                    <Link to={`/requirements/${item.id}`} state={{ from: location.search }} className="req-link mono">
+                      {item.id}
                     </Link>
                   </td>
-                  <td className="text-cell"><span className="clamp">{item.text}</span></td>
-                  <td className="status-cell"><StatusChip status={item.status} /></td>
+                  <td className="cmmc-cell mono">{cmmcId(item.id)}</td>
+                  <td className="text-cell"><span className="clamp" title={item.text}>{item.text}</span></td>
+                  <td className="status-cell"><Status status={item.status} /></td>
                   <td className="right points-cell" data-label="Points"><PointsCell item={item} /></td>
                   <td className="evidence-td" data-label="Evidence"><EvidenceCell item={item} /></td>
                 </tr>

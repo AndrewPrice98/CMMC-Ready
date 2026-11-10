@@ -19,7 +19,7 @@ function OrgView({ org }) {
   return (
     <div className="org-grid">
       <div>
-        <h3 className="eyebrow">Organization</h3>
+        <h3>Organization</h3>
         <p className="org-title">{org.name}</p>
         <dl className="kv compact">
           <div><dt>CAGE code(s)</dt><dd>{org.cage_codes.length ? org.cage_codes.join(', ') : 'None recorded'}</dd></div>
@@ -27,7 +27,7 @@ function OrgView({ org }) {
         {org.description && <p className="prose">{org.description}</p>}
       </div>
       <div>
-        <h3 className="eyebrow">CUI boundary</h3>
+        <h3>CUI boundary</h3>
         <p className="boundary">{org.cui_boundary || <span className="muted">No boundary described yet.</span>}</p>
       </div>
     </div>
@@ -249,7 +249,7 @@ function AddAsset({ onAdded, disabled }) {
         <AssetFields value={form} idPrefix="new-asset" onChange={(c) => { setForm((f) => ({ ...f, ...c })); setMessage(null) }} />
         <div className="form-actions">
           <button className="btn primary small" aria-disabled={busy ? 'true' : undefined}>
-            <Icon name="plus" size={15} /> {busy ? 'Adding…' : 'Add asset'}
+            <Icon name="plus" size={14} /> {busy ? 'Adding…' : 'Add asset'}
           </button>
           <FormMessage message={message} />
         </div>
@@ -261,11 +261,12 @@ function AddAsset({ onAdded, disabled }) {
 function Assets({ org, admin }) {
   const { data, error, loading, reload } = useAsync(() => api.assets(), [org?.id])
   return (
-    <section className="card" aria-labelledby="assets-title">
-      <div className="card-head">
+    <section className="panel" aria-labelledby="assets-title">
+      <div className="panel-head">
         <h2 id="assets-title">Asset inventory</h2>
         {data && <span className="muted small">{plural(data.length, 'asset')}</span>}
       </div>
+      <div className="panel-body flush-top">
       <p className="muted small">Grouped by the asset categories of the CMMC Level 2 scoping guidance (32 CFR §170.19).</p>
       {error && <ErrorState error={error} onRetry={reload} />}
       {loading && !data && <Loading />}
@@ -277,7 +278,7 @@ function Assets({ org, admin }) {
               <section key={cat.code} className={`asset-group ${cat.code}`} aria-labelledby={`cat-${cat.code}`}>
                 <div className="asset-group-head">
                   <h3 id={`cat-${cat.code}`}>{cat.name}</h3>
-                  <Chip tone={items.length ? 'info' : 'outline'}>{items.length}</Chip>
+                  <span className="count-tag num">{items.length}</span>
                 </div>
                 <p className="small muted cat-help">{cat.help}</p>
                 {items.length === 0
@@ -298,6 +299,7 @@ function Assets({ org, admin }) {
           <AddAsset onAdded={reload} disabled={!org} />
         </>
       )}
+      </div>
     </section>
   )
 }
@@ -363,7 +365,7 @@ function NewAssessment({ assessments, disabled, onCreated, focusRequested }) {
         </p>
         <div className="form-actions">
           <button className="btn primary small" aria-disabled={busy ? 'true' : undefined}>
-            <Icon name="plus" size={15} /> {busy ? 'Starting…' : 'Start assessment'}
+            <Icon name="plus" size={14} /> {busy ? 'Starting…' : 'Start assessment'}
           </button>
           <FormMessage message={message} />
         </div>
@@ -389,11 +391,12 @@ function Assessments({ org, admin, focusNew }) {
   }
 
   return (
-    <section className="card" aria-labelledby="assessments-title">
-      <div className="card-head">
+    <section className="panel" aria-labelledby="assessments-title">
+      <div className="panel-head">
         <h2 id="assessments-title">Assessments</h2>
         <span className="muted small">{plural(assessments.length, 'assessment')}</span>
       </div>
+      <div className="panel-body flush-top">
       {assessments.length === 0 ? (
         <p className="muted">No assessments yet.</p>
       ) : (
@@ -408,9 +411,9 @@ function Assessments({ org, admin, focusNew }) {
               </div>
               <div className="assessment-side">
                 <span className="num strong">{a.score < 0 ? `−${Math.abs(a.score)}` : a.score}</span>
-                {a.provisional && <Chip tone="warn" glyph="!">Provisional</Chip>}
+                {a.provisional && <Chip tone="warn">Provisional</Chip>}
                 {a.id === assessmentId
-                  ? <Chip tone="info" glyph="●">Selected</Chip>
+                  ? <Chip tone="info">Selected</Chip>
                   : (
                     <button type="button" className="btn ghost small" onClick={() => setAssessmentId(a.id)}>
                       Select<span className="sr-only"> {a.title}</span>
@@ -434,6 +437,7 @@ function Assessments({ org, admin, focusNew }) {
             onCreated={(id) => refresh(id)} />
         </>
       )}
+      </div>
     </section>
   )
 }
@@ -521,26 +525,29 @@ export default function Scope() {
     <div className="page">
       <header className="page-head">
         <div>
-          <p className="eyebrow">CMMC Level 2 scoping</p>
           <h1 tabIndex={-1}>Scope</h1>
-          <p className="muted">
-            The organization, its CUI boundary and the assets inside it. The System Security Plan export is built from this page.
+          <p className="page-sub">
+            CMMC Level 2 scoping. The organization, its CUI boundary and the assets inside it. The System Security Plan export is built from this page.
           </p>
         </div>
       </header>
 
       {!org && admin && (
-        <div className="banner info" role="note">
-          <Icon name="shield" size={18} />
-          <div><strong>Set up your organization to begin.</strong> Describe it and its CUI boundary, list its assets, then start an assessment.</div>
+        <div className="notice info" role="note">
+          <Icon name="info" size={16} />
+          <p><strong>Set up your organization to begin.</strong> Describe it and its CUI boundary, list its assets, then start an assessment.</p>
         </div>
       )}
 
-      <section className="card org-card" aria-labelledby="org-title">
-        <h2 id="org-title">{org ? 'Organization and CUI boundary' : admin ? 'Your organization' : 'Organization'}</h2>
-        {admin
-          ? <OrgForm org={org} onSaved={() => refresh()} />
-          : org ? <OrgView org={org} /> : <p className="muted">No organization has been set up yet.</p>}
+      <section className="panel org-card" aria-labelledby="org-title">
+        <div className="panel-head">
+          <h2 id="org-title">{org ? 'Organization and CUI boundary' : admin ? 'Your organization' : 'Organization'}</h2>
+        </div>
+        <div className="panel-body">
+          {admin
+            ? <OrgForm org={org} onSaved={() => refresh()} />
+            : org ? <OrgView org={org} /> : <p className="muted">No organization has been set up yet.</p>}
+        </div>
       </section>
 
       <div className="scope-grid">
@@ -548,13 +555,15 @@ export default function Scope() {
         <div className="stack">
           <Assessments org={org} admin={admin} focusNew={location.hash === '#new-assessment'} />
           {assessmentId != null && (
-            <section className="card" aria-labelledby="odp-title">
-              <h2 id="odp-title">Organization-defined parameters</h2>
-              <p className="muted small">
-                For {current?.title || 'the selected assessment'}. The collectors&apos; findings are judged against these values;
-                changing one re-checks the uploaded evidence.
-              </p>
-              <Parameters assessmentId={assessmentId} admin={admin} />
+            <section className="panel" aria-labelledby="odp-title">
+              <div className="panel-head"><h2 id="odp-title">Organization-defined parameters</h2></div>
+              <div className="panel-body flush-top">
+                <p className="muted small">
+                  For {current?.title || 'the selected assessment'}. The collectors&apos; findings are judged against these values;
+                  changing one re-checks the uploaded evidence.
+                </p>
+                <Parameters assessmentId={assessmentId} admin={admin} />
+              </div>
             </section>
           )}
         </div>

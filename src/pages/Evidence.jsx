@@ -27,7 +27,7 @@ function Counts({ findings }) {
 
 function RunsTable({ runs }) {
   return (
-    <div className="table-wrap card flush">
+    <div className="table-wrap panel flush">
       <table className="table runs-table">
         <caption className="sr-only">
           Collector runs, with how many objective findings each produced: met, not met and not assessed by the collector.
@@ -47,13 +47,12 @@ function RunsTable({ runs }) {
           {runs.map((run) => (
             <tr key={run.id}>
               <td className="host-cell">
-                <Link to={`/evidence/${run.id}`} className="req-link">
-                  <span className="strong break">{run.host}</span>
-                  <span className="cmmc-id">View checks and commands</span>
+                <Link to={`/evidence/${run.id}`} className="req-link mono break" title="View checks and commands">
+                  {run.host}
                 </Link>
               </td>
               <td className="collector-cell">
-                <span className="collector-tag"><Icon name={run.collector === 'm365' ? 'shield' : 'terminal'} size={15} />
+                <span className="collector-tag"><Icon name={run.collector === 'm365' ? 'cloud' : 'monitor'} size={14} />
                   {COLLECTORS[run.collector] || run.collector}</span>
               </td>
               <td className="date-cell" data-label="Collected">{formatDate(run.collected_at)}</td>
@@ -106,8 +105,9 @@ function UploadCard({ assessmentId, onUploaded }) {
   }
 
   return (
-    <section className="card upload-card" aria-labelledby="upload-title">
-      <h2 id="upload-title">Upload collector output</h2>
+    <section className="panel upload-card" aria-labelledby="upload-title">
+      <div className="panel-head"><h2 id="upload-title">Upload collector output</h2></div>
+      <div className="panel-body stack-sm">
       <p className="muted small">
         The JSON file a collector wrote. It is checked, stored with this assessment and turned into objective
         findings at once. Findings inform the assessor; they never change an answer.
@@ -120,7 +120,7 @@ function UploadCard({ assessmentId, onUploaded }) {
         </label>
         <div className="form-actions">
           <button className="btn primary small" aria-disabled={!file || busy ? 'true' : undefined}>
-            <Icon name="upload" size={15} /> {busy ? 'Uploading…' : 'Upload'}
+            <Icon name="upload" size={14} /> {busy ? 'Uploading…' : 'Upload'}
           </button>
           <span role="status" className="form-msg ok">
             {result && `Uploaded ${result.host}: ${result.counts.met} met, ${result.counts.not_met} not met, `
@@ -131,29 +131,31 @@ function UploadCard({ assessmentId, onUploaded }) {
       {error && <div className="state error upload-error" role="alert"><strong>Upload refused.</strong> {error}</div>}
       {result && (
         <Link className="btn secondary small" to={`/evidence/${result.id}`}>
-          View the checks <Icon name="arrow" size={15} />
+          View the checks <Icon name="arrow" size={14} />
         </Link>
       )}
+      </div>
     </section>
   )
 }
 
 function HowTo({ guest }) {
   return (
-    <section className="card howto" aria-labelledby="howto-title">
-      <div className="card-head">
+    <section className="panel howto" aria-labelledby="howto-title">
+      <div className="panel-head">
         <h2 id="howto-title">How to run the collectors</h2>
         <a href={COLLECTORS_URL} target="_blank" rel="noreferrer" className="small">
-          Scripts on GitHub<span className="sr-only"> (opens in a new tab)</span> <Icon name="external" size={14} />
+          Scripts on GitHub<span className="sr-only"> (opens in a new tab)</span> <Icon name="external" size={13} />
         </a>
       </div>
-      <p className="muted small">
+      <div className="panel-body">
+      <p className="muted small howto-lead">
         Both collectors are read-only PowerShell scripts. They never change a setting, never ask the app for credentials,
         and record the exact command behind every check. A check they cannot read is marked unavailable and decides nothing.
       </p>
       <div className="howto-grid">
         <div className="howto-col">
-          <h3><Icon name="terminal" size={16} /> Windows computer</h3>
+          <h3><Icon name="monitor" size={16} /> Windows computer</h3>
           <ol className="howto-steps">
             <li>Download <code>collect-windows.ps1</code> and open PowerShell <strong>as administrator</strong> in that folder.</li>
             <li>
@@ -168,7 +170,7 @@ function HowTo({ guest }) {
           <p className="small muted">Works on Windows PowerShell 5.1 and PowerShell 7. Without administrator rights some checks are unavailable.</p>
         </div>
         <div className="howto-col">
-          <h3><Icon name="shield" size={16} /> Microsoft 365 / Entra ID tenant</h3>
+          <h3><Icon name="cloud" size={16} /> Microsoft 365 / Entra ID tenant</h3>
           <ol className="howto-steps">
             <li>
               Install the Microsoft Graph sign-in module once:
@@ -193,6 +195,7 @@ function HowTo({ guest }) {
       <p className="small howto-last">
         <strong>Then</strong> {guest ? 'an admin uploads the JSON file it wrote on this page.' : 'upload the JSON file it wrote with the form on this page.'}
       </p>
+      </div>
     </section>
   )
 }
@@ -211,9 +214,8 @@ export default function Evidence() {
     <div className="page">
       <header className="page-head">
         <div>
-          <p className="eyebrow">Automated evidence</p>
           <h1 tabIndex={-1}>Evidence</h1>
-          <p className="muted">
+          <p className="page-sub">
             Collector runs for {assessment?.title || 'this assessment'}. Findings inform objectives; the
             assessor&apos;s answer always decides the score.
           </p>
