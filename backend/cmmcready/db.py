@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import sqlite3
+import time
 from contextlib import nullcontext
 from datetime import datetime, timezone
 from pathlib import Path
@@ -119,9 +120,25 @@ def connect(path: Path | None = None) -> sqlite3.Connection:
     conn = sqlite3.connect(path, timeout=BUSY_TIMEOUT_SECONDS, check_same_thread=False)
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA foreign_keys = ON")
-    conn.execute("PRAGMA journal_mode = WAL")
+    _use_wal(conn)
     conn.executescript(SCHEMA)
     return conn
+
+
+def _use_wal(conn: sqlite3.Connection) -> None:
+    """Switch a new database to WAL. The switch needs an exclusive lock and SQLite does not
+    wait for it, so concurrent first connections retry briefly instead of failing with
+    "database is locked". WAL is persistent: later connections see it already set."""
+    deadline = time.monotonic() + BUSY_TIMEOUT_SECONDS
+    while True:
+        try:
+            if conn.execute("PRAGMA journal_mode").fetchone()[0].lower() != "wal":
+                conn.execute("PRAGMA journal_mode = WAL")
+            return
+        except sqlite3.OperationalError as exc:
+            if "locked" not in str(exc) or time.monotonic() > deadline:
+                raise
+            time.sleep(0.02)
 
 
 # -- organization and assessments ----------------------------------------------------------

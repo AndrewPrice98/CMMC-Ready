@@ -126,3 +126,29 @@ def test_partial_choice_validated_and_scored(conn, assessment):
 def test_asset_category_check_constraint(conn, assessment):
     with pytest.raises(sqlite3.IntegrityError):
         conn.execute("INSERT INTO assets (org_id, name, category) VALUES (1, 'x', 'bogus')")
+
+
+def test_concurrent_first_connections_to_a_new_database(tmp_path):
+    """The dashboard's first page load opens several connections at once to a database
+    that does not exist yet; switching it to WAL must not fail with "database is locked"."""
+    import threading
+
+    for round_ in range(5):
+        path = tmp_path / f"fresh-{round_}.db"
+        errors = []
+
+        def open_it():
+            try:
+                db.connect(path).close()
+            except Exception as exc:  # noqa: BLE001 - the test reports any failure
+                errors.append(repr(exc))
+
+        threads = [threading.Thread(target=open_it) for _ in range(8)]
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join()
+        assert errors == []
+        check = db.connect(path)
+        assert check.execute("PRAGMA journal_mode").fetchone()[0] == "wal"
+        check.close()
