@@ -70,7 +70,8 @@ def _partial_points(
     return req.weight, None
 
 
-def _poam_eligible(req: Requirement, choice: str | None) -> bool:
+def poam_rule_allows(req: Requirement, choice: str | None) -> bool:
+    """Whether 32 CFR 170.21 lets this requirement be on a POA&M with this partial choice."""
     if not req.poam_allowed:
         return False
     if req.id == FIPS_REQUIREMENT:
@@ -103,7 +104,7 @@ def score(
                 "Not assessed" if status == "not_assessed" else "Not met"
             ) + (f" (partial: {choice})" if choice else "")
             deductions.append(Deduction(req.id, points, reason))
-        if _poam_eligible(req, choice):
+        if poam_rule_allows(req, choice):
             eligible_ids.append(req.id)
         else:
             all_gaps_eligible = False

@@ -22,7 +22,7 @@ from pydantic import BaseModel, Field
 from . import __version__, auth, config, db, demo, exports, poam
 from .catalog import Requirement, load_catalog
 from .evidence.engine import DEFAULT_ODP, ODP_DESCRIPTIONS
-from .scoring import ScoreResult, requirement_status, top_gaps
+from .scoring import ScoreResult, poam_rule_allows, requirement_status, top_gaps
 from .uploads import EVIDENCE_MAX_LINE_CHARS, UploadError, decode_json_upload
 
 
@@ -160,12 +160,19 @@ class State:
         self.lost = {d.req_id: d.points for d in self.result.deductions}
 
 
-def _conflict_objectives(conn: sqlite3.Connection, assessment_id: int) -> set[str]:
+def _evidence_objectives(conn: sqlite3.Connection, assessment_id: int) -> set[str]:
+    """Objectives that have at least one automated finding."""
     rows = conn.execute(
         "SELECT DISTINCT f.objective_id FROM findings f JOIN evidence e ON e.id = f.evidence_id "
         "WHERE e.assessment_id = ?", (assessment_id,)).fetchall()
-    return {r["objective_id"] for r in rows
-            if db.objective_view(conn, assessment_id, r["objective_id"])["conflict"]}
+    return {r["objective_id"] for r in rows}
+
+
+def _conflict_objectives(conn: sqlite3.Connection, assessment_id: int,
+                         with_evidence: set[str] | None = None) -> set[str]:
+    if with_evidence is None:
+        with_evidence = _evidence_objectives(conn, assessment_id)
+    return {o for o in with_evidence if db.objective_view(conn, assessment_id, o)["conflict"]}
 
 
 # -- public endpoints -------------------------------------------------------------------------
@@ -473,6 +480,8 @@ def list_requirements(
     st = State(conn, assessment)
     needle = q.lower() if q else None  # matched literally, in memory: no SQL involved
     poam_reqs = {i["req_id"] for i in db.list_poam_items(conn, assessment["id"])}
+    with_evidence = _evidence_objectives(conn, assessment["id"])
+    conflicts = _conflict_objectives(conn, assessment["id"], with_evidence)
     out = []
     for r in st.catalog.requirements:
         if family and r.family != family:
@@ -486,7 +495,9 @@ def list_requirements(
                     "basic": r.basic, "text": r.text, "weight": r.weight,
                     "status": st.status[r.id], "points_lost": st.lost.get(r.id, 0),
                     "objectives": len(r.objectives), "answered": answered,
-                    "has_poam": r.id in poam_reqs})
+                    "has_poam": r.id in poam_reqs,
+                    "evidence": sum(1 for o in r.objectives if o.id in with_evidence),
+                    "conflicts": sum(1 for o in r.objectives if o.id in conflicts)})
     return {"total": len(out), "items": out}
 
 
@@ -505,6 +516,11 @@ def get_requirement(assessment: Assessment, req: Req, conn: Conn):
         "points_lost": st.lost.get(req.id, 0),
         "partial_choice": assessment["partial_choices"].get(req.id),
         "poam_eligible": req.id in st.result.poam_eligible_ids,
+        # Why this requirement may not be on a POA&M with the current partial choice
+        # (32 CFR 170.21); None when the rule allows it.
+        "poam_rule_reason": (None if poam_rule_allows(req, assessment["partial_choices"].get(req.id))
+                             else poam.ineligible_reason(st.catalog, req.id,
+                                                         assessment["partial_choices"].get(req.id))),
         "objectives": objectives,
         "poam": item,
     }

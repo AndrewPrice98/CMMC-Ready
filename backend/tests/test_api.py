@@ -111,6 +111,27 @@ def test_requirement_detail(client):
     assert "status" in body and "poam" in body
 
 
+def test_requirement_list_counts_evidence_and_conflicts(client):
+    items = client.get(a("/requirements")).json()["items"]
+    assert all(isinstance(i["evidence"], int) and 0 <= i["conflicts"] <= i["evidence"] for i in items)
+    assert sum(i["conflicts"] for i in items) == client.get(a("/overview")).json()["conflicts_count"]
+    mfa = next(i for i in items if i["id"] == "3.5.3")
+    detail = client.get(a("/requirements/3.5.3")).json()
+    assert mfa["evidence"] == sum(1 for o in detail["objectives"] if o["findings"])
+
+
+def test_requirement_detail_poam_rule_reason(client):
+    assert client.get(a("/requirements/3.1.3")).json()["poam_rule_reason"] is None
+    heavy = client.get(a("/requirements/3.8.8")).json()["poam_rule_reason"]
+    assert "170.21" in heavy and "weighted 3" in heavy
+    named = client.get(a("/requirements/3.12.4")).json()["poam_rule_reason"]
+    assert "excluded from POA&Ms by name" in named
+    # 3.13.11 is allowed only at the not-FIPS-validated partial choice.
+    assert "FIPS" in client.get(a("/requirements/3.13.11")).json()["poam_rule_reason"]
+    assert client.put(a("/partial/3.13.11"), json={"choice": "encryption_not_fips"}).status_code == 200
+    assert client.get(a("/requirements/3.13.11")).json()["poam_rule_reason"] is None
+
+
 def test_unknown_ids_are_404(client):
     assert client.get(a("/requirements/9.9.9")).status_code == 404
     assert client.get("/api/assessments/999/overview").status_code == 404
