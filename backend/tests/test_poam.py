@@ -32,6 +32,25 @@ def test_poam_respects_rules():
     assert drafts["3.13.11"].allowed is True   # 3-point partial
 
 
+def test_missing_ssp_gets_a_not_allowed_draft():
+    catalog = load_catalog()
+    # 3.12.4 unanswered: the SSP is missing, though no points are deducted for it.
+    answers = {o.id: "met" for r in catalog.requirements for o in r.objectives}
+    for o in catalog.by_id("3.12.4").objectives:
+        answers[o.id] = "unanswered"
+    result = score(catalog, answers, {})
+    assert result.ssp_missing and not result.deductions
+    drafts = {d.req_id: d for d in generate_poam(catalog, result, [], {}, "2026-10-12")}
+    d = drafts["3.12.4"]
+    assert d.allowed is False and d.points == 0 and "170.21(a)(2)" in d.reason
+    assert "system security plan" in d.reason
+    # An existing item suppresses the draft, as for any other requirement.
+    assert not [x for x in generate_poam(catalog, result, ["3.12.4"], {}, "2026-10-12")]
+    # Once the plan is in place there is no draft.
+    answers.update({o.id: "met" for o in catalog.by_id("3.12.4").objectives})
+    assert not generate_poam(catalog, score(catalog, answers, {}), [], {}, "2026-10-12")
+
+
 def test_fips_without_partial_not_allowed():
     d = _drafts(["3.13.11"])["3.13.11"]
     assert d.allowed is False and d.points == 5 and "170.21" in d.reason
@@ -41,7 +60,8 @@ def test_existing_items_skipped_and_unassessed_ignored():
     catalog = load_catalog()
     result = score(catalog, _all_unmet(catalog, ["3.1.3"]), {})
     out = generate_poam(catalog, result, [{"req_id": "3.1.3"}], {}, "2026-10-12")
-    assert out == []   # everything else is merely unassessed
+    # Everything else is merely unassessed; only the missing SSP (3.12.4) is a finding.
+    assert [d.req_id for d in out] == ["3.12.4"]
 
 
 def test_due_date_180():

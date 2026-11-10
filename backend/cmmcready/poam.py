@@ -12,7 +12,7 @@ from dataclasses import dataclass, field
 from datetime import date, timedelta
 
 from .catalog import Catalog
-from .scoring import FIPS_PARTIAL_CHOICE, FIPS_REQUIREMENT, ScoreResult
+from .scoring import FIPS_PARTIAL_CHOICE, FIPS_REQUIREMENT, SSP_REQUIREMENT, ScoreResult
 
 CLOSEOUT_DAYS = 180
 POAM_STATUSES = ("open", "in_progress", "closed")
@@ -53,6 +53,10 @@ def _existing_ids(existing: list) -> set[str]:
 
 def ineligible_reason(catalog: Catalog, req_id: str, choice: str | None) -> str:
     req = catalog.by_id(req_id)
+    if req_id == SSP_REQUIREMENT:
+        return (f"Not eligible under {CITATION}: {req_id} is excluded from POA&Ms by name. The "
+                "system security plan must be in place before an assessment can be submitted; it "
+                "carries no points and can never be deferred to a POA&M.")
     if req_id == FIPS_REQUIREMENT and req.poam_allowed:
         return (f"Not eligible under {CITATION}: {req_id} may be on a POA&M only when "
                 "encryption is used but is not FIPS-validated (a 3-point deduction).")
@@ -81,7 +85,18 @@ def generate_poam(
     drafts: list[PoamDraft] = []
     for req in catalog.requirements:
         gap = gaps.get(req.id)
-        if gap is None or req.id in have:
+        if req.id in have:
+            continue
+        if gap is None and req.id == SSP_REQUIREMENT and result.ssp_missing:
+            # No points are deducted for the missing plan, but it is still a finding, and
+            # the one that may never be on a POA&M: show it in the "Not allowed" list.
+            drafts.append(PoamDraft(
+                req_id=req.id,
+                weakness=f"Requirement {req.id} is not met: {req.text}",
+                due_date=due, points=0, allowed=False,
+                reason=ineligible_reason(catalog, req.id, None)))
+            continue
+        if gap is None:
             continue
         allowed = req.id in eligible
         if req.id == FIPS_REQUIREMENT:  # defensive: never rely on the id list alone
