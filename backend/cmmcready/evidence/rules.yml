@@ -88,6 +88,7 @@ windows:
           rationale: A default inbound action of Block denies network traffic unless a rule allows it.
           met_if: {path: "profiles[].default_inbound_action", eq: "Block"}
           unmet_if: {path: "profiles[].default_inbound_action", eq: "Allow", quant: any}
+          met_result: not_assessed
 
     screen_lock:
       rules:
@@ -147,6 +148,7 @@ windows:
             any:
               - {path: deny_connections, eq: true}
               - {path: nla_required, eq: true}
+          met_result: not_assessed
         - id: encrypted
           objectives: ["3.1.13[b]"]
           rationale: When Remote Desktop is on, forcing the TLS security layer protects session confidentiality.
@@ -158,6 +160,7 @@ windows:
             all:
               - {path: deny_connections, eq: false}
               - {path: security_layer, eq: 0}
+          met_result: not_assessed
 
     defender:
       rules:

@@ -14,6 +14,7 @@ from __future__ import annotations
 import argparse
 import copy
 import json
+import re
 import sys
 from datetime import date, timedelta
 from pathlib import Path
@@ -70,6 +71,19 @@ ASSETS = [
 
 NA_REQS = set(NA_JUSTIFICATIONS)  # N/A in both assessments
 PARTIAL_CURRENT = {"3.5.3": "mfa_remote_privileged_only"}
+
+
+COLLECTOR = BACKEND.parent / "collectors" / "collect-windows.ps1"
+
+
+def collector_commands() -> dict[str, str]:
+    """The command each check records, read from collect-windows.ps1 so the demo matches it."""
+    text = COLLECTOR.read_text(encoding="utf-8")
+    secedit = re.search(r"^\$secedit = '(.*)'$", text, re.M).group(1)
+    out = {}
+    for m in re.finditer(r"^Invoke-Check '(\w+)' (\$secedit|'(?:[^']|'')*')", text, re.M):
+        out[m.group(1)] = secedit if m.group(2) == "$secedit" else m.group(2)[1:-1].replace("''", "'")
+    return out
 
 
 def _stamp(d: date, hour: int = 14, minute: int = 0) -> str:
@@ -133,6 +147,11 @@ def _load(name: str) -> dict:
 def _evidence() -> list[dict]:
     base = _load("windows-compliant.json")
     broken = _load("windows-noncompliant.json")
+
+    commands = collector_commands()
+    for data in (base, broken):
+        for check_id, entry in data["checks"].items():
+            entry["command"] = commands[check_id]
 
     eng = copy.deepcopy(base)
     eng["host"]["name"] = "ENG-WS-01"

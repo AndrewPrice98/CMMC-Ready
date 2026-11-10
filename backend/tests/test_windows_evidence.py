@@ -43,7 +43,7 @@ def decisive(findings):
     return [f for f in findings if f.result != "not_assessed" or f.observed is None]
 
 
-SUPPORTING = {"3.13.1[f]", "3.13.15[a]", "3.4.7[l]", "3.1.1[d]", "3.14.1[f]", "3.13.11[a]", "3.1.5[a]"}
+SUPPORTING = {"3.13.1[f]", "3.13.6[a]", "3.1.12[c]", "3.1.13[b]", "3.13.15[a]", "3.4.7[l]", "3.1.1[d]", "3.14.1[f]", "3.13.11[a]", "3.1.5[a]"}
 
 
 def test_compliant_fixture_all_met():
@@ -129,7 +129,10 @@ def test_unavailable_checks_do_not_decide():
     assert got["3.3.1[c]"] == "not_assessed"
     # An unreadable NLA value leaves RDP control undecided; readable checks still count.
     assert got["3.1.12[c]"] == "not_assessed"
-    assert got["3.1.13[b]"] == "met"
+    # A readable TLS security layer is supporting evidence only.
+    assert got["3.1.13[b]"] == "not_assessed"
+    rdp_enc = [f for f in findings if f.objective_id == "3.1.13[b]"][0]
+    assert rdp_enc.detail.startswith("Supporting evidence: observed")
     assert got["3.1.9[b]"] == "met"
     unavailable_detail = [f for f in findings if f.check_id == "bitlocker"][0].detail
     assert "Get-BitLockerVolume" in unavailable_detail
@@ -308,3 +311,17 @@ def test_collect_parse_min_ok(capsys):
     assert main(["collect-parse", "windows", path, "--min-ok", "8"]) == 0
     assert main(["collect-parse", "windows", path, "--min-ok", "13"]) == 1
     assert "at least 13" in capsys.readouterr().err
+
+
+def test_single_host_boundary_and_remote_access_rules_are_supporting_only():
+    """One host's firewall or RDP setting never decides a system-level objective."""
+    from cmmcready.evidence.engine import load_rules
+
+    guarded = ("3.13.1[", "3.13.6[", "3.1.12[", "3.1.13[")
+    seen = []
+    for rules in load_rules().values():
+        for rule in rules:
+            if any(o.startswith(guarded) for o in rule.objectives):
+                seen.append(rule.id)
+                assert rule.met_result == "not_assessed", rule.id
+    assert {"enabled", "default_deny", "controlled", "encrypted"} <= set(seen)

@@ -24,8 +24,8 @@ A check the collector could not read (no administrator rights, a missing module,
 | 3.1.10[a] | the period of inactivity after which the system initiates a session lock is defined. | `screen_lock` | `inactivity_lock` | Met or Not met |
 | 3.1.10[b] | access to the system and viewing of data is prevented by initiating a session lock after the defined period of inactivity. | `screen_lock` | `inactivity_lock` | Met or Not met |
 | 3.1.10[c] | previously visible information is concealed via a pattern-hiding display after the defined period of inactivity. | `screen_lock` | `inactivity_lock` | Met or Not met |
-| 3.1.12[c] | remote access sessions are controlled. | `rdp` | `controlled` | Met or Not met |
-| 3.1.13[b] | cryptographic mechanisms to protect the confidentiality of remote access sessions are implemented. | `rdp` | `encrypted` | Met or Not met |
+| 3.1.12[c] | remote access sessions are controlled. | `rdp` | `controlled` | Not met only |
+| 3.1.13[b] | cryptographic mechanisms to protect the confidentiality of remote access sessions are implemented. | `rdp` | `encrypted` | Not met only |
 | 3.3.1[c] | audit records are created (generated). | `audit_policy` | `core_events` | Met or Not met |
 | 3.3.1[f] | audit records are retained as defined. | `event_log_retention` | `retention` | Met or Not met |
 | 3.4.7[l] | the use of nonessential protocols is restricted, disabled, or prevented as defined. | `smb1` | `disabled` | Not met only |
@@ -37,7 +37,7 @@ A check the collector could not read (no administrator rights, a missing module,
 | 3.8.7[a] | the use of removable media on system components is controlled. | `autoplay` | `all_drives` | Met only |
 | 3.8.7[a] | the use of removable media on system components is controlled. | `usb_storage` | `blocked` | Met only |
 | 3.13.1[f] | communications are controlled at key internal boundaries. | `firewall_profiles` | `enabled` | Not met only |
-| 3.13.6[a] | network communications traffic is denied by default. | `firewall_profiles` | `default_deny` | Met or Not met |
+| 3.13.6[a] | network communications traffic is denied by default. | `firewall_profiles` | `default_deny` | Not met only |
 | 3.13.11[a] | FIPS-validated cryptography is employed to protect the confidentiality of CUI. | `fips_mode` | `enabled` | Supporting evidence |
 | 3.13.15[a] | the authenticity of communications sessions is protected. | `smb_signing` | `required` | Not met only |
 | 3.13.16[a] | the confidentiality of CUI at rest is protected. | `bitlocker` | `fixed_volumes` | Met or Not met |

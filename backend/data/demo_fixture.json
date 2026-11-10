@@ -4616,7 +4616,7 @@
          "ClearTextPassword": 0
         },
         "reason": null,
-        "command": "secedit /export /cfg \"$env:TEMP\\cmmcready-<guid>.inf\" /areas SECURITYPOLICY"
+        "command": "secedit /export /cfg \"<temp file in $env:TEMP>\" /areas SECURITYPOLICY"
        },
        "lockout_policy": {
         "status": "ok",
@@ -4626,7 +4626,7 @@
          "LockoutDuration": 15
         },
         "reason": null,
-        "command": "secedit /export /cfg \"$env:TEMP\\cmmcready-<guid>.inf\" /areas SECURITYPOLICY"
+        "command": "secedit /export /cfg \"<temp file in $env:TEMP>\" /areas SECURITYPOLICY"
        },
        "audit_policy": {
         "status": "ok",
@@ -4706,7 +4706,7 @@
          ]
         },
         "reason": null,
-        "command": "Get-BitLockerVolume"
+        "command": "Get-BitLockerVolume; Get-CimInstance Win32_LogicalDisk -Filter \"DriveType=3\""
        },
        "firewall_profiles": {
         "status": "ok",
@@ -4730,7 +4730,7 @@
          ]
         },
         "reason": null,
-        "command": "Get-NetFirewallProfile"
+        "command": "Get-NetFirewallProfile -PolicyStore ActiveStore"
        },
        "screen_lock": {
         "status": "ok",
@@ -4741,7 +4741,7 @@
          "screensaver_secure": null
         },
         "reason": null,
-        "command": "Get-ItemProperty HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System; Get-ItemProperty HKCU:\\Software\\Policies\\Microsoft\\Windows\\Control Panel\\Desktop"
+        "command": "registry: HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System InactivityTimeoutSecs; screen saver ScreenSaveActive, ScreenSaveTimeOut, ScreenSaverIsSecure from HKCU\\Software\\Policies\\Microsoft\\Windows\\Control Panel\\Desktop, else HKCU\\Control Panel\\Desktop (the account running the collector)"
        },
        "smb_signing": {
         "status": "ok",
@@ -4789,7 +4789,7 @@
          "min_encryption_level": 3
         },
         "reason": null,
-        "command": "Get-ItemProperty HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Terminal Server; Get-CimInstance Win32_TSGeneralSetting"
+        "command": "registry: HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services (policy) then HKLM\\SYSTEM\\CurrentControlSet\\Control\\Terminal Server (fDenyTSConnections, WinStations\\RDP-Tcp); Get-CimInstance Win32_TSGeneralSetting (NLA)"
        },
        "defender": {
         "status": "ok",
@@ -4809,7 +4809,7 @@
          "no_drive_type_auto_run": 255
         },
         "reason": null,
-        "command": "Get-ItemProperty HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer"
+        "command": "registry: HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer NoDriveTypeAutoRun"
        },
        "usb_storage": {
         "status": "ok",
@@ -4817,7 +4817,7 @@
          "usbstor_start": 4
         },
         "reason": null,
-        "command": "Get-ItemProperty HKLM:\\SYSTEM\\CurrentControlSet\\Services\\USBSTOR"
+        "command": "registry: HKLM\\SYSTEM\\CurrentControlSet\\Services\\USBSTOR Start"
        },
        "patch_level": {
         "status": "ok",
@@ -4834,7 +4834,7 @@
          "enabled": true
         },
         "reason": null,
-        "command": "Get-ItemProperty HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Lsa\\FipsAlgorithmPolicy"
+        "command": "registry: HKLM\\SYSTEM\\CurrentControlSet\\Control\\Lsa\\FipsAlgorithmPolicy Enabled"
        },
        "logon_banner": {
         "status": "ok",
@@ -4843,7 +4843,7 @@
          "text": "This system is for authorized use only. Activity may be monitored and recorded."
         },
         "reason": null,
-        "command": "Get-ItemProperty HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System"
+        "command": "registry: HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System legalnoticecaption, legalnoticetext"
        },
        "guest_account": {
         "status": "ok",
@@ -4851,7 +4851,7 @@
          "enabled": false
         },
         "reason": null,
-        "command": "Get-CimInstance Win32_UserAccount (SID ending -501)"
+        "command": "Get-CimInstance Win32_UserAccount -Filter \"LocalAccount=True AND SID LIKE '%-501'\""
        }
       }
      }
@@ -4884,7 +4884,7 @@
          "ClearTextPassword": 0
         },
         "reason": null,
-        "command": "secedit /export /cfg \"$env:TEMP\\cmmcready-<guid>.inf\" /areas SECURITYPOLICY"
+        "command": "secedit /export /cfg \"<temp file in $env:TEMP>\" /areas SECURITYPOLICY"
        },
        "lockout_policy": {
         "status": "ok",
@@ -4894,7 +4894,7 @@
          "LockoutDuration": 15
         },
         "reason": null,
-        "command": "secedit /export /cfg \"$env:TEMP\\cmmcready-<guid>.inf\" /areas SECURITYPOLICY"
+        "command": "secedit /export /cfg \"<temp file in $env:TEMP>\" /areas SECURITYPOLICY"
        },
        "audit_policy": {
         "status": "ok",
@@ -4974,7 +4974,7 @@
          ]
         },
         "reason": null,
-        "command": "Get-BitLockerVolume"
+        "command": "Get-BitLockerVolume; Get-CimInstance Win32_LogicalDisk -Filter \"DriveType=3\""
        },
        "firewall_profiles": {
         "status": "ok",
@@ -4998,7 +4998,7 @@
          ]
         },
         "reason": null,
-        "command": "Get-NetFirewallProfile"
+        "command": "Get-NetFirewallProfile -PolicyStore ActiveStore"
        },
        "screen_lock": {
         "status": "ok",
@@ -5009,7 +5009,7 @@
          "screensaver_secure": null
         },
         "reason": null,
-        "command": "Get-ItemProperty HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System; Get-ItemProperty HKCU:\\Software\\Policies\\Microsoft\\Windows\\Control Panel\\Desktop"
+        "command": "registry: HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System InactivityTimeoutSecs; screen saver ScreenSaveActive, ScreenSaveTimeOut, ScreenSaverIsSecure from HKCU\\Software\\Policies\\Microsoft\\Windows\\Control Panel\\Desktop, else HKCU\\Control Panel\\Desktop (the account running the collector)"
        },
        "smb_signing": {
         "status": "ok",
@@ -5057,7 +5057,7 @@
          "min_encryption_level": 3
         },
         "reason": null,
-        "command": "Get-ItemProperty HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Terminal Server; Get-CimInstance Win32_TSGeneralSetting"
+        "command": "registry: HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services (policy) then HKLM\\SYSTEM\\CurrentControlSet\\Control\\Terminal Server (fDenyTSConnections, WinStations\\RDP-Tcp); Get-CimInstance Win32_TSGeneralSetting (NLA)"
        },
        "defender": {
         "status": "ok",
@@ -5077,7 +5077,7 @@
          "no_drive_type_auto_run": 255
         },
         "reason": null,
-        "command": "Get-ItemProperty HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer"
+        "command": "registry: HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer NoDriveTypeAutoRun"
        },
        "usb_storage": {
         "status": "ok",
@@ -5085,7 +5085,7 @@
          "usbstor_start": 3
         },
         "reason": null,
-        "command": "Get-ItemProperty HKLM:\\SYSTEM\\CurrentControlSet\\Services\\USBSTOR"
+        "command": "registry: HKLM\\SYSTEM\\CurrentControlSet\\Services\\USBSTOR Start"
        },
        "patch_level": {
         "status": "ok",
@@ -5102,7 +5102,7 @@
          "enabled": true
         },
         "reason": null,
-        "command": "Get-ItemProperty HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Lsa\\FipsAlgorithmPolicy"
+        "command": "registry: HKLM\\SYSTEM\\CurrentControlSet\\Control\\Lsa\\FipsAlgorithmPolicy Enabled"
        },
        "logon_banner": {
         "status": "ok",
@@ -5111,7 +5111,7 @@
          "text": "This system is for authorized use only. Activity may be monitored and recorded."
         },
         "reason": null,
-        "command": "Get-ItemProperty HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System"
+        "command": "registry: HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System legalnoticecaption, legalnoticetext"
        },
        "guest_account": {
         "status": "ok",
@@ -5119,7 +5119,7 @@
          "enabled": false
         },
         "reason": null,
-        "command": "Get-CimInstance Win32_UserAccount (SID ending -501)"
+        "command": "Get-CimInstance Win32_UserAccount -Filter \"LocalAccount=True AND SID LIKE '%-501'\""
        }
       }
      }
